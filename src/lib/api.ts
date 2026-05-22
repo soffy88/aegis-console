@@ -43,7 +43,7 @@ export interface InstalledApp {
 export interface InstallRequest {
   app_name: string;
   app_version?: string;
-  install_dir?: string;
+  install_dir: string;
   image_to_pull?: string;
   health_check_container?: string;
   domain?: string;

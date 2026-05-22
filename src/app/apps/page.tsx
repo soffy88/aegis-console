@@ -2,12 +2,26 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
 import { api, InstalledApp } from "@/lib/api";
 import { Card } from "@/components/Card";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Plus, Trash2, RefreshCw } from "lucide-react";
 
-function InstallModal({ onClose }: { onClose: () => void }) {
+const installSchema = z.object({
+  app_name: z.string().min(1, "app_name is required"),
+  install_dir: z
+    .string()
+    .min(1, "install_dir is required")
+    .refine((v) => v.trim().length > 0, "install_dir cannot be whitespace only"),
+  domain: z.string().optional(),
+  domain_target_url: z.string().optional(),
+  register_domain: z.boolean().optional(),
+});
+
+type InstallFormValues = z.infer<typeof installSchema>;
+
+export function InstallModal({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient();
   const [form, setForm] = useState({
     app_name: "",
@@ -16,21 +30,41 @@ function InstallModal({ onClose }: { onClose: () => void }) {
     domain_target_url: "",
     register_domain: false,
   });
+  const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
 
   const mutation = useMutation({
-    mutationFn: () =>
+    mutationFn: (data: InstallFormValues) =>
       api.apps.install({
-        app_name: form.app_name,
-        install_dir: form.install_dir || undefined,
-        domain: form.domain || undefined,
-        domain_target_url: form.domain_target_url || undefined,
-        register_domain: form.register_domain,
+        app_name: data.app_name,
+        install_dir: data.install_dir,
+        domain: data.domain,
+        domain_target_url: data.domain_target_url,
+        register_domain: data.register_domain,
       }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["apps"] });
       onClose();
     },
   });
+
+  const handleSubmit = () => {
+    const result = installSchema.safeParse({
+      ...form,
+      domain: form.domain || undefined,
+      domain_target_url: form.domain_target_url || undefined,
+    });
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      for (const issue of result.error.issues) {
+        const key = String(issue.path[0]);
+        if (!errs[key]) errs[key] = issue.message;
+      }
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
+    mutation.mutate(result.data);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
@@ -45,16 +79,22 @@ function InstallModal({ onClose }: { onClose: () => void }) {
             onChange={(e) => setForm((f) => ({ ...f, app_name: e.target.value }))}
             placeholder="e.g. homeassistant"
           />
+          {errors.app_name && (
+            <p className="text-red-400 text-xs">{errors.app_name}</p>
+          )}
         </label>
 
         <label className="block space-y-1">
-          <span className="text-sm text-slate-400">Install dir</span>
+          <span className="text-sm text-slate-400">Install dir *</span>
           <input
             className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             value={form.install_dir}
             onChange={(e) => setForm((f) => ({ ...f, install_dir: e.target.value }))}
-            placeholder="/opt/apps/homeassistant"
+            placeholder="~/apps/{slug}"
           />
+          {errors.install_dir && (
+            <p className="text-red-400 text-xs">{errors.install_dir}</p>
+          )}
         </label>
 
         <label className="block space-y-1">
@@ -89,8 +129,8 @@ function InstallModal({ onClose }: { onClose: () => void }) {
             Cancel
           </button>
           <button
-            onClick={() => mutation.mutate()}
-            disabled={!form.app_name || mutation.isPending}
+            onClick={handleSubmit}
+            disabled={mutation.isPending}
             className="px-4 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {mutation.isPending ? "Installing…" : "Install"}
