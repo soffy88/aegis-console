@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@helios/blocks':
-        specifier: file:/home/soffy/projects/platform/packages/helios-blocks-1.3.0.tgz
-        version: file:../../platform/packages/helios-blocks-1.3.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(@types/three@0.184.1)(immer@11.1.8)(react-dom@19.2.6(react@19.2.6))(react-is@16.13.1)(react@19.2.6)(redux@5.0.1)
+        specifier: file:./packages/helios-blocks-1.3.0.tgz
+        version: file:packages/helios-blocks-1.3.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(@types/three@0.184.1)(immer@11.1.8)(react-dom@19.2.6(react@19.2.6))(react-is@16.13.1)(react@19.2.6)(redux@5.0.1)
       '@tanstack/react-query':
         specifier: ^5.100.11
         version: 5.100.11(react@19.2.6)
@@ -294,8 +294,8 @@ packages:
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
 
-  '@helios/blocks@file:../../platform/packages/helios-blocks-1.3.0.tgz':
-    resolution: {integrity: sha512-HvI4B6ZIbKjzc+sndYpjp4DoeFpMaU23sV7H9YgcZblE4mhOFaX1632qAHHmct6D4M3vwls+IsO+X9+Eban6IQ==, tarball: file:../../platform/packages/helios-blocks-1.3.0.tgz}
+  '@helios/blocks@file:packages/helios-blocks-1.3.0.tgz':
+    resolution: {integrity: sha512-HvI4B6ZIbKjzc+sndYpjp4DoeFpMaU23sV7H9YgcZblE4mhOFaX1632qAHHmct6D4M3vwls+IsO+X9+Eban6IQ==, tarball: file:packages/helios-blocks-1.3.0.tgz}
     version: 1.3.0
     engines: {node: '>=22'}
     peerDependencies:
@@ -1585,8 +1585,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  baseline-browser-mapping@2.10.31:
-    resolution: {integrity: sha512-MujYO3eP72uvmSE0i4wltsodRfIpZATP3jvzRNRGGxgzId7aVocVJJV3nf01qnzzKFGxQVC9bpWxl5cjxTr/7Q==}
+  baseline-browser-mapping@2.10.32:
+    resolution: {integrity: sha512-wbPvpyjJPC0zdfdKXxqEL3Ea+bOMD/87X4lftiJkkaBiuG6ALQy1SLmEd7BSmVCuwCQsBrCamgBoLyfFDD1EPg==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -3853,7 +3853,7 @@ snapshots:
 
   '@floating-ui/utils@0.2.11': {}
 
-  '@helios/blocks@file:../../platform/packages/helios-blocks-1.3.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(@types/three@0.184.1)(immer@11.1.8)(react-dom@19.2.6(react@19.2.6))(react-is@16.13.1)(react@19.2.6)(redux@5.0.1)':
+  '@helios/blocks@file:packages/helios-blocks-1.3.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(@types/three@0.184.1)(immer@11.1.8)(react-dom@19.2.6(react@19.2.6))(react-is@16.13.1)(react@19.2.6)(redux@5.0.1)':
     dependencies:
       '@radix-ui/react-accordion': 1.2.12(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@radix-ui/react-dialog': 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -5111,7 +5111,7 @@ snapshots:
   base64-js@1.5.1:
     optional: true
 
-  baseline-browser-mapping@2.10.31: {}
+  baseline-browser-mapping@2.10.32: {}
 
   bidi-js@1.0.3:
     dependencies:
@@ -5128,7 +5128,7 @@ snapshots:
 
   browserslist@4.28.2:
     dependencies:
-      baseline-browser-mapping: 2.10.31
+      baseline-browser-mapping: 2.10.32
       caniuse-lite: 1.0.30001793
       electron-to-chromium: 1.5.361
       node-releases: 2.0.46
@@ -6596,7 +6596,7 @@ snapshots:
     dependencies:
       '@next/env': 16.2.6
       '@swc/helpers': 0.5.15
-      baseline-browser-mapping: 2.10.31
+      baseline-browser-mapping: 2.10.32
       caniuse-lite: 1.0.30001793
       postcss: 8.4.31
       react: 19.2.6

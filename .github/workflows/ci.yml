@@ -7,40 +7,33 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    runs-on: ubuntu-22.04
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: "20"
-          cache: npm
+          version: 10
 
-      - name: Set up Python (for pre-commit)
-        uses: actions/setup-python@v5
+      - uses: actions/setup-node@v4
         with:
-          python-version: "3.11"
+          node-version: '22'
+          cache: 'pnpm'
 
-      - name: Install Python tools
-        run: pip install pre-commit
-
-      - name: Install Node dependencies
-        run: npm ci
-
-      - name: pre-commit
-        run: pre-commit run --all-files
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Type check
-        run: npm run type-check
+        run: pnpm typecheck
 
       - name: Lint
-        run: npm run lint
+        run: pnpm lint
 
       - name: Test
-        run: npm test
+        run: pnpm test
 
       - name: Build
-        run: npm run build
+        run: pnpm build

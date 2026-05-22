@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+# Keep committed tgz packages (e.g. @helios/blocks)
+!packages/*.tgz
 /.pnp
 .pnp.js
 
