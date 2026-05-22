@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Providers } from "./providers";
+import { AppFrame } from "@/components/AppFrame";
 
 export const metadata: Metadata = {
   title: "Aegis Console",
@@ -13,7 +15,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Providers>
+          <AppFrame>{children}</AppFrame>
+        </Providers>
+      </body>
     </html>
   );
 }
