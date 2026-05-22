@@ -22,4 +22,4 @@ pnpm test
 
 ## License
 
-Apache 2.0. See main repo for full license + business model.
+Apache 2.0. See [main repo](https://github.com/soffy88/aegis) for full license + business model.
