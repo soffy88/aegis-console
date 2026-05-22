@@ -17,8 +17,8 @@ const NAV_ITEMS = [
 function Sidebar() {
   const pathname = usePathname();
   return (
-    <nav className="flex flex-col gap-1 p-4">
-      <p className="mb-3 text-xs font-semibold uppercase tracking-wider opacity-50">
+    <nav className="flex flex-col gap-1 px-3 py-4">
+      <p className="mb-3 pl-1 text-xs font-semibold uppercase tracking-wider opacity-50">
         Aegis
       </p>
       {NAV_ITEMS.map(({ href, label }) => (
@@ -44,7 +44,7 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
     <ODashboardLayout
       sidebarCollapsible
       defaultSidebarOpen
-      sidebarWidth="220px"
+      sidebarWidth="240px"
       sidebar={<Sidebar />}
       main={<main className="p-6">{children}</main>}
     />
