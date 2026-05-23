@@ -23,14 +23,8 @@ function wrapper({ children }: { children: React.ReactNode }) {
   return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
 }
 
-describe("AppsPage", () => {
-  it("shows loading state initially", () => {
-    vi.mocked(api.aegisFetch).mockReturnValue(new Promise(() => {}));
-    render(<AppsPage />, { wrapper });
-    expect(document.querySelector("[data-loading]") ?? document.body).toBeTruthy();
-  });
-
-  it("renders app rows after fetch", async () => {
+describe("AppsPage (card grid)", () => {
+  it("renders app cards after fetch", async () => {
     vi.mocked(api.aegisFetch).mockResolvedValue(mockApps);
     render(<AppsPage />, { wrapper });
     await waitFor(() => {
@@ -42,5 +36,24 @@ describe("AppsPage", () => {
     vi.mocked(api.aegisFetch).mockResolvedValue([]);
     render(<AppsPage />, { wrapper });
     expect(screen.getByRole("link", { name: /install app/i })).toBeInTheDocument();
+  });
+
+  it("renders action buttons for running app", async () => {
+    vi.mocked(api.aegisFetch).mockResolvedValue(mockApps);
+    render(<AppsPage />, { wrapper });
+    await waitFor(() => {
+      expect(screen.getByText("start")).toBeInTheDocument();
+      expect(screen.getByText("stop")).toBeInTheDocument();
+      expect(screen.getByText("restart")).toBeInTheDocument();
+    });
+  });
+
+  it("links to app detail page", async () => {
+    vi.mocked(api.aegisFetch).mockResolvedValue(mockApps);
+    render(<AppsPage />, { wrapper });
+    await waitFor(() => {
+      const link = screen.getByText("my-app").closest("a");
+      expect(link).toHaveAttribute("href", "/apps/app-1");
+    });
   });
 });

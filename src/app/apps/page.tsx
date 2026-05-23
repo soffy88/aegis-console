@@ -2,35 +2,87 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ODataTable, OStatusBadge } from "@helios/blocks";
-import type { ODataTableData } from "@helios/blocks";
+import { OStatusBadge } from "@helios/blocks";
 import type { App } from "@/types/aegis";
 import { aegisFetch } from "@/lib/api";
+import { useRef } from "react";
 
-type ColDef<T> = ODataTableData<T>["columns"][number];
+interface ContainerStats {
+  container: string;
+  cpu_pct: number;
+  mem_mb: number;
+  mem_limit_mb: number;
+  net_rx_kb: number;
+  net_tx_kb: number;
+}
 
-const columns: ColDef<App>[] = [
-  {
-    accessorKey: "app_name",
-    header: "Name",
-    cell: ({ row }) => (
-      <Link
-        href={`/apps/${row.original.id}`}
-        className="font-medium hover:underline"
-      >
-        {row.original.app_name}
-      </Link>
-    ),
-  },
-  { accessorKey: "app_version", header: "Version" },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => <OStatusBadge label={row.original.status} />,
-  },
-  { accessorKey: "install_dir", header: "Directory" },
-  { accessorKey: "domain", header: "Domain" },
-];
+function MiniSparkline({ points }: { points: number[] }) {
+  if (points.length < 2) return null;
+  const max = Math.max(...points, 1);
+  const w = 80, h = 24;
+  const d = points
+    .map((v, i) => `${(i / (points.length - 1)) * w},${h - (v / max) * h}`)
+    .join(" L ");
+  return (
+    <svg width={w} height={h} className="inline-block">
+      <polyline points={d} fill="none" stroke="currentColor" strokeWidth="1.5" className="text-blue-500" />
+    </svg>
+  );
+}
+
+function AppCard({ app }: { app: App }) {
+  const cpuHistory = useRef<number[]>([]);
+
+  const { data: stats } = useQuery<ContainerStats>({
+    queryKey: ["container-stats", app.app_name],
+    queryFn: () => aegisFetch<ContainerStats>(`/api/v1/docker/containers/${app.app_name}/stats`),
+    refetchInterval: 3000,
+    enabled: app.status === "running" || app.status === "completed",
+  });
+
+  if (stats) {
+    cpuHistory.current = [...cpuHistory.current.slice(-99), stats.cpu_pct];
+  }
+
+  return (
+    <div className="rounded-lg border p-4 space-y-3 hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between">
+        <Link href={`/apps/${app.id}`} className="font-semibold hover:underline">
+          {app.app_name}
+        </Link>
+        <OStatusBadge label={app.status} />
+      </div>
+
+      {stats && (
+        <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+          <div>CPU <span className="font-mono text-foreground">{stats.cpu_pct}%</span></div>
+          <div>Mem <span className="font-mono text-foreground">{stats.mem_mb}MB</span></div>
+          <div>Net <span className="font-mono text-foreground">{stats.net_rx_kb}kB</span></div>
+        </div>
+      )}
+
+      {cpuHistory.current.length > 1 && <MiniSparkline points={cpuHistory.current} />}
+
+      <div className="flex gap-2 text-xs">
+        <button
+          onClick={() => aegisFetch(`/api/v1/docker/containers/${app.app_name}/start`, { method: "POST" })}
+          className="rounded bg-green-100 px-2 py-1 hover:bg-green-200"
+        >start</button>
+        <button
+          onClick={() => aegisFetch(`/api/v1/docker/containers/${app.app_name}/stop`, { method: "POST" })}
+          className="rounded bg-yellow-100 px-2 py-1 hover:bg-yellow-200"
+        >stop</button>
+        <button
+          onClick={() => aegisFetch(`/api/v1/docker/containers/${app.app_name}/restart`, { method: "POST" })}
+          className="rounded bg-orange-100 px-2 py-1 hover:bg-orange-200"
+        >restart</button>
+        <Link href={`/apps/${app.id}`} className="rounded bg-gray-100 px-2 py-1 hover:bg-gray-200 ml-auto">
+          details
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 export default function AppsPage() {
   const { data, isLoading, error } = useQuery<App[]>({
@@ -49,13 +101,11 @@ export default function AppsPage() {
           Install App
         </Link>
       </div>
-      <ODataTable<App>
-        data={data ? { columns, rows: data } : null}
-        loading={isLoading}
-        error={error as Error | null}
-        empty={data?.length === 0}
-        sortable
-      />
+      {isLoading && <p>Loading…</p>}
+      {error && <p className="text-red-600">Error: {(error as Error).message}</p>}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {data?.map((app) => <AppCard key={app.id} app={app} />)}
+      </div>
     </div>
   );
 }
