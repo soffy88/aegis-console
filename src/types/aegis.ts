@@ -76,3 +76,18 @@ export interface HealthStatus {
   message: string;
   details?: Record<string, unknown>;
 }
+
+export interface Project {
+  name: string;
+  health_url: string;
+  status: "ok" | "degraded" | "down";
+  version: string | null;
+  timestamp: string;
+}
+
+export interface ProjectHealth {
+  status: "ok" | "degraded" | "down";
+  version: string | null;
+  checks: Record<string, unknown>;
+  timestamp: string;
+}

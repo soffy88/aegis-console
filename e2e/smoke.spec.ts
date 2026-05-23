@@ -39,3 +39,15 @@ test('alert ingest page loads', async ({ page }) => {
   await page.goto('/alerts/ingest');
   await expect(page.locator('nav')).toBeVisible();
 });
+
+test('projects page loads', async ({ page }) => {
+  await page.goto('/projects');
+  await expect(page.locator('nav')).toBeVisible();
+  await expect(page.locator('h1')).toContainText('Projects');
+});
+
+test('project detail page loads', async ({ page }) => {
+  await page.goto('/projects/test-project');
+  await expect(page.locator('nav')).toBeVisible();
+  await expect(page.locator('h1')).toContainText('Project:');
+});
