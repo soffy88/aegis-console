@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { href: "/", label: "Dashboard" },
   { href: "/apps", label: "Apps" },
   { href: "/apps/install", label: "Install App" },
+  { href: "/store", label: "App Store" },
   { href: "/projects", label: "Projects" },
   { href: "/containers", label: "Containers" },
   { href: "/events", label: "Events" },
