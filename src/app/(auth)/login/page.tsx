@@ -29,8 +29,17 @@ function LoginForm() {
 
       if (orgs.length > 0 && orgs[0]) {
         setActiveOrg(orgs[0].slug);
-        const next = searchParams.get("next") ?? `/orgs/${orgs[0].slug}`;
-        router.replace(next);
+        const defaultRedirect = `/orgs/${orgs[0].slug}`;
+        const rawNext = searchParams.get("next");
+        // Open-redirect guard: only accept same-origin relative paths.
+        // Reject: empty, starts with "//", starts with "/\", or contains a scheme.
+        const isSafeRelative =
+          rawNext != null &&
+          rawNext.startsWith("/") &&
+          !rawNext.startsWith("//") &&
+          !rawNext.startsWith("/\\") &&
+          !/^\/[a-zA-Z][a-zA-Z\d+\-.]*:/u.test(rawNext); // e.g. /javascript: or /data:
+        router.replace(isSafeRelative ? rawNext : defaultRedirect);
       } else {
         router.replace("/");
       }
