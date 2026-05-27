@@ -31,15 +31,25 @@ function LoginForm() {
         setActiveOrg(orgs[0].slug);
         const defaultRedirect = `/orgs/${orgs[0].slug}`;
         const rawNext = searchParams.get("next");
-        // Open-redirect guard: only accept same-origin relative paths.
-        // Reject: empty, starts with "//", starts with "/\", or contains a scheme.
-        const isSafeRelative =
-          rawNext != null &&
-          rawNext.startsWith("/") &&
-          !rawNext.startsWith("//") &&
-          !rawNext.startsWith("/\\") &&
-          !/^\/[a-zA-Z][a-zA-Z\d+\-.]*:/u.test(rawNext); // e.g. /javascript: or /data:
-        router.replace(isSafeRelative ? rawNext : defaultRedirect);
+        // Open-redirect guard: canonicalize via URL parser before validating.
+        // String-prefix checks (startsWith) are bypassed by control chars (\t\n\r)
+        // that browsers silently strip before processing, turning "/\nevil.com" into
+        // "//evil.com" (protocol-relative). Parse first, then assert same origin.
+        let safe = defaultRedirect;
+        if (rawNext) {
+          const cleaned = rawNext.replace(/[\t\n\r]/g, "");
+          try {
+            const u = new URL(cleaned, window.location.origin);
+            if (
+              u.origin === window.location.origin &&
+              cleaned.startsWith("/") &&
+              !cleaned.startsWith("//")
+            ) {
+              safe = u.pathname + u.search + u.hash;
+            }
+          } catch { /* invalid URL — fall through to defaultRedirect */ }
+        }
+        router.replace(safe);
       } else {
         router.replace("/");
       }
