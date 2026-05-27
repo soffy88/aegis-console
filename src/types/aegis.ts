@@ -77,17 +77,34 @@ export interface HealthStatus {
   details?: Record<string, unknown>;
 }
 
+/** C1-4 DB-backed project (matches backend ProjectRepository). */
 export interface Project {
+  id: string;
+  org_id: string;
+  slug: string;
   name: string;
-  health_url: string;
-  status: "ok" | "degraded" | "down";
-  version: string | null;
-  timestamp: string;
+  display_name: string;
+  environment: string;
+  docker_labels: Record<string, string> | null;
+  config: Record<string, unknown> | null;
+  archived_at: string | null;
+  created_at: string;
 }
 
+/** Response from GET /orgs/{org_id}/projects/{id}/health */
 export interface ProjectHealth {
-  status: "ok" | "degraded" | "down";
-  version: string | null;
-  checks: Record<string, unknown>;
-  timestamp: string;
+  project_id: string;
+  slug: string;
+  health_url: string;
+  healthy: boolean;
+  status_code: number | null;
+  elapsed_ms: number | null;
+  error: string | null;
+}
+
+/** User org membership (from /auth/me). */
+export interface OrgMembership {
+  org_id: string;
+  slug: string;
+  role: string;
 }

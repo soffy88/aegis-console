@@ -1,12 +1,14 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import StorePage from "@/app/store/page";
+import StorePage from "@/app/orgs/[org_slug]/store/page";
 import * as api from "@/lib/api";
 
 vi.mock("@/lib/api", () => ({ aegisFetch: vi.fn() }));
+vi.mock("@/hooks/use-org-id", () => ({ useOrgIdBySlug: vi.fn().mockReturnValue("org-111") }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
-  usePathname: () => "/store",
+  useParams: () => ({ org_slug: "test-org" }),
+  usePathname: () => "/orgs/test-org/store",
 }));
 
 const mockResponse = {
@@ -34,12 +36,15 @@ describe("StorePage", () => {
     });
   });
 
-  it("install link points to prefilled install page", async () => {
+  it("install link points to org-scoped prefilled install page", async () => {
     vi.mocked(api.aegisFetch).mockResolvedValue(mockResponse);
     render(<StorePage />, { wrapper });
     await waitFor(() => {
       const links = screen.getAllByText("Install");
-      expect(links[0].closest("a")).toHaveAttribute("href", "/apps/install?from=store&slug=redis");
+      expect(links[0]!.closest("a")).toHaveAttribute(
+        "href",
+        "/orgs/test-org/apps/install?from=store&slug=redis",
+      );
     });
   });
 });

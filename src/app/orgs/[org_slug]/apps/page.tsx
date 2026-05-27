@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { OStatusBadge } from "@helios/blocks";
+import { useState, useEffect } from "react";
 import type { App } from "@/types/aegis";
 import { aegisFetch } from "@/lib/api";
-import { useState, useEffect } from "react";
+import { paths } from "@/lib/api-paths";
+import { useOrgIdBySlug } from "@/hooks/use-org-id";
 
 interface ContainerStats {
   container: string;
@@ -30,12 +33,12 @@ function MiniSparkline({ points }: { points: number[] }) {
   );
 }
 
-function AppCard({ app }: { app: App }) {
+function AppCard({ app, orgId, orgSlug }: { app: App; orgId: string; orgSlug: string }) {
   const [cpuHistory, setCpuHistory] = useState<number[]>([]);
 
   const { data: stats } = useQuery<ContainerStats>({
-    queryKey: ["container-stats", app.app_name],
-    queryFn: () => aegisFetch<ContainerStats>(`/api/v1/docker/containers/${app.app_name}/stats`),
+    queryKey: ["container-stats", orgId, app.app_name],
+    queryFn: () => aegisFetch<ContainerStats>(`${paths.container(orgId, app.app_name)}/stats`),
     refetchInterval: 3000,
     enabled: app.status === "running" || app.status === "completed",
   });
@@ -50,7 +53,7 @@ function AppCard({ app }: { app: App }) {
   return (
     <div className="rounded-lg border p-4 space-y-3 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between">
-        <Link href={`/apps/${app.id}`} className="font-semibold hover:underline">
+        <Link href={`/orgs/${orgSlug}/apps/${app.id}`} className="font-semibold hover:underline">
           {app.app_name}
         </Link>
         <OStatusBadge label={app.status} />
@@ -68,18 +71,18 @@ function AppCard({ app }: { app: App }) {
 
       <div className="flex gap-2 text-xs">
         <button
-          onClick={() => aegisFetch(`/api/v1/docker/containers/${app.app_name}/start`, { method: "POST" })}
+          onClick={() => void aegisFetch(paths.containerStart(orgId, app.app_name), { method: "POST" })}
           className="rounded bg-green-100 px-2 py-1 hover:bg-green-200"
         >start</button>
         <button
-          onClick={() => aegisFetch(`/api/v1/docker/containers/${app.app_name}/stop`, { method: "POST" })}
+          onClick={() => void aegisFetch(paths.containerStop(orgId, app.app_name), { method: "POST" })}
           className="rounded bg-yellow-100 px-2 py-1 hover:bg-yellow-200"
         >stop</button>
         <button
-          onClick={() => aegisFetch(`/api/v1/docker/containers/${app.app_name}/restart`, { method: "POST" })}
+          onClick={() => void aegisFetch(paths.containerRestart(orgId, app.app_name), { method: "POST" })}
           className="rounded bg-orange-100 px-2 py-1 hover:bg-orange-200"
         >restart</button>
-        <Link href={`/apps/${app.id}`} className="rounded bg-gray-100 px-2 py-1 hover:bg-gray-200 ml-auto">
+        <Link href={`/orgs/${orgSlug}/apps/${app.id}`} className="rounded bg-gray-100 px-2 py-1 hover:bg-gray-200 ml-auto">
           details
         </Link>
       </div>
@@ -88,9 +91,13 @@ function AppCard({ app }: { app: App }) {
 }
 
 export default function AppsPage() {
+  const { org_slug } = useParams<{ org_slug: string }>();
+  const orgId = useOrgIdBySlug(org_slug);
+
   const { data, isLoading, error } = useQuery<App[]>({
-    queryKey: ["apps"],
-    queryFn: () => aegisFetch<App[]>("/api/v1/apps"),
+    queryKey: ["apps", orgId],
+    queryFn: () => aegisFetch<App[]>(paths.apps(orgId!)),
+    enabled: !!orgId,
   });
 
   return (
@@ -98,7 +105,7 @@ export default function AppsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Apps</h1>
         <Link
-          href="/apps/install"
+          href={`/orgs/${org_slug}/apps/install`}
           className="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
         >
           Install App
@@ -107,7 +114,9 @@ export default function AppsPage() {
       {isLoading && <p>Loading…</p>}
       {error && <p className="text-red-600">Error: {(error as Error).message}</p>}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {data?.map((app) => <AppCard key={app.id} app={app} />)}
+        {data?.map((app) => (
+          <AppCard key={app.id} app={app} orgId={orgId ?? ""} orgSlug={org_slug} />
+        ))}
       </div>
     </div>
   );

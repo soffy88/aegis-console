@@ -1,10 +1,14 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import AppsPage from "@/app/apps/page";
+import AppsPage from "@/app/orgs/[org_slug]/apps/page";
 import * as api from "@/lib/api";
 
 vi.mock("@/lib/api", () => ({ aegisFetch: vi.fn() }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("@/hooks/use-org-id", () => ({ useOrgIdBySlug: vi.fn().mockReturnValue("org-111") }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+  useParams: () => ({ org_slug: "test-org" }),
+}));
 
 const mockApps = [
   {
@@ -48,12 +52,12 @@ describe("AppsPage (card grid)", () => {
     });
   });
 
-  it("links to app detail page", async () => {
+  it("links to org-scoped app detail page", async () => {
     vi.mocked(api.aegisFetch).mockResolvedValue(mockApps);
     render(<AppsPage />, { wrapper });
     await waitFor(() => {
       const link = screen.getByText("my-app").closest("a");
-      expect(link).toHaveAttribute("href", "/apps/app-1");
+      expect(link).toHaveAttribute("href", "/orgs/test-org/apps/app-1");
     });
   });
 });

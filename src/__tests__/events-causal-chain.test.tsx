@@ -1,10 +1,14 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import EventsPage from "@/app/events/page";
+import EventsPage from "@/app/orgs/[org_slug]/events/page";
 import * as api from "@/lib/api";
 
 vi.mock("@/lib/api", () => ({ aegisFetch: vi.fn() }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("@/hooks/use-org-id", () => ({ useOrgIdBySlug: vi.fn().mockReturnValue("org-111") }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+  useParams: () => ({ org_slug: "test-org" }),
+}));
 
 const mockEvents = [
   {
@@ -48,7 +52,7 @@ describe("EventsPage", () => {
     });
   });
 
-  it("calls causal-chain endpoint when row is clicked", async () => {
+  it("calls org-scoped causal-chain endpoint when row is clicked", async () => {
     render(<EventsPage />, { wrapper });
     await waitFor(() => screen.getByText("alert_fired"));
     fireEvent.click(screen.getByText("alert_fired"));
