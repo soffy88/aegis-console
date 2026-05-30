@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { ODataTable, OJsonViewer } from "@helios/blocks";
-import type { ODataTableData } from "@helios/blocks";
+import { ODataTable, OJsonViewer, OEventTimeline } from "@helios/blocks";
+import type { ODataTableData, TimelineEvent } from "@helios/blocks";
 import type { Event, CausalChainNode } from "@/types/aegis";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
@@ -22,6 +22,7 @@ const columns: ColDef<Event>[] = [
 
 export default function EventsPage() {
   const { org_slug } = useParams<{ org_slug: string }>();
+  const router = useRouter();
   const orgId = useOrgIdBySlug(org_slug);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -37,9 +38,22 @@ export default function EventsPage() {
     enabled: !!orgId && selectedId !== null,
   });
 
+  const timelineEvents: TimelineEvent[] = (events.data ?? []).map((e) => ({
+    id: e.id,
+    title: e.event_type,
+    time: e.ts,
+    subtitle: e.omodul_kind ?? undefined,
+  }));
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Events</h1>
+
+      <OEventTimeline
+        events={timelineEvents}
+        onEventClick={(e) => router.push(`/orgs/${org_slug}/events/${e.id}`)}
+        emptyMessage="No events yet"
+      />
 
       <ODataTable<Event>
         data={events.data ? { columns, rows: events.data } : null}

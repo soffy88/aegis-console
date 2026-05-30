@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { OJsonViewer, OConfirmDialog } from "@helios/blocks";
+import { OJsonViewer, OConfirmDialog, OLogsViewer } from "@helios/blocks";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
 import { useOrgIdBySlug } from "@/hooks/use-org-id";
@@ -66,7 +66,19 @@ export default function ContainerPage() {
         {logs.isLoading ? <p>Loading…</p> : logs.error ? (
           <p className="text-destructive">{(logs.error as Error).message}</p>
         ) : (
-          <OJsonViewer data={logs.data ?? null} defaultExpandDepth={1} />
+          <OLogsViewer
+            lines={
+              logs.data
+                ? Array.isArray((logs.data as unknown as { lines?: unknown }).lines)
+                  ? ((logs.data as unknown as { lines: unknown[] }).lines).map(String)
+                  : Object.values(logs.data).map(String)
+                : []
+            }
+            height={400}
+            autoScrollToBottom
+            searchable
+            showLineNumbers
+          />
         )}
       </section>
 

@@ -48,14 +48,16 @@ describe("EventsPage", () => {
   it("loads and shows events", async () => {
     render(<EventsPage />, { wrapper });
     await waitFor(() => {
-      expect(screen.getByText("alert_fired")).toBeInTheDocument();
+      // "alert_fired" now appears in both OEventTimeline and ODataTable
+      expect(screen.getAllByText("alert_fired")[0]).toBeInTheDocument();
     });
   });
 
   it("calls org-scoped causal-chain endpoint when row is clicked", async () => {
     render(<EventsPage />, { wrapper });
-    await waitFor(() => screen.getByText("alert_fired"));
-    fireEvent.click(screen.getByText("alert_fired"));
+    await waitFor(() => screen.getAllByText("alert_fired"));
+    // click the table row (index 1) — timeline click navigates; table click sets selectedId
+    fireEvent.click(screen.getAllByText("alert_fired")[1]!);
     await waitFor(() => {
       expect(api.aegisFetch).toHaveBeenCalledWith(
         expect.stringContaining("causal-chain"),

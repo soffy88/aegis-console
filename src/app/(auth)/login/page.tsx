@@ -31,21 +31,30 @@ function LoginForm() {
         setActiveOrg(orgs[0].slug);
         const defaultRedirect = `/orgs/${orgs[0].slug}`;
         const rawNext = searchParams.get("next");
-        // Open-redirect guard: canonicalize via URL parser before validating.
-        // String-prefix checks (startsWith) are bypassed by control chars (\t\n\r)
-        // that browsers silently strip before processing, turning "/\nevil.com" into
-        // "//evil.com" (protocol-relative). Parse first, then assert same origin.
+        // Open-redirect guard: canonicalize via URL parser, then validate the
+        // POST-PARSE result — not the raw or pre-cleaned input.
+        //
+        // Why two steps?
+        //   1. strip \t\n\r  — browsers silently drop these, so "/\nevil.com"
+        //      becomes "//evil.com" after strip; removing them first closes that gap.
+        //   2. parse + assert origin — catches every scheme/authority the browser
+        //      would recognize (data:, javascript:, //host, …).
+        //   3. re-assert startsWith checks on `candidate` (the actual value we
+        //      navigate to) — URL dot-segment normalisation can rewrite the path
+        //      (e.g. "/.//..//evil.com" → "//evil.com"), so checking `cleaned`
+        //      pre-parse is insufficient.
         let safe = defaultRedirect;
         if (rawNext) {
           const cleaned = rawNext.replace(/[\t\n\r]/g, "");
           try {
             const u = new URL(cleaned, window.location.origin);
+            const candidate = u.pathname + u.search + u.hash;
             if (
               u.origin === window.location.origin &&
-              cleaned.startsWith("/") &&
-              !cleaned.startsWith("//")
+              candidate.startsWith("/") &&
+              !candidate.startsWith("//")
             ) {
-              safe = u.pathname + u.search + u.hash;
+              safe = candidate;
             }
           } catch { /* invalid URL — fall through to defaultRedirect */ }
         }

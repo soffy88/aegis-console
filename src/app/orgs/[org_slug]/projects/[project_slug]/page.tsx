@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { OKPICard } from "@helios/blocks";
+import { OKPICard, OSparkline } from "@helios/blocks";
 import type { Project, ProjectHealth } from "@/types/aegis";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
@@ -65,6 +65,15 @@ export default function ProjectDetailPage() {
         <section className="rounded border p-4 space-y-2">
           <h2 className="font-semibold">Health Probe</h2>
           <p className="text-sm text-muted-foreground font-mono">{String(project.config.health_url)}</p>
+          {/* TODO: replace hardcoded values with backend history endpoint */}
+          <OSparkline
+            values={[1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1]}
+            indicator={health?.healthy ? "up" : "down"}
+            width={120}
+            height={32}
+            fill
+            ariaLabel="health last 24h"
+          />
           {health?.error && (
             <p className="text-sm text-destructive">{health.error}</p>
           )}
