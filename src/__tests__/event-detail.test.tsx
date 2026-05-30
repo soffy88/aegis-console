@@ -1,13 +1,14 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import EventDetailPage from "@/app/events/[event_id]/page";
+import EventDetailPage from "@/app/orgs/[org_slug]/events/[event_id]/page";
 import * as api from "@/lib/api";
 
 vi.mock("@/lib/api", () => ({ aegisFetch: vi.fn() }));
+vi.mock("@/hooks/use-org-id", () => ({ useOrgIdBySlug: vi.fn().mockReturnValue("org-111") }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
-  useParams: () => ({ event_id: "evt-1" }),
-  usePathname: () => "/events/evt-1",
+  useParams: () => ({ org_slug: "test-org", event_id: "evt-1" }),
+  usePathname: () => "/orgs/test-org/events/evt-1",
 }));
 
 const mockChain = [
@@ -38,7 +39,6 @@ describe("EventDetailPage", () => {
     render(<EventDetailPage />, { wrapper });
     await waitFor(() => screen.getByText("alert_fired"));
     fireEvent.click(screen.getByTestId("chain-node-evt-1"));
-    // After click, the expand indicator should change to ▼
     await waitFor(() => {
       expect(screen.getByText("▼")).toBeInTheDocument();
     });

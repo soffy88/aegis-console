@@ -1,17 +1,28 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import ProjectsPage from "@/app/projects/page";
+import ProjectsPage from "@/app/orgs/[org_slug]/projects/page";
 import * as api from "@/lib/api";
 
 vi.mock("@/lib/api", () => ({ aegisFetch: vi.fn() }));
+vi.mock("@/hooks/use-org-id", () => ({ useOrgIdBySlug: vi.fn().mockReturnValue("org-111") }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
-  usePathname: () => "/projects",
+  useParams: () => ({ org_slug: "test-org" }),
+  usePathname: () => "/orgs/test-org/projects",
 }));
 
+// C1-4 DB-backed Project shape.
 const mockProjects = [
-  { name: "stratum", health_url: "http://localhost:8000/health", status: "ok", version: "1.0.0", timestamp: "2026-05-23T00:00:00Z" },
-  { name: "hevi", health_url: "http://localhost:8001/health", status: "down", version: null, timestamp: "2026-05-23T00:00:00Z" },
+  {
+    id: "p-1", org_id: "org-111", slug: "stratum", name: "Stratum",
+    display_name: "Stratum", environment: "prod", docker_labels: null,
+    config: null, archived_at: null, created_at: "2026-01-01T00:00:00Z",
+  },
+  {
+    id: "p-2", org_id: "org-111", slug: "hevi", name: "Hevi",
+    display_name: "Hevi", environment: "staging", docker_labels: null,
+    config: null, archived_at: null, created_at: "2026-01-01T00:00:00Z",
+  },
 ];
 
 function wrapper({ children }: { children: React.ReactNode }) {
@@ -24,26 +35,26 @@ describe("ProjectsPage", () => {
     vi.mocked(api.aegisFetch).mockResolvedValue(mockProjects);
     render(<ProjectsPage />, { wrapper });
     await waitFor(() => {
-      expect(screen.getByText("stratum")).toBeInTheDocument();
-      expect(screen.getByText("hevi")).toBeInTheDocument();
+      expect(screen.getByText("Stratum")).toBeInTheDocument();
+      expect(screen.getByText("Hevi")).toBeInTheDocument();
     });
   });
 
-  it("maps status to indicator correctly", async () => {
+  it("shows environment label", async () => {
     vi.mocked(api.aegisFetch).mockResolvedValue(mockProjects);
     render(<ProjectsPage />, { wrapper });
     await waitFor(() => {
-      expect(screen.getByText("ok")).toBeInTheDocument();
-      expect(screen.getByText("down")).toBeInTheDocument();
+      expect(screen.getByText("prod")).toBeInTheDocument();
+      expect(screen.getByText("staging")).toBeInTheDocument();
     });
   });
 
-  it("links to project detail page", async () => {
+  it("links to org-scoped project detail page", async () => {
     vi.mocked(api.aegisFetch).mockResolvedValue(mockProjects);
     render(<ProjectsPage />, { wrapper });
     await waitFor(() => {
-      const link = screen.getByText("stratum").closest("a");
-      expect(link).toHaveAttribute("href", "/projects/stratum");
+      const link = screen.getByText("Stratum").closest("a");
+      expect(link).toHaveAttribute("href", "/orgs/test-org/projects/stratum");
     });
   });
 });

@@ -1,12 +1,14 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import DashboardPage from "@/app/page";
+import DashboardPage from "@/app/orgs/[org_slug]/page";
 import * as api from "@/lib/api";
 
 vi.mock("@/lib/api", () => ({ aegisFetch: vi.fn() }));
+vi.mock("@/hooks/use-org-id", () => ({ useOrgIdBySlug: vi.fn().mockReturnValue("org-111") }));
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
-  usePathname: () => "/",
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useParams: () => ({ org_slug: "test-org" }),
+  usePathname: () => "/orgs/test-org",
 }));
 
 function wrapper({ children }: { children: React.ReactNode }) {
@@ -17,10 +19,12 @@ function wrapper({ children }: { children: React.ReactNode }) {
 describe("DashboardPage (ORCAPanel)", () => {
   beforeEach(() => {
     vi.mocked(api.aegisFetch).mockImplementation((path: string) => {
-      if (path === "/health") return Promise.resolve({ status: "ok" });
-      if (path.includes("/apps")) return Promise.resolve([{ id: "1", app_name: "redis", status: "running", installed_at: "" }]);
-      if (path.includes("/events")) return Promise.resolve([{ id: "e1", ts: "2026-01-01T00:00:00Z", event_type: "test", severity: "info" }]);
-      if (path.includes("/projects")) return Promise.resolve([{ name: "stratum", status: "ok", health_url: "", version: null, timestamp: "" }]);
+      if ((path as string).includes("/health")) return Promise.resolve({ status: "ok" });
+      if ((path as string).includes("/apps")) return Promise.resolve([{ id: "1", app_name: "redis", status: "running", installed_at: "" }]);
+      if ((path as string).includes("/events")) return Promise.resolve([{ id: "e1", ts: "2026-01-01T00:00:00Z", event_type: "test", severity: "info" }]);
+      if ((path as string).includes("/projects")) return Promise.resolve([
+        { id: "p-1", org_id: "org-111", slug: "stratum", name: "Stratum", display_name: "Stratum", environment: "prod", config: null, docker_labels: null, archived_at: null, created_at: "" }
+      ]);
       return Promise.resolve([]);
     });
   });
@@ -44,7 +48,7 @@ describe("DashboardPage (ORCAPanel)", () => {
     render(<DashboardPage />, { wrapper });
     await waitFor(() => {
       expect(screen.getByTestId("project-health-panel")).toBeInTheDocument();
-      expect(screen.getByText("stratum")).toBeInTheDocument();
+      expect(screen.getByText("Stratum")).toBeInTheDocument();
     });
   });
 });
