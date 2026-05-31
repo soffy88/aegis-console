@@ -70,4 +70,32 @@ export const paths = {
     `/api/v1/orgs/${orgId}/projects/${projectId}/release-gates/${gateId}`,
   releaseGateDecide: (orgId: string, projectId: string, gateId: string) =>
     `/api/v1/orgs/${orgId}/projects/${projectId}/release-gates/${gateId}/decide`,
+
+  // Alert rules (C2-2)
+  alertRulesList: (orgId: string, projectId: string) =>
+    `/api/v1/orgs/${orgId}/projects/${projectId}/alert-rules`,
+  alertRuleGet: (orgId: string, projectId: string, ruleId: string) =>
+    `/api/v1/orgs/${orgId}/projects/${projectId}/alert-rules/${ruleId}`,
+  alertRuleCreate: (orgId: string, projectId: string) =>
+    `/api/v1/orgs/${orgId}/projects/${projectId}/alert-rules`,
+  alertRuleUpdate: (orgId: string, projectId: string, ruleId: string) =>
+    `/api/v1/orgs/${orgId}/projects/${projectId}/alert-rules/${ruleId}`,
+  alertRuleDelete: (orgId: string, projectId: string, ruleId: string) =>
+    `/api/v1/orgs/${orgId}/projects/${projectId}/alert-rules/${ruleId}`,
+  alertFiredList: (orgId: string, projectId: string) =>
+    `/api/v1/orgs/${orgId}/projects/${projectId}/alerts-fired`,
+
+  // Webhooks (C2-5, org-scoped)
+  webhooksList: (orgId: string) => `/api/v1/orgs/${orgId}/webhooks`,
+  webhookGet: (orgId: string, subId: string) =>
+    `/api/v1/orgs/${orgId}/webhooks/${subId}`,
+  webhookCreate: (orgId: string) => `/api/v1/orgs/${orgId}/webhooks`,
+  webhookUpdate: (orgId: string, subId: string) =>
+    `/api/v1/orgs/${orgId}/webhooks/${subId}`,
+  webhookDelete: (orgId: string, subId: string) =>
+    `/api/v1/orgs/${orgId}/webhooks/${subId}`,
+  webhookTest: (orgId: string, subId: string) =>
+    `/api/v1/orgs/${orgId}/webhooks/${subId}/test`,
+  webhookDeliveries: (orgId: string, subId: string) =>
+    `/api/v1/orgs/${orgId}/webhooks/${subId}/deliveries`,
 } as const;
