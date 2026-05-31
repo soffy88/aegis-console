@@ -62,4 +62,12 @@ export const paths = {
 
   // Health (public — no org scope)
   health: () => `/api/v1/health`,
+
+  // Release gates (C2-4)
+  releaseGatesList: (orgId: string, projectId: string) =>
+    `/api/v1/orgs/${orgId}/projects/${projectId}/release-gates`,
+  releaseGateGet: (orgId: string, projectId: string, gateId: string) =>
+    `/api/v1/orgs/${orgId}/projects/${projectId}/release-gates/${gateId}`,
+  releaseGateDecide: (orgId: string, projectId: string, gateId: string) =>
+    `/api/v1/orgs/${orgId}/projects/${projectId}/release-gates/${gateId}/decide`,
 } as const;

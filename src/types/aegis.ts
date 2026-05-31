@@ -108,3 +108,25 @@ export interface OrgMembership {
   slug: string;
   role: string;
 }
+
+/** C2-4: Release gate — high-risk autoheal action awaiting human approval. */
+export interface ReleaseGate {
+  gate_id: string;
+  org_id: string;
+  project_id: string;
+  autoheal_event_id: string | null;
+  action_kind: string;
+  action_payload: Record<string, unknown>;
+  requested_by: string;
+  requested_at: string;
+  state: "pending" | "approved" | "rejected" | "expired";
+  decided_by: string | null;
+  decided_at: string | null;
+  decision_reason: string | null;
+  expires_at: string;
+}
+
+export interface ReleaseGateDecideRequest {
+  decision: "approved" | "rejected";
+  decision_reason: string;
+}
