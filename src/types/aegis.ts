@@ -109,6 +109,97 @@ export interface OrgMembership {
   role: string;
 }
 
+/** C2-2: Alert rule configuration. */
+export interface AlertRule {
+  rule_id: string;
+  org_id: string;
+  project_id: string;
+  name: string;
+  metric: string;
+  threshold_warn: number | null;
+  threshold_critical: number | null;
+  operator: ">=" | ">" | "<" | "<=" | "==";
+  throttle_seconds: number;
+  escalation_delay_seconds: number;
+  dedup_bucket_seconds: number;
+  enabled: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AlertRuleCreate {
+  name: string;
+  metric: string;
+  threshold_warn?: number;
+  threshold_critical?: number;
+  operator?: ">=" | ">" | "<" | "<=" | "==";
+  throttle_seconds?: number;
+  escalation_delay_seconds?: number;
+  dedup_bucket_seconds?: number;
+  enabled?: boolean;
+}
+
+export type AlertRuleUpdate = Partial<AlertRuleCreate>;
+
+export interface AlertFiredHistory {
+  fired_id: string;
+  rule_id: string;
+  org_id: string;
+  project_id: string;
+  dedup_key: string;
+  severity: "warn" | "critical";
+  current_value: number | null;
+  triggered_reason: string | null;
+  fired_at: string;
+  escalated_at: string | null;
+  last_seen_at: string;
+}
+
+/** C2-5: Webhook subscription. */
+export interface WebhookSubscription {
+  sub_id: string;
+  org_id: string;
+  name: string;
+  url: string;
+  /** Never contains the raw secret value — backend returns has_secret:bool only. */
+  has_secret: boolean;
+  event_types: string[];
+  retry_count: number;
+  retry_backoff_seconds: number[];
+  enabled: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WebhookSubscriptionCreate {
+  name: string;
+  url: string;
+  secret_encrypted?: string;
+  event_types: string[];
+  retry_count?: number;
+  retry_backoff_seconds?: number[];
+  enabled?: boolean;
+}
+
+export interface WebhookDelivery {
+  delivery_id: string;
+  sub_id: string;
+  org_id: string;
+  event_type: string;
+  payload: Record<string, unknown>;
+  attempt_no: number;
+  max_attempts: number;
+  next_attempt_at: string;
+  last_attempt_at: string | null;
+  last_status_code: number | null;
+  last_error: string | null;
+  state: "pending" | "in_flight" | "succeeded" | "failed" | "dead_letter";
+  created_at: string;
+  succeeded_at: string | null;
+}
+
 /** C2-4: Release gate — high-risk autoheal action awaiting human approval. */
 export interface ReleaseGate {
   gate_id: string;
