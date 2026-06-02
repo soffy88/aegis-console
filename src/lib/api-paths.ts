@@ -98,4 +98,6 @@ export const paths = {
     `/api/v1/orgs/${orgId}/webhooks/${subId}/test`,
   webhookDeliveries: (orgId: string, subId: string) =>
     `/api/v1/orgs/${orgId}/webhooks/${subId}/deliveries`,
+  webhookEventTypes: (orgId: string) =>
+    `/api/v1/orgs/${orgId}/webhooks/event-types`,
 } as const;
