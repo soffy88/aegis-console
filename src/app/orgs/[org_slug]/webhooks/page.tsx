@@ -28,6 +28,8 @@ const VALID_EVENT_TYPES = [
   "release.approved",
   "release.rejected",
   "release.expired",
+  "error.new_issue",
+  "error.spike",
 ];
 
 const defaultCreate: WebhookSubscriptionCreate = {
