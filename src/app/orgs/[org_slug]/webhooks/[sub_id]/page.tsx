@@ -15,6 +15,7 @@ import {
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
 import { useOrgIdBySlug } from "@/hooks/use-org-id";
+import { useWebhookEventTypes } from "@/hooks/useWebhookEventTypes";
 import { usePermission } from "@/lib/auth/use-permission";
 import type {
   WebhookSubscription,
@@ -42,18 +43,6 @@ const DELIVERY_BADGE: Record<
   dead_letter: "error",
 };
 
-const VALID_EVENT_TYPES = [
-  "alert.fired",
-  "autoheal.completed",
-  "autoheal.failed",
-  "autoheal.cancelled",
-  "release.approved",
-  "release.rejected",
-  "release.expired",
-  "error.new_issue",
-  "error.spike",
-];
-
 export default function WebhookDetailPage() {
   const { org_slug, sub_id } = useParams<{
     org_slug: string;
@@ -63,6 +52,8 @@ export default function WebhookDetailPage() {
   const queryClient = useQueryClient();
   const orgId = useOrgIdBySlug(org_slug);
   const { canWrite } = usePermission();
+  const { data: eventTypesData, isLoading: eventTypesLoading } =
+    useWebhookEventTypes(orgId);
 
   const [editForm, setEditForm] = useState<Partial<WebhookSubscriptionCreate>>({});
   const [showDelete, setShowDelete] = useState(false);
@@ -277,16 +268,25 @@ export default function WebhookDetailPage() {
             </OFormField>
             <OFormField label="Event types">
               <div className="grid grid-cols-1 gap-1 mt-1">
-                {VALID_EVENT_TYPES.map((et) => (
-                  <label key={et} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={currentEventTypes.includes(et)}
-                      onChange={() => toggleEventType(et)}
-                    />
-                    {et}
-                  </label>
-                ))}
+                {eventTypesLoading ? (
+                  <span className="text-xs text-muted-foreground">
+                    Loading event types…
+                  </span>
+                ) : (
+                  (eventTypesData?.event_types ?? []).map((et) => (
+                    <label
+                      key={et.event_type}
+                      className="flex items-center gap-2 text-sm"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={currentEventTypes.includes(et.event_type)}
+                        onChange={() => toggleEventType(et.event_type)}
+                      />
+                      {et.event_type}
+                    </label>
+                  ))
+                )}
               </div>
             </OFormField>
             <OFormField label="Enabled">
