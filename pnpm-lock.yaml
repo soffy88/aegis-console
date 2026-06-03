@@ -11,6 +11,9 @@ importers:
       '@helios/blocks':
         specifier: file:~/projects/platform/packages/helios-blocks-1.7.2.tgz
         version: file:../../platform/packages/helios-blocks-1.7.2.tgz(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(@types/three@0.184.1)(immer@11.1.8)(react-dom@19.2.6(react@19.2.6))(react-is@17.0.2)(react@19.2.6)(redux@5.0.1)
+      '@helios/oui':
+        specifier: file:~/projects/platform/packages/helios-oui-0.1.1.tgz
+        version: file:../../platform/packages/helios-oui-0.1.1.tgz(@helios/blocks@file:../../platform/packages/helios-blocks-1.7.2.tgz(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(@types/three@0.184.1)(immer@11.1.8)(react-dom@19.2.6(react@19.2.6))(react-is@17.0.2)(react@19.2.6)(redux@5.0.1))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@tanstack/react-query':
         specifier: ^5.100.11
         version: 5.100.14(react@19.2.6)
@@ -304,6 +307,14 @@ packages:
     peerDependencies:
       react: ^19.0.0
       react-dom: ^19.0.0
+
+  '@helios/oui@file:../../platform/packages/helios-oui-0.1.1.tgz':
+    resolution: {integrity: sha512-kcgvY6FkxAXk+R1E1qObBFd9ghVr8bTIbToUoTacqyDl6wA9n83a9L/2oKAEmlxezd3lu6LmBGYZrc+AroaIHg==, tarball: file:../../platform/packages/helios-oui-0.1.1.tgz}
+    version: 0.1.1
+    peerDependencies:
+      '@helios/blocks': ^1.7.0 || ^2.0.0
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -3925,6 +3936,12 @@ snapshots:
       - react-native
       - redux
       - supports-color
+
+  '@helios/oui@file:../../platform/packages/helios-oui-0.1.1.tgz(@helios/blocks@file:../../platform/packages/helios-blocks-1.7.2.tgz(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(@types/three@0.184.1)(immer@11.1.8)(react-dom@19.2.6(react@19.2.6))(react-is@17.0.2)(react@19.2.6)(redux@5.0.1))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      '@helios/blocks': file:../../platform/packages/helios-blocks-1.7.2.tgz(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(@types/three@0.184.1)(immer@11.1.8)(react-dom@19.2.6(react@19.2.6))(react-is@17.0.2)(react@19.2.6)(redux@5.0.1)
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
 
   '@humanfs/core@0.19.2':
     dependencies:
