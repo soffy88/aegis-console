@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import WebhookDetailPage from "@/app/orgs/[org_slug]/webhooks/[sub_id]/page";
+import WebhookDetailPage from "@/app/[locale]/orgs/[org_slug]/webhooks/[sub_id]/page";
 import * as api from "@/lib/api";
 
 vi.mock("@/lib/api", () => ({ aegisFetch: vi.fn() }));
@@ -59,9 +59,13 @@ function wrapper({ children }: { children: React.ReactNode }) {
   return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
 }
 
+// webhook-detail page has 3 queries: useWebhookEventTypes + sub + deliveries
+const mockEventTypes = { event_types: [] };
+
 describe("WebhookDetailPage", () => {
   it("renders webhook name and url", async () => {
     vi.mocked(api.aegisFetch)
+      .mockResolvedValueOnce(mockEventTypes)
       .mockResolvedValueOnce(mockSub)
       .mockResolvedValueOnce([]);
     render(<WebhookDetailPage />, { wrapper });
@@ -73,6 +77,7 @@ describe("WebhookDetailPage", () => {
 
   it("shows secret masked indicator when has_secret true", async () => {
     vi.mocked(api.aegisFetch)
+      .mockResolvedValueOnce(mockEventTypes)
       .mockResolvedValueOnce(mockSub)
       .mockResolvedValueOnce([]);
     render(<WebhookDetailPage />, { wrapper });
@@ -83,6 +88,7 @@ describe("WebhookDetailPage", () => {
 
   it("renders delivery history with state badge", async () => {
     vi.mocked(api.aegisFetch)
+      .mockResolvedValueOnce(mockEventTypes)
       .mockResolvedValueOnce(mockSub)
       .mockResolvedValueOnce([mockDelivery]);
     render(<WebhookDetailPage />, { wrapper });
@@ -95,6 +101,7 @@ describe("WebhookDetailPage", () => {
 
   it("delete button triggers confirm dialog", async () => {
     vi.mocked(api.aegisFetch)
+      .mockResolvedValueOnce(mockEventTypes)
       .mockResolvedValueOnce(mockSub)
       .mockResolvedValueOnce([]);
     render(<WebhookDetailPage />, { wrapper });
@@ -102,7 +109,7 @@ describe("WebhookDetailPage", () => {
     screen.getByRole("button", { name: /delete/i }).click();
     await waitFor(() => {
       expect(
-        screen.getByText(/delete webhook/i),
+        screen.getByText(/delete this webhook subscription/i),
       ).toBeInTheDocument();
     });
   });

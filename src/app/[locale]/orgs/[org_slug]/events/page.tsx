@@ -1,0 +1,81 @@
+"use client";
+
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+import { ODataTable, OJsonViewer, OEventTimeline } from "@helios/blocks";
+import type { ODataTableData, TimelineEvent } from "@helios/blocks";
+import type { Event, CausalChainNode } from "@/types/aegis";
+import { aegisFetch } from "@/lib/api";
+import { paths } from "@/lib/api-paths";
+import { useOrgIdBySlug } from "@/hooks/use-org-id";
+
+type ColDef<T> = ODataTableData<T>["columns"][number];
+
+export default function EventsPage() {
+  const t = useTranslations("events");
+  const { org_slug } = useParams<{ org_slug: string }>();
+  const router = useRouter();
+  const orgId = useOrgIdBySlug(org_slug);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const columns: ColDef<Event>[] = [
+    { accessorKey: "ts", header: t("time"), cell: ({ row }) => new Date(row.original.ts).toLocaleString() },
+    { accessorKey: "event_type", header: t("type") },
+    { accessorKey: "severity", header: t("severity") },
+    { accessorKey: "omodul_kind", header: t("source") },
+    { accessorKey: "trace_id", header: t("traceId") },
+  ];
+
+  const events = useQuery<Event[]>({
+    queryKey: ["events", orgId],
+    queryFn: () => aegisFetch<Event[]>(paths.events(orgId!)),
+    enabled: !!orgId,
+  });
+
+  const chain = useQuery<CausalChainNode[]>({
+    queryKey: ["events", orgId, selectedId, "causal-chain"],
+    queryFn: () => aegisFetch<CausalChainNode[]>(`${paths.event(orgId!, selectedId!)}/causal-chain`),
+    enabled: !!orgId && selectedId !== null,
+  });
+
+  const timelineEvents: TimelineEvent[] = (events.data ?? []).map((e) => ({
+    id: e.id,
+    title: e.event_type,
+    time: e.ts,
+    subtitle: e.omodul_kind ?? undefined,
+  }));
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold">{t("title")}</h1>
+
+      <OEventTimeline
+        events={timelineEvents}
+        onEventClick={(e) => router.push(`/orgs/${org_slug}/events/${e.id}`)}
+        emptyMessage={t("empty")}
+      />
+
+      <ODataTable<Event>
+        data={events.data ? { columns, rows: events.data } : null}
+        loading={events.isLoading}
+        error={events.error as Error | null}
+        empty={events.data?.length === 0}
+        sortable
+        onRowClick={(row) => setSelectedId((prev) => (prev === row.id ? null : row.id))}
+      />
+
+      {selectedId && (
+        <section>
+          <h2 className="mb-2 text-lg font-semibold">{t("causalChain")} — {selectedId}</h2>
+          {chain.isLoading ? <p>Loading chain…</p> : chain.error ? (
+            <p className="text-destructive">{(chain.error as Error).message}</p>
+          ) : (
+            <OJsonViewer data={chain.data ?? null} defaultExpandDepth={3} />
+          )}
+        </section>
+      )}
+    </div>
+  );
+}

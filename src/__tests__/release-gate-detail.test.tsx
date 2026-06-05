@@ -1,6 +1,6 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import ReleaseGateDetailPage from "@/app/orgs/[org_slug]/projects/[project_slug]/release-gates/[gate_id]/page";
+import ReleaseGateDetailPage from "@/app/[locale]/orgs/[org_slug]/projects/[project_slug]/release-gates/[gate_id]/page";
 import * as api from "@/lib/api";
 
 vi.mock("@/lib/api", () => ({ aegisFetch: vi.fn() }));

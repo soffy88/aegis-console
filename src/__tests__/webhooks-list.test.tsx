@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import WebhooksListPage from "@/app/orgs/[org_slug]/webhooks/page";
+import WebhooksListPage from "@/app/[locale]/orgs/[org_slug]/webhooks/page";
 import * as api from "@/lib/api";
 
 vi.mock("@/lib/api", () => ({ aegisFetch: vi.fn() }));
