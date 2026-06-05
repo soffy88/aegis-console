@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import ContainerPage from "@/app/orgs/[org_slug]/containers/[name]/page";
+import ContainerPage from "@/app/[locale]/orgs/[org_slug]/containers/[name]/page";
 import * as api from "@/lib/api";
 
 vi.mock("@/lib/api", () => ({ aegisFetch: vi.fn() }));
@@ -33,9 +33,9 @@ describe("ContainerPage", () => {
 
   it("shows start/stop/restart buttons", () => {
     render(<ContainerPage />, { wrapper });
-    expect(screen.getByRole("button", { name: "start" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "stop" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "restart" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^start$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^stop$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^restart$/i })).toBeInTheDocument();
   });
 
   it("opens confirm dialog on stop click", async () => {

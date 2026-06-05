@@ -1,0 +1,193 @@
+{
+  "nav": {
+    "dashboard": "仪表盘",
+    "apps": "应用",
+    "appInstall": "安装应用",
+    "store": "应用市场",
+    "projects": "项目",
+    "containers": "容器",
+    "events": "事件",
+    "runbooks": "运维手册",
+    "domains": "域名",
+    "alertIngest": "告警接入",
+    "webhooks": "Webhook",
+    "signOut": "退出登录"
+  },
+  "common": {
+    "create": "创建",
+    "delete": "删除",
+    "cancel": "取消",
+    "save": "保存",
+    "loading": "加载中…",
+    "enabled": "启用",
+    "disabled": "禁用",
+    "running": "运行中",
+    "failed": "失败",
+    "pending": "等待中",
+    "approved": "已通过",
+    "rejected": "已拒绝",
+    "yes": "是",
+    "no": "否",
+    "error": "错误",
+    "name": "名称",
+    "status": "状态",
+    "created": "创建时间",
+    "actions": "操作",
+    "remove": "移除",
+    "test": "测试",
+    "edit": "编辑"
+  },
+  "login": {
+    "title": "登录 Aegis",
+    "subtitle": "自托管 PaaS 管理平台"
+  },
+  "notFound": {
+    "title": "页面不存在",
+    "message": "您访问的页面不存在或已被移除。"
+  },
+  "error": {
+    "title": "出错了"
+  },
+  "dashboard": {
+    "totalApps": "应用总数",
+    "running": "运行中",
+    "failed": "异常",
+    "events1h": "事件（1小时）",
+    "applications": "应用列表",
+    "eventStream": "事件流",
+    "allSystemsOk": "所有系统正常",
+    "time": "时间",
+    "type": "类型",
+    "severity": "级别",
+    "appName": "应用名称"
+  },
+  "apps": {
+    "title": "应用",
+    "noApps": "暂无应用",
+    "install": "安装应用",
+    "appName": "应用名称",
+    "image": "镜像",
+    "uninstall": "卸载",
+    "uninstallConfirm": "确认卸载该应用？",
+    "installTitle": "安装应用",
+    "selectApp": "选择应用",
+    "installing": "安装中…"
+  },
+  "store": {
+    "title": "应用市场",
+    "search": "搜索应用…",
+    "install": "安装",
+    "category": "分类",
+    "noResults": "未找到匹配应用"
+  },
+  "containers": {
+    "title": "容器",
+    "start": "启动",
+    "stop": "停止",
+    "restart": "重启",
+    "logs": "日志",
+    "image": "镜像",
+    "startedAt": "启动时间",
+    "starting": "启动中…",
+    "stopping": "停止中…",
+    "restarting": "重启中…"
+  },
+  "events": {
+    "title": "事件",
+    "time": "时间",
+    "type": "类型",
+    "severity": "级别",
+    "source": "来源",
+    "traceId": "Trace ID",
+    "empty": "暂无事件",
+    "causalChain": "因果链",
+    "payload": "载荷"
+  },
+  "webhooks": {
+    "title": "Webhook 订阅",
+    "create": "创建 Webhook",
+    "url": "目标 URL",
+    "eventTypes": "事件类型",
+    "retryCount": "重试次数",
+    "secret": "密钥（可选）",
+    "extraPayload": "额外载荷（JSON）",
+    "enabled": "启用",
+    "loading": "加载 Webhook…",
+    "failed": "加载 Webhook 失败",
+    "empty": "暂无 Webhook 订阅",
+    "deliveries": "投递记录",
+    "time": "时间",
+    "retries": "重试次数",
+    "deleteConfirm": "确认删除该 Webhook 订阅？",
+    "testSend": "发送测试",
+    "sending": "发送中…",
+    "creating": "创建中…"
+  },
+  "alertRules": {
+    "title": "告警规则",
+    "create": "创建规则",
+    "ruleName": "规则名称",
+    "severity": "级别",
+    "service": "服务",
+    "metric": "指标",
+    "operator": "运算符",
+    "warnThreshold": "警告阈值",
+    "critThreshold": "严重阈值",
+    "enabled": "启用",
+    "loading": "加载告警规则…",
+    "failed": "加载告警规则失败",
+    "empty": "暂无告警规则",
+    "notFound": "规则不存在",
+    "save": "保存规则",
+    "saving": "保存中…"
+  },
+  "releaseGates": {
+    "title": "发布门控",
+    "approve": "通过",
+    "reject": "拒绝",
+    "empty": "暂无发布门控",
+    "loading": "加载中…",
+    "notFound": "门控不存在",
+    "approving": "处理中…"
+  },
+  "projects": {
+    "title": "项目",
+    "noProjects": "暂无项目",
+    "environment": "环境",
+    "alertRules": "告警规则",
+    "releaseGates": "发布门控"
+  },
+  "alertIngest": {
+    "title": "告警接入调试",
+    "alertName": "告警名称",
+    "severity": "级别",
+    "service": "服务",
+    "payload": "载荷（JSON）",
+    "send": "发送告警",
+    "dryRun": "预演",
+    "executeLive": "正式执行",
+    "sending": "发送中…",
+    "request": "请求",
+    "response": "响应"
+  },
+  "domains": {
+    "title": "域名",
+    "add": "添加域名",
+    "domain": "域名",
+    "targetUrl": "目标 URL",
+    "tls": "TLS",
+    "removeTitle": "移除域名",
+    "removeConfirm": "移除该域名路由？此操作不可撤销。",
+    "creating": "创建中…"
+  },
+  "runbooks": {
+    "title": "运维手册",
+    "execute": "执行",
+    "dryRun": "预演",
+    "executeLive": "正式执行",
+    "empty": "暂无运维手册",
+    "executionTitle": "执行详情",
+    "output": "输出",
+    "executing": "执行中…"
+  }
+}

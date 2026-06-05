@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider } from "@helios/blocks";
+import { ThemeProvider, LangProvider } from "@helios/blocks";
 import { makeQueryClient } from "@/lib/query-client";
 import { initAuth } from "@/lib/auth/auto-refresh";
 import { loadUserOrgs } from "@/lib/org-context";
@@ -20,7 +20,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme="professional">{children}</ThemeProvider>
+      <ThemeProvider theme="professional">
+        <LangProvider lang="zh-en">{children}</LangProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

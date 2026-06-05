@@ -13,10 +13,11 @@
     "test:e2e": "docker run --rm --network host -v $(pwd):/work -w /work mcr.microsoft.com/playwright:v1.60.0-jammy ./node_modules/.bin/playwright test"
   },
   "dependencies": {
-    "@helios/blocks": "file:~/projects/platform/packages/helios-blocks-1.7.2.tgz",
+    "@helios/blocks": "file:~/projects/platform/packages/helios-blocks-1.9.0.tgz",
     "@helios/oui": "file:~/projects/platform/packages/helios-oui-0.1.1.tgz",
     "@tanstack/react-query": "^5.100.11",
     "next": "^16.2.6",
+    "next-intl": "^4.13.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "zod": "^4.4.3",

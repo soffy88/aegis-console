@@ -1,0 +1,193 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "apps": "Apps",
+    "appInstall": "Install App",
+    "store": "App Store",
+    "projects": "Projects",
+    "containers": "Containers",
+    "events": "Events",
+    "runbooks": "Runbooks",
+    "domains": "Domains",
+    "alertIngest": "Alert Ingest",
+    "webhooks": "Webhooks",
+    "signOut": "Sign out"
+  },
+  "common": {
+    "create": "Create",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading…",
+    "enabled": "enabled",
+    "disabled": "disabled",
+    "running": "Running",
+    "failed": "Failed",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "yes": "Yes",
+    "no": "No",
+    "error": "Error",
+    "name": "Name",
+    "status": "Status",
+    "created": "Created",
+    "actions": "Actions",
+    "remove": "Remove",
+    "test": "Test",
+    "edit": "Edit"
+  },
+  "login": {
+    "title": "Sign in to Aegis",
+    "subtitle": "Self-hosted PaaS management console"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "message": "The page you are looking for does not exist or has been removed."
+  },
+  "error": {
+    "title": "Something went wrong"
+  },
+  "dashboard": {
+    "totalApps": "Total Apps",
+    "running": "Running",
+    "failed": "Failed",
+    "events1h": "Events (1h)",
+    "applications": "Applications",
+    "eventStream": "Event Stream",
+    "allSystemsOk": "All systems operational",
+    "time": "Time",
+    "type": "Type",
+    "severity": "Severity",
+    "appName": "App Name"
+  },
+  "apps": {
+    "title": "Apps",
+    "noApps": "No apps installed",
+    "install": "Install App",
+    "appName": "App Name",
+    "image": "Image",
+    "uninstall": "Uninstall",
+    "uninstallConfirm": "Are you sure you want to uninstall this app?",
+    "installTitle": "Install App",
+    "selectApp": "Select App",
+    "installing": "Installing…"
+  },
+  "store": {
+    "title": "App Store",
+    "search": "Search apps…",
+    "install": "Install",
+    "category": "Category",
+    "noResults": "No apps found"
+  },
+  "containers": {
+    "title": "Containers",
+    "start": "Start",
+    "stop": "Stop",
+    "restart": "Restart",
+    "logs": "Logs",
+    "image": "Image",
+    "startedAt": "Started At",
+    "starting": "Starting…",
+    "stopping": "Stopping…",
+    "restarting": "Restarting…"
+  },
+  "events": {
+    "title": "Events",
+    "time": "Time",
+    "type": "Type",
+    "severity": "Severity",
+    "source": "Source",
+    "traceId": "Trace ID",
+    "empty": "No events yet",
+    "causalChain": "Causal Chain",
+    "payload": "Payload"
+  },
+  "webhooks": {
+    "title": "Webhook Subscriptions",
+    "create": "Create webhook",
+    "url": "Target URL",
+    "eventTypes": "Event types",
+    "retryCount": "Retry count",
+    "secret": "Secret (optional)",
+    "extraPayload": "Extra Payload (JSON)",
+    "enabled": "Enabled",
+    "loading": "Loading webhooks…",
+    "failed": "Failed to load webhooks",
+    "empty": "No webhook subscriptions",
+    "deliveries": "Deliveries",
+    "time": "Time",
+    "retries": "Retries",
+    "deleteConfirm": "Delete this webhook subscription?",
+    "testSend": "Send test",
+    "sending": "Sending…",
+    "creating": "Creating…"
+  },
+  "alertRules": {
+    "title": "Alert Rules",
+    "create": "Create rule",
+    "ruleName": "Rule name",
+    "severity": "Severity",
+    "service": "Service",
+    "metric": "Metric",
+    "operator": "Operator",
+    "warnThreshold": "Warn threshold",
+    "critThreshold": "Critical threshold",
+    "enabled": "Enabled",
+    "loading": "Loading alert rules…",
+    "failed": "Failed to load alert rules",
+    "empty": "No alert rules",
+    "notFound": "Rule not found",
+    "save": "Save rule",
+    "saving": "Saving…"
+  },
+  "releaseGates": {
+    "title": "Release Gates",
+    "approve": "Approve",
+    "reject": "Reject",
+    "empty": "No release gates",
+    "loading": "Loading…",
+    "notFound": "Gate not found",
+    "approving": "Processing…"
+  },
+  "projects": {
+    "title": "Projects",
+    "noProjects": "No projects found in this org.",
+    "environment": "Environment",
+    "alertRules": "Alert Rules",
+    "releaseGates": "Release Gates"
+  },
+  "alertIngest": {
+    "title": "Alert Ingest Debug",
+    "alertName": "Alert name",
+    "severity": "Severity",
+    "service": "Service",
+    "payload": "Payload (JSON)",
+    "send": "Send Alert",
+    "dryRun": "Dry Run",
+    "executeLive": "Execute Live",
+    "sending": "Sending…",
+    "request": "Request",
+    "response": "Response"
+  },
+  "domains": {
+    "title": "Domains",
+    "add": "Add Domain",
+    "domain": "Domain",
+    "targetUrl": "Target URL",
+    "tls": "TLS",
+    "removeTitle": "Remove Domain",
+    "removeConfirm": "Remove routing for this domain? This cannot be undone.",
+    "creating": "Creating…"
+  },
+  "runbooks": {
+    "title": "Runbooks",
+    "execute": "Execute",
+    "dryRun": "Dry Run",
+    "executeLive": "Execute Live",
+    "empty": "No runbooks",
+    "executionTitle": "Execution Detail",
+    "output": "Output",
+    "executing": "Executing…"
+  }
+}

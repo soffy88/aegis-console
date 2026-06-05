@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import AlertRulesListPage from "@/app/orgs/[org_slug]/projects/[project_slug]/alert-rules/page";
+import AlertRulesListPage from "@/app/[locale]/orgs/[org_slug]/projects/[project_slug]/alert-rules/page";
 import * as api from "@/lib/api";
 
 vi.mock("@/lib/api", () => ({ aegisFetch: vi.fn() }));
@@ -71,7 +71,7 @@ describe("AlertRulesListPage", () => {
     render(<AlertRulesListPage />, { wrapper });
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: /create alert rule/i }),
+        screen.getByRole("button", { name: /create rule/i }),
       ).toBeInTheDocument();
     });
   });
@@ -90,7 +90,7 @@ describe("AlertRulesListPage", () => {
     render(<AlertRulesListPage />, { wrapper });
     await waitFor(() =>
       expect(
-        screen.queryByRole("button", { name: /create alert rule/i }),
+        screen.queryByRole("button", { name: /create rule/i }),
       ).not.toBeInTheDocument(),
     );
   });

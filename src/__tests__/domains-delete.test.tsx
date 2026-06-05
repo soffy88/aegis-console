@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import DomainsPage from "@/app/orgs/[org_slug]/domains/page";
+import DomainsPage from "@/app/[locale]/orgs/[org_slug]/domains/page";
 import * as api from "@/lib/api";
 
 vi.mock("@/lib/api", () => ({ aegisFetch: vi.fn() }));
