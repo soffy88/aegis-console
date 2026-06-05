@@ -16,7 +16,7 @@ function isPublic(pathname: string): boolean {
   );
 }
 
-export function middleware(req: NextRequest): NextResponse {
+export function proxy(req: NextRequest): NextResponse {
   const { pathname } = req.nextUrl;
 
   // Step 1: next-intl locale redirect (no locale → /zh/..., valid locale → pass)
