@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import { ThemeProvider } from "@helios/blocks";
 import { Providers } from "@/app/providers";
 import { AppFrame } from "@/components/AppFrame";
 import { routing } from "@/i18n/routing";
@@ -33,11 +32,9 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body>
         <NextIntlClientProvider messages={messages}>
-          <ThemeProvider theme="professional">
-            <Providers>
-              <AppFrame>{children}</AppFrame>
-            </Providers>
-          </ThemeProvider>
+          <Providers>
+            <AppFrame>{children}</AppFrame>
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>
