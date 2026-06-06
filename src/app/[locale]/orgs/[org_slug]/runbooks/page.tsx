@@ -15,6 +15,8 @@ interface Runbook {
   description: string;
   trigger: string;
   requires_approval: boolean;
+  version?: string;
+  source: "yaml" | "plugin";
   steps: { name: string; type: string; command: string }[];
 }
 
@@ -33,6 +35,11 @@ export default function RunbooksPage() {
     { accessorKey: "description", header: "Description" },
     { accessorKey: "trigger", header: "Trigger" },
     { accessorKey: "requires_approval", header: "Approval", cell: ({ row }) => row.original.requires_approval ? tc("yes") : tc("no") },
+    { accessorKey: "source", header: "Source", cell: ({ row }) => (
+      <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${row.original.source === "plugin" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800"}`}>
+        {row.original.source}
+      </span>
+    )},
   ];
 
   const { data, isLoading } = useQuery<Runbook[]>({
@@ -66,18 +73,24 @@ export default function RunbooksPage() {
       {data?.map((rb) => (
         <div key={rb.name} className="flex items-center gap-2 border rounded p-3">
           <span className="font-medium flex-1">{rb.name}</span>
-          <button onClick={() => dryRun.mutate(rb.name)} className="rounded bg-blue-100 px-3 py-1 text-sm hover:bg-blue-200">
-            {t("dryRun")}
-          </button>
-          <button onClick={() => setConfirm(rb.name)} className="rounded bg-red-100 px-3 py-1 text-sm hover:bg-red-200">
-            {t("executeLive")}
-          </button>
-          {confirm === rb.name && (
-            <div className="flex items-center gap-2 ml-2">
-              <span className="text-xs text-red-600">Confirm?</span>
-              <button onClick={() => { liveRun.mutate(rb.name); setConfirm(null); }} className="rounded bg-red-500 px-2 py-0.5 text-xs text-white">{tc("yes")}</button>
-              <button onClick={() => setConfirm(null)} className="rounded bg-gray-200 px-2 py-0.5 text-xs">{tc("no")}</button>
-            </div>
+          {rb.source === "plugin" ? (
+            <span className="text-xs text-muted-foreground italic">auto-heal plugin — no manual execute</span>
+          ) : (
+            <>
+              <button onClick={() => dryRun.mutate(rb.name)} className="rounded bg-blue-100 px-3 py-1 text-sm hover:bg-blue-200">
+                {t("dryRun")}
+              </button>
+              <button onClick={() => setConfirm(rb.name)} className="rounded bg-red-100 px-3 py-1 text-sm hover:bg-red-200">
+                {t("executeLive")}
+              </button>
+              {confirm === rb.name && (
+                <div className="flex items-center gap-2 ml-2">
+                  <span className="text-xs text-red-600">Confirm?</span>
+                  <button onClick={() => { liveRun.mutate(rb.name); setConfirm(null); }} className="rounded bg-red-500 px-2 py-0.5 text-xs text-white">{tc("yes")}</button>
+                  <button onClick={() => setConfirm(null)} className="rounded bg-gray-200 px-2 py-0.5 text-xs">{tc("no")}</button>
+                </div>
+              )}
+            </>
           )}
         </div>
       ))}

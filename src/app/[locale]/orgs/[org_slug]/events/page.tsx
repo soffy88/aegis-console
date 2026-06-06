@@ -19,6 +19,8 @@ export default function EventsPage() {
   const router = useRouter();
   const orgId = useOrgIdBySlug(org_slug);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [offset, setOffset] = useState(0);
+  const LIMIT = 50;
 
   const columns: ColDef<Event>[] = [
     { accessorKey: "ts", header: t("time"), cell: ({ row }) => new Date(row.original.ts).toLocaleString() },
@@ -29,8 +31,8 @@ export default function EventsPage() {
   ];
 
   const events = useQuery<Event[]>({
-    queryKey: ["events", orgId],
-    queryFn: () => aegisFetch<Event[]>(paths.events(orgId!)),
+    queryKey: ["events", orgId, offset],
+    queryFn: () => aegisFetch<Event[]>(`${paths.events(orgId!)}?limit=${LIMIT}&offset=${offset}`),
     enabled: !!orgId,
   });
 
@@ -65,6 +67,26 @@ export default function EventsPage() {
         sortable
         onRowClick={(row) => setSelectedId((prev) => (prev === row.id ? null : row.id))}
       />
+
+      <div className="flex items-center gap-3 text-sm">
+        <button
+          onClick={() => setOffset((prev) => Math.max(0, prev - LIMIT))}
+          disabled={offset === 0}
+          className="rounded border px-3 py-1 disabled:opacity-40"
+        >
+          ← {t("prev")}
+        </button>
+        <span className="text-muted-foreground">
+          {offset + 1}–{offset + (events.data?.length ?? 0)}
+        </span>
+        <button
+          onClick={() => setOffset((prev) => prev + LIMIT)}
+          disabled={!events.data || events.data.length < LIMIT}
+          className="rounded border px-3 py-1 disabled:opacity-40"
+        >
+          {t("next")} →
+        </button>
+      </div>
 
       {selectedId && (
         <section>
