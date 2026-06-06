@@ -105,4 +105,19 @@ export const paths = {
     `/api/v1/orgs/${orgId}/webhooks/${subId}/deliveries`,
   webhookEventTypes: (orgId: string) =>
     `/api/v1/orgs/${orgId}/webhooks/event-types`,
+
+  // Members + Invites (S7)
+  members: (orgId: string) => `/api/v1/orgs/${orgId}/members`,
+  member: (orgId: string, userId: string) =>
+    `/api/v1/orgs/${orgId}/members/${userId}`,
+  inviteCreate: (orgId: string) => `/api/v1/orgs/${orgId}/invites`,
+  inviteVerify: (token: string) => `/api/v1/invites/${token}`,
+  inviteAccept: (token: string) => `/api/v1/invites/${token}/accept`,
+
+  // Incidents (S8)
+  incidents: (orgId: string) => `/api/v1/orgs/${orgId}/incidents`,
+  incident: (orgId: string, incidentId: string) =>
+    `/api/v1/orgs/${orgId}/incidents/${incidentId}`,
+  incidentPostmortem: (orgId: string, incidentId: string) =>
+    `/api/v1/orgs/${orgId}/incidents/${incidentId}/postmortem`,
 } as const;
