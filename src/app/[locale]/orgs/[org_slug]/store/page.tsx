@@ -39,7 +39,7 @@ export default function StorePage() {
       if (search) params.set("q", search);
       if (category) params.set("category", category);
       params.set("per_page", "60");
-      return aegisFetch<StoreResponse>(`${paths.store(orgId!)}/apps?${params}`);
+      return aegisFetch<StoreResponse>(`${paths.store(orgId!)}?${params}`);
     },
     enabled: !!orgId,
   });
