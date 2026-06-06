@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { OFormField, OTextInput } from "@helios/blocks";
 import { z } from "zod";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
 import { useOrgIdBySlug } from "@/hooks/use-org-id";
-import type { AppInstallPayload, AppInstallResult } from "@/types/aegis";
+import type { AppInstallPayload, AppInstallResult, Project } from "@/types/aegis";
 
 const schema = z.object({
   app_name: z.string().min(1, "Required"),
@@ -41,12 +41,20 @@ export default function InstallPage() {
   });
   const [errors, setErrors] = useState<FieldErrors>({});
 
+  const { data: projects } = useQuery<Project[]>({
+    queryKey: ["projects", orgId],
+    queryFn: () => aegisFetch<Project[]>(paths.projects(orgId!)),
+    enabled: !!orgId,
+    staleTime: 60_000,
+  });
+  const defaultProjectId = projects?.[0]?.id ?? null;
+
   const mutation = useMutation({
     mutationFn: (payload: AppInstallPayload) =>
-      aegisFetch<AppInstallResult>(`${paths.appInstall(orgId!)}?project_id=`, {
-        method: "POST",
-        body: JSON.stringify(payload),
-      }),
+      aegisFetch<AppInstallResult>(
+        `${paths.appInstall(orgId!)}?project_id=${defaultProjectId ?? ""}`,
+        { method: "POST", body: JSON.stringify(payload) },
+      ),
     onSuccess: () => router.push(`/orgs/${org_slug}/apps`),
   });
 
@@ -99,7 +107,7 @@ export default function InstallPage() {
         )}
         <button
           type="submit"
-          disabled={mutation.isPending || !orgId}
+          disabled={mutation.isPending || !orgId || !defaultProjectId}
           className="rounded bg-primary px-6 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
           {mutation.isPending ? t("installing") : t("install")}
