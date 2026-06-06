@@ -1,0 +1,151 @@
+"use client";
+
+import { useParams } from "next/navigation";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { OJsonViewer } from "@helios/blocks";
+import { aegisFetch } from "@/lib/api";
+import { paths } from "@/lib/api-paths";
+import { useOrgIdBySlug } from "@/hooks/use-org-id";
+
+interface IncidentEvent {
+  id: string;
+  ts: string;
+  event_type: string;
+  severity: string;
+  service: string | null;
+  payload: unknown;
+  trace_id: string | null;
+}
+
+interface IncidentDetail {
+  id: string;
+  title: string;
+  severity: string;
+  status: string;
+  started_at: string;
+  resolved_at: string | null;
+  postmortem_md: string | null;
+  events: IncidentEvent[];
+}
+
+const SEVERITY_COLORS: Record<string, string> = {
+  critical: "bg-red-100 text-red-800",
+  warning: "bg-yellow-100 text-yellow-800",
+  info: "bg-blue-100 text-blue-800",
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  open: "bg-orange-100 text-orange-800",
+  resolved: "bg-green-100 text-green-800",
+};
+
+export default function IncidentDetailPage() {
+  const { org_slug, id } = useParams<{ org_slug: string; id: string }>();
+  const orgId = useOrgIdBySlug(org_slug);
+  const queryClient = useQueryClient();
+
+  const { data, isLoading, error } = useQuery<IncidentDetail>({
+    queryKey: ["incidents", orgId, id],
+    queryFn: () => aegisFetch<IncidentDetail>(paths.incident(orgId!, id)),
+    enabled: !!orgId,
+  });
+
+  const postmortem = useMutation({
+    mutationFn: () =>
+      aegisFetch<{ incident_id: string; postmortem_md: string }>(
+        paths.incidentPostmortem(orgId!, id),
+        { method: "POST" },
+      ),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["incidents", orgId, id] });
+    },
+  });
+
+  if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
+  if (error) return <p className="text-destructive">{(error as Error).message}</p>;
+  if (!data) return null;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">{data.title}</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Started {new Date(data.started_at).toLocaleString()}
+            {data.resolved_at && ` · Resolved ${new Date(data.resolved_at).toLocaleString()}`}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={`rounded px-2 py-0.5 text-xs font-medium ${SEVERITY_COLORS[data.severity] ?? "bg-gray-100 text-gray-800"}`}>
+            {data.severity}
+          </span>
+          <span className={`rounded px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[data.status] ?? "bg-gray-100 text-gray-800"}`}>
+            {data.status}
+          </span>
+        </div>
+      </div>
+
+      <section>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-lg font-semibold">Postmortem</h2>
+          <button
+            onClick={() => postmortem.mutate()}
+            disabled={postmortem.isPending}
+            className="rounded bg-indigo-600 px-3 py-1.5 text-sm text-white hover:bg-indigo-700 disabled:opacity-50"
+          >
+            {postmortem.isPending
+              ? "Generating…"
+              : data.postmortem_md
+              ? "Regenerate"
+              : "Generate"}
+          </button>
+        </div>
+        {postmortem.isError && (
+          <p className="text-destructive text-sm mb-2">
+            {(postmortem.error as Error).message}
+          </p>
+        )}
+        {data.postmortem_md ? (
+          <pre className="rounded border bg-muted p-4 text-sm whitespace-pre-wrap font-mono overflow-auto max-h-96">
+            {data.postmortem_md}
+          </pre>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            No postmortem yet. Click Generate to create one with AI.
+          </p>
+        )}
+      </section>
+
+      <section>
+        <h2 className="mb-2 text-lg font-semibold">
+          Related Events ({data.events.length})
+        </h2>
+        {data.events.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No correlated events.</p>
+        ) : (
+          <div className="space-y-2">
+            {data.events.map((ev) => (
+              <div key={ev.id} className="rounded border p-3 text-sm">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-medium">{ev.event_type}</span>
+                  <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${SEVERITY_COLORS[ev.severity] ?? "bg-gray-100 text-gray-800"}`}>
+                    {ev.severity}
+                  </span>
+                  {ev.service && (
+                    <span className="text-xs text-muted-foreground">{ev.service}</span>
+                  )}
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    {new Date(ev.ts).toLocaleString()}
+                  </span>
+                </div>
+                {ev.payload != null && (
+                  <OJsonViewer data={ev.payload as Record<string, unknown>} defaultExpandDepth={1} />
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}

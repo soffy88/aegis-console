@@ -113,4 +113,11 @@ export const paths = {
   inviteCreate: (orgId: string) => `/api/v1/orgs/${orgId}/invites`,
   inviteVerify: (token: string) => `/api/v1/invites/${token}`,
   inviteAccept: (token: string) => `/api/v1/invites/${token}/accept`,
+
+  // Incidents (S8)
+  incidents: (orgId: string) => `/api/v1/orgs/${orgId}/incidents`,
+  incident: (orgId: string, incidentId: string) =>
+    `/api/v1/orgs/${orgId}/incidents/${incidentId}`,
+  incidentPostmortem: (orgId: string, incidentId: string) =>
+    `/api/v1/orgs/${orgId}/incidents/${incidentId}/postmortem`,
 } as const;
