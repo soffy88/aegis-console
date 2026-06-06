@@ -57,6 +57,11 @@ export const paths = {
   domain: (orgId: string, domainName: string) =>
     `/api/v1/orgs/${orgId}/domains/${domainName}`,
 
+  // Edge routes (Caddy admin)
+  edgeRoutes: (orgId: string) => `/api/v1/orgs/${orgId}/edge/routes`,
+  edgeRoute: (orgId: string, routeId: string) =>
+    `/api/v1/orgs/${orgId}/edge/routes/${routeId}`,
+
   // Store
   store: (orgId: string) => `/api/v1/orgs/${orgId}/store`,
 
