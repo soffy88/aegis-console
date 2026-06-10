@@ -3,7 +3,7 @@
 import { Suspense, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter, Link } from "@/i18n/navigation";
 import { OLoginPage } from "@helios/oui/pages";
 import { login } from "@/lib/auth/client";
 import { scheduleRefresh } from "@/lib/auth/auto-refresh";
@@ -77,13 +77,21 @@ function LoginForm() {
   }
 
   return (
-    <OLoginPage
-      title={t("title")}
-      subtitle={t("subtitle")}
-      onSubmit={handleSubmit}
-      errorMessage={error ?? undefined}
-      loading={loading}
-    />
+    <div className="flex flex-col gap-4">
+      <OLoginPage
+        title={t("title")}
+        subtitle={t("subtitle")}
+        onSubmit={handleSubmit}
+        errorMessage={error ?? undefined}
+        loading={loading}
+      />
+      <div className="text-center text-sm text-gray-500">
+        {t("noAccount")}{" "}
+        <Link href="/register" className="text-blue-600 hover:underline">
+          {t("register")}
+        </Link>
+      </div>
+    </div>
   );
 }
 

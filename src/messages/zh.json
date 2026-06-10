@@ -8,7 +8,12 @@
     "containers": "容器",
     "events": "事件",
     "runbooks": "运维手册",
+    "incidents": "故障",
+    "autoheal": "自愈中心",
+    "brain": "Brain 调试",
+    "backups": "备份恢复",
     "domains": "域名",
+    "nodes": "节点",
     "alertIngest": "告警接入",
     "webhooks": "Webhook",
     "signOut": "退出登录"
@@ -35,11 +40,30 @@
     "actions": "操作",
     "remove": "移除",
     "test": "测试",
-    "edit": "编辑"
+    "edit": "编辑",
+    "start": "启动",
+    "stop": "停止",
+    "restart": "重启",
+    "details": "详情"
   },
   "login": {
     "title": "登录 Aegis",
-    "subtitle": "自托管 PaaS 管理平台"
+    "subtitle": "自托管 PaaS 管理平台",
+    "noAccount": "没有账号？",
+    "register": "注册"
+  },
+  "register": {
+    "title": "创建 Aegis 账号",
+    "subtitle": "加入自托管 PaaS 浪潮",
+    "email": "邮箱",
+    "password": "密码",
+    "orgName": "组织名称",
+    "orgSlug": "组织标识 (Slug)",
+    "submit": "创建账号",
+    "submitting": "创建中...",
+    "hasAccount": "已有账号？",
+    "login": "登录",
+    "success": "账号创建成功"
   },
   "notFound": {
     "title": "页面不存在",
@@ -82,6 +106,11 @@
   },
   "containers": {
     "title": "容器",
+    "name": "名称",
+    "status": "状态",
+    "started": "启动时间",
+    "ports": "端口",
+    "showStopped": "显示已停止",
     "start": "启动",
     "stop": "停止",
     "restart": "重启",
@@ -189,5 +218,40 @@
     "executionTitle": "执行详情",
     "output": "输出",
     "executing": "执行中…"
+  },
+  "autoheal": {
+    "title": "自愈中心",
+    "todayTotal": "今日告警总数",
+    "todayHandled": "今日已处理",
+    "pendingCritical": "待处理严重告警",
+    "pendingTotal": "待处理总数",
+    "handled": "已处理",
+    "pending": "待处理",
+    "retry": "重试"
+  },
+  "backups": {
+    "title": "备份与恢复",
+    "newBackup": "新建备份",
+    "instance": "实例名",
+    "size": "大小",
+    "completed": "完成时间",
+    "restore": "恢复",
+    "confirmRestore": "确认恢复"
+  },
+  "nodes": {
+    "title": "节点管理",
+    "register": "注册节点",
+    "host": "主机地址",
+    "label": "节点标签",
+    "mode": "连接模式",
+    "specs": "配置概览",
+    "containers": "容器",
+    "version": "Docker 版本",
+    "osArch": "系统 / 架构",
+    "cpuMem": "CPU / 内存",
+    "details": "节点详情",
+    "nodeInfo": "节点信息",
+    "rawInfo": "节点原始数据",
+    "nodeContainers": "该节点上的容器"
   }
 }

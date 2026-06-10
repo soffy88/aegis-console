@@ -4,12 +4,31 @@
  * Injects the Bearer access token from in-memory store on every request.
  * If the token is missing or expired, attempts a silent refresh before
  * the request. If refresh also fails, throws ApiError(401).
+ *
+ * API_BASE resolution:
+ *   - Browser:  NEXT_PUBLIC_AEGIS_API (public env var, set at build time)
+ *   - SSR:      AEGIS_API_INTERNAL_URL (server-only env var, e.g. http://aegis-backend:8000)
+ *               Falls back to NEXT_PUBLIC_AEGIS_API if not set.
+ *
+ * This prevents SSR fetch calls from hitting localhost:8080 inside the
+ * Next.js container instead of the actual backend service.
  */
 
 import { getValidToken } from "./auth/token-store";
 import { refreshToken } from "./auth/client";
 
-const API_BASE = process.env["NEXT_PUBLIC_AEGIS_API"] ?? "http://localhost:8080";
+function getApiBase(): string {
+  // Server-side: prefer the internal network URL (container-to-container)
+  if (typeof window === "undefined") {
+    return (
+      process.env["AEGIS_API_INTERNAL_URL"] ??
+      process.env["NEXT_PUBLIC_AEGIS_API"] ??
+      "http://aegis-backend:8000"
+    );
+  }
+  // Client-side: always use the public-facing URL
+  return process.env["NEXT_PUBLIC_AEGIS_API"] ?? "http://localhost:8080";
+}
 
 export class ApiError extends Error {
   constructor(
@@ -33,7 +52,7 @@ export async function aegisFetch<T>(
     token = getValidToken();
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${getApiBase()}${path}`, {
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
