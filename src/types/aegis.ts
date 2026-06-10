@@ -221,3 +221,104 @@ export interface ReleaseGateDecideRequest {
   decision: "approved" | "rejected";
   decision_reason: string;
 }
+
+export interface Node {
+  node_id: string;
+  host: string;
+  node_label: string;
+  docker_mode: "tcp" | "ssh" | "unreachable";
+  docker_host_url: string | null;
+  server_version: string | null;
+  os: string | null;
+  arch: string | null;
+  cpus: number | null;
+  memory_bytes: number | null;
+  registered_at: string;
+  // 运行时健康数据（sweep 结果）
+  reachable?: boolean;
+  containers_running?: number;
+  containers_total?: number;
+}
+
+export interface NodeRegisterPayload {
+  host: string;
+  node_label: string;
+  ssh_username: string;
+  docker_connection_mode?: "auto" | "tcp" | "ssh";
+  key_path?: string;
+  ssh_port?: number;
+  docker_tcp_port?: number;
+}
+
+export interface ContainerExecPayload {
+  command: string[];
+  workdir?: string;
+  timeout_sec?: number;
+}
+
+export interface ContainerExecResult {
+  container_id: string;
+  command: string[];
+  exit_code: number;
+  stdout: string;
+  stderr: string;
+  elapsed_ms: number;
+}
+
+export interface DockerNetwork {
+  id: string;
+  name: string;
+  driver: string;
+  scope: string;
+  internal: boolean;
+}
+
+export interface DockerVolume {
+  name: string;
+  driver: string;
+  mountpoint: string;
+  created_at: string;
+  labels: Record<string, string>;
+}
+
+export interface AutoHealEvent {
+  id: string;
+  cycle_id: string;
+  severity: "critical" | "warning" | "info";
+  source: string;          // "container:{name}" 或 "node:{host}"
+  reason: string;
+  value: number | null;
+  created_at: string;
+  handled: boolean;
+  handled_at: string | null;
+}
+
+export interface AutoHealStats {
+  today_total: number;
+  today_handled: number;
+  pending_critical: number;
+  pending_total: number;
+}
+
+export interface Backup {
+  id: string;
+  app_slug: string;
+  instance_name: string;
+  backup_key: string | null;
+  size_bytes: number;
+  status: "pending" | "completed" | "failed" | "restoring";
+  error: string | null;
+  created_at: string;
+  completed_at: string | null;
+}
+
+export interface BackupRequest {
+  app_slug: string;
+  instance_name: string;
+  target_volume: string;
+}
+
+export interface RestoreRequest {
+  target_volume: string;
+  container_id?: string;
+}

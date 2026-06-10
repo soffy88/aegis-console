@@ -25,8 +25,13 @@ function Sidebar() {
     { href: `${base}/store`, label: t("store") },
     { href: `${base}/projects`, label: t("projects") },
     { href: `${base}/containers`, label: t("containers") },
+    { href: `${base}/nodes`, label: t("nodes") },
     { href: `${base}/events`, label: t("events") },
     { href: `${base}/runbooks`, label: t("runbooks") },
+    { href: `${base}/incidents`, label: t("incidents") },
+    { href: `${base}/autoheal`, label: t("autoheal") },
+    { href: `${base}/brain`, label: t("brain") },
+    { href: `${base}/backups`, label: t("backups") },
     { href: `${base}/domains`, label: t("domains") },
     { href: `${base}/alerts/ingest`, label: t("alertIngest") },
   ] as const;

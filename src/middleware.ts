@@ -5,23 +5,25 @@ import { routing } from '@/i18n/routing';
 const handleI18nRouting = createMiddleware(routing);
 
 // Anchored checks prevent substring bypass (e.g. /orgs/my-login-app/ matching 'login').
-const LOGIN_RE = new RegExp(`^/(${routing.locales.join('|')})/login(/|$)`);
+const PUBLIC_RE = new RegExp(`^/(${routing.locales.join('|')})/(login|register|invites)(/|$)`);
 
 function isPublic(pathname: string): boolean {
   return (
-    LOGIN_RE.test(pathname) ||
+    PUBLIC_RE.test(pathname) ||
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
     pathname === '/favicon.ico'
   );
 }
 
-export function proxy(req: NextRequest): NextResponse {
+export function middleware(req: NextRequest): NextResponse {
   const { pathname } = req.nextUrl;
 
   // Step 1: next-intl locale redirect (no locale → /zh/..., valid locale → pass)
   const intlResponse = handleI18nRouting(req);
-  if (intlResponse.status !== 200) return intlResponse;
+  if (intlResponse.status !== 200) {
+    return intlResponse;
+  }
 
   // Step 2: auth guard — check refresh_token cookie
   if (!isPublic(pathname) && !req.cookies.has('refresh_token')) {

@@ -8,7 +8,16 @@
 
 import { clearAccessToken, setAccessToken } from "./token-store";
 
-const API_BASE = process.env["NEXT_PUBLIC_AEGIS_API"] ?? "http://localhost:8080";
+function getApiBase(): string {
+  if (typeof window === "undefined") {
+    return (
+      process.env["AEGIS_API_INTERNAL_URL"] ??
+      process.env["NEXT_PUBLIC_AEGIS_API"] ??
+      "http://aegis-backend:8000"
+    );
+  }
+  return process.env["NEXT_PUBLIC_AEGIS_API"] ?? "http://localhost:8080";
+}
 
 export interface LoginRequest {
   email: string;
@@ -21,12 +30,25 @@ export interface LoginResponse {
   expires_in: number; // seconds from now
 }
 
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  org_name: string;
+  org_slug: string;
+}
+
+export interface RegisterResponse extends LoginResponse {
+  user_id: string;
+  org_id: string;
+  org_slug: string;
+}
+
 /**
  * POST /auth/login — exchange credentials for tokens.
  * Sets the access token in memory; refresh token is set by server cookie.
  */
 export async function login(req: LoginRequest): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
+  const res = await fetch(`${getApiBase()}/api/v1/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(req),
@@ -46,11 +68,35 @@ export async function login(req: LoginRequest): Promise<void> {
 }
 
 /**
+ * POST /auth/register — create a new account and log in.
+ */
+export async function register(req: RegisterRequest): Promise<RegisterResponse> {
+  const res = await fetch(`${getApiBase()}/api/v1/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error((detail as { detail?: string }).detail ?? `Registration failed: ${res.status}`);
+  }
+
+  const data: RegisterResponse = await res.json();
+  setAccessToken({
+    token: data.access_token,
+    expiresAt: Math.floor(Date.now() / 1000) + data.expires_in,
+  });
+  return data;
+}
+
+/**
  * POST /auth/refresh — use httpOnly refresh cookie to get a new access token.
  * Returns true if a new token was obtained, false if the session has expired.
  */
 export async function refreshToken(): Promise<boolean> {
-  const res = await fetch(`${API_BASE}/api/v1/auth/refresh`, {
+  const res = await fetch(`${getApiBase()}/api/v1/auth/refresh`, {
     method: "POST",
     credentials: "include", // sends the httpOnly refresh cookie
   });
@@ -74,7 +120,7 @@ export async function refreshToken(): Promise<boolean> {
 export async function logout(): Promise<void> {
   clearAccessToken();
   // Best-effort: don't block on network failure — user is logged out locally.
-  await fetch(`${API_BASE}/api/v1/auth/logout`, {
+  await fetch(`${getApiBase()}/api/v1/auth/logout`, {
     method: "POST",
     credentials: "include",
   }).catch(() => undefined);

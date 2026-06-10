@@ -120,4 +120,41 @@ export const paths = {
     `/api/v1/orgs/${orgId}/incidents/${incidentId}`,
   incidentPostmortem: (orgId: string, incidentId: string) =>
     `/api/v1/orgs/${orgId}/incidents/${incidentId}/postmortem`,
+
+  // Nodes (多主机节点管理)
+  nodes: (orgId: string) => `/api/v1/orgs/${orgId}/nodes`,
+  node: (orgId: string, nodeId: string) => `/api/v1/orgs/${orgId}/nodes/${nodeId}`,
+  nodeRegister: (orgId: string) => `/api/v1/orgs/${orgId}/nodes/register`,
+  nodeContainers: (orgId: string, nodeId: string) =>
+    `/api/v1/orgs/${orgId}/nodes/${nodeId}/containers`,
+
+  // Docker — 新增 Batch D 路径
+  containerExec: (orgId: string, name: string) =>
+    `/api/v1/orgs/${orgId}/docker/containers/${name}/exec`,
+  containerStats: (orgId: string, name: string) =>
+    `/api/v1/orgs/${orgId}/docker/containers/${name}/stats`,
+  dockerNetworks: (orgId: string) => `/api/v1/orgs/${orgId}/docker/networks`,
+  dockerNetwork: (orgId: string, networkId: string) =>
+    `/api/v1/orgs/${orgId}/docker/networks/${networkId}`,
+  dockerVolumes: (orgId: string) => `/api/v1/orgs/${orgId}/docker/volumes`,
+
+  // AutoHeal
+  autohealEvents: (orgId: string) => `/api/v1/orgs/${orgId}/autoheal/events`,
+  autohealEvent: (orgId: string, eventId: string) =>
+    `/api/v1/orgs/${orgId}/autoheal/events/${eventId}`,
+  autohealRetry: (orgId: string, eventId: string) =>
+    `/api/v1/orgs/${orgId}/autoheal/events/${eventId}/retry`,
+  autohealStats: (orgId: string) => `/api/v1/orgs/${orgId}/autoheal/stats`,
+
+  // Brain / RCA
+  brainStatus: (orgId: string) => `/api/v1/orgs/${orgId}/brain/status`,
+  brainTriage: (orgId: string) => `/api/v1/orgs/${orgId}/brain/triage`,
+  brainInvestigate: (orgId: string) => `/api/v1/orgs/${orgId}/brain/investigate`,
+  brainPlan: (orgId: string) => `/api/v1/orgs/${orgId}/brain/plan`,
+
+  // Backups
+  backups: (orgId: string) => `/api/v1/orgs/${orgId}/backups`,
+  backup: (orgId: string, backupId: string) => `/api/v1/orgs/${orgId}/backups/${backupId}`,
+  backupRestore: (orgId: string, backupId: string) =>
+    `/api/v1/orgs/${orgId}/backups/${backupId}/restore`,
 } as const;

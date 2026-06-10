@@ -8,7 +8,12 @@
     "containers": "Containers",
     "events": "Events",
     "runbooks": "Runbooks",
+    "incidents": "Incidents",
+    "autoheal": "AutoHeal",
+    "brain": "Brain",
+    "backups": "Backups",
     "domains": "Domains",
+    "nodes": "Nodes",
     "alertIngest": "Alert Ingest",
     "webhooks": "Webhooks",
     "signOut": "Sign out"
@@ -35,11 +40,30 @@
     "actions": "Actions",
     "remove": "Remove",
     "test": "Test",
-    "edit": "Edit"
+    "edit": "Edit",
+    "start": "Start",
+    "stop": "Stop",
+    "restart": "Restart",
+    "details": "Details"
   },
   "login": {
     "title": "Sign in to Aegis",
-    "subtitle": "Self-hosted PaaS management console"
+    "subtitle": "Self-hosted PaaS management console",
+    "noAccount": "Don't have an account?",
+    "register": "Register"
+  },
+  "register": {
+    "title": "Create your Aegis account",
+    "subtitle": "Join the self-hosted PaaS movement",
+    "email": "Email",
+    "password": "Password",
+    "orgName": "Organization Name",
+    "orgSlug": "Organization Slug",
+    "submit": "Create Account",
+    "submitting": "Creating Account...",
+    "hasAccount": "Already have an account?",
+    "login": "Sign in",
+    "success": "Account created successfully"
   },
   "notFound": {
     "title": "Page not found",
@@ -82,6 +106,11 @@
   },
   "containers": {
     "title": "Containers",
+    "name": "Name",
+    "status": "Status",
+    "started": "Started",
+    "ports": "Ports",
+    "showStopped": "Show stopped",
     "start": "Start",
     "stop": "Stop",
     "restart": "Restart",
@@ -189,5 +218,40 @@
     "executionTitle": "Execution Detail",
     "output": "Output",
     "executing": "Executing…"
+  },
+  "autoheal": {
+    "title": "AutoHeal Center",
+    "todayTotal": "Today Total",
+    "todayHandled": "Today Handled",
+    "pendingCritical": "Pending Critical",
+    "pendingTotal": "Pending Total",
+    "handled": "Handled",
+    "pending": "Pending",
+    "retry": "Retry"
+  },
+  "backups": {
+    "title": "Backup & Restore",
+    "newBackup": "New Backup",
+    "instance": "Instance",
+    "size": "Size",
+    "completed": "Completed At",
+    "restore": "Restore",
+    "confirmRestore": "Confirm Restore"
+  },
+  "nodes": {
+    "title": "Nodes Management",
+    "register": "Register Node",
+    "host": "Host",
+    "label": "Label",
+    "mode": "Mode",
+    "specs": "Specs",
+    "containers": "Containers",
+    "version": "Docker Version",
+    "osArch": "OS / Arch",
+    "cpuMem": "CPU / Memory",
+    "details": "Node Details",
+    "nodeInfo": "Node Information",
+    "rawInfo": "Raw Node Data",
+    "nodeContainers": "Containers on this Node"
   }
 }

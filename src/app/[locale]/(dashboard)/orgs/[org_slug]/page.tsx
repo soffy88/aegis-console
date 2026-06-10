@@ -51,11 +51,26 @@ export default function DashboardPage() {
   });
 
   const totalApps = apps.data?.length ?? 0;
-  const runningCount = apps.data?.filter((a) => a.status === "running" || a.status === "completed").length ?? 0;
+  const runningCount =
+    apps.data?.filter((a) => a.status === "running" || a.status === "completed").length ?? 0;
   const failedCount = apps.data?.filter((a) => a.status === "failed").length ?? 0;
 
-  const healthStatus: "healthy" | "degraded" | "critical" =
-    health.error ? "critical" : health.data?.status === "ok" ? "healthy" : "degraded";
+  const autohealStats = useQuery<any>({
+    queryKey: ["autoheal-stats", orgId],
+    queryFn: () => aegisFetch<any>(paths.autohealStats(orgId!)),
+    enabled: !!orgId,
+    refetchInterval: 30000,
+  });
+
+  const healthStatus: "healthy" | "degraded" | "critical" = health.isLoading
+    ? "healthy"
+    : health.error
+      ? "critical"
+      : health.data?.status === "ok"
+        ? "healthy"
+        : "degraded";
+
+  const hasPendingCritical = (autohealStats.data?.pending_critical ?? 0) > 0;
 
   return (
     <div className="space-y-6">
@@ -64,11 +79,43 @@ export default function DashboardPage() {
         message={healthStatus === "healthy" ? t("allSystemsOk") : "System check failed"}
       />
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4" data-testid="kpi-row">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5" data-testid="kpi-row">
         <OKPICard data={{ label: t("totalApps"), primary: totalApps }} loading={apps.isLoading} />
-        <OKPICard data={{ label: t("running"), primary: runningCount, indicator: "up" }} loading={apps.isLoading} />
-        <OKPICard data={{ label: t("failed"), primary: failedCount, indicator: failedCount > 0 ? "down" : "neutral" }} loading={apps.isLoading} />
-        <OKPICard data={{ label: t("events1h"), primary: events.data?.length ?? 0 }} loading={events.isLoading} />
+        <OKPICard
+          data={{ label: t("running"), primary: runningCount, indicator: "up" }}
+          loading={apps.isLoading}
+        />
+        <OKPICard
+          data={{
+            label: t("failed"),
+            primary: failedCount,
+            indicator: failedCount > 0 ? "down" : "neutral",
+          }}
+          loading={apps.isLoading}
+        />
+        <OKPICard
+          data={{ label: t("events1h"), primary: events.data?.length ?? 0 }}
+          loading={events.isLoading}
+        />
+        <div
+          className={`rounded border bg-white p-3 shadow-sm ${
+            hasPendingCritical ? "border-red-500 ring-1 ring-red-500" : ""
+          }`}
+        >
+          <p className="text-xs font-semibold uppercase text-gray-500 truncate">自愈状态</p>
+          <div className="mt-1 flex items-baseline justify-between">
+            <p className="text-2xl font-bold text-red-600">
+              {autohealStats.data?.pending_critical ?? 0}
+            </p>
+            <Link
+              href={`/orgs/${org_slug}/autoheal`}
+              className="text-[10px] text-blue-600 hover:underline"
+            >
+              查看详情
+            </Link>
+          </div>
+          <p className="text-[10px] text-gray-400 mt-1">待处理严重告警</p>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">

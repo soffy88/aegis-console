@@ -81,13 +81,18 @@ export const useOrgStore = create<OrgState>()(
  * Called after login and on app init.
  */
 export async function loadUserOrgs(): Promise<OrgMembership[]> {
-  const API_BASE = process.env["NEXT_PUBLIC_AEGIS_API"] ?? "http://localhost:8080";
+  const apiBase =
+    typeof window === "undefined"
+      ? (process.env["AEGIS_API_INTERNAL_URL"] ??
+         process.env["NEXT_PUBLIC_AEGIS_API"] ??
+         "http://aegis-backend:8000")
+      : (process.env["NEXT_PUBLIC_AEGIS_API"] ?? "http://localhost:8080");
   // Import here to avoid circular dependency with auth/client.ts
   const { getValidToken } = await import("./auth/token-store");
   const token = getValidToken();
   if (!token) return [];
 
-  const res = await fetch(`${API_BASE}/api/v1/auth/me`, {
+  const res = await fetch(`${apiBase}/api/v1/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) return [];
