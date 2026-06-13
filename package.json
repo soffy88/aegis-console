@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@helios/blocks": "file:~/projects/platform/OUI/helios-blocks-2.0.0.tgz",
-    "@helios/oui": "file:~/projects/platform/OUI/helios-oui-1.3.1.tgz",
+    "@helios/oui": "file:~/projects/platform/OUI/helios-oui-1.3.2.tgz",
     "@tanstack/react-query": "^5.100.11",
     "@xterm/addon-fit": "^0.11.0",
     "@xterm/addon-web-links": "^0.12.0",
