@@ -103,8 +103,9 @@ export default function DashboardPage() {
                 onClose={onClose}
               >
                 <OKPICard
-                  data={{ label: t("totalApps"), primary: totalApps }}
+                  data={{ label: "", primary: totalApps }}
                   loading={apps.isLoading}
+                  variant="compact"
                 />
               </OWidgetFrame>
             );
@@ -122,8 +123,9 @@ export default function DashboardPage() {
                 onClose={onClose}
               >
                 <OKPICard
-                  data={{ label: t("running"), primary: runningCount, indicator: "up" }}
+                  data={{ label: "", primary: runningCount, indicator: "up" }}
                   loading={apps.isLoading}
+                  variant="compact"
                 />
               </OWidgetFrame>
             );
@@ -142,11 +144,12 @@ export default function DashboardPage() {
               >
                 <OKPICard
                   data={{
-                    label: t("failed"),
+                    label: "",
                     primary: failedCount,
                     indicator: failedCount > 0 ? "down" : "neutral",
                   }}
                   loading={apps.isLoading}
+                  variant="compact"
                 />
               </OWidgetFrame>
             );
@@ -164,8 +167,9 @@ export default function DashboardPage() {
                 onClose={onClose}
               >
                 <OKPICard
-                  data={{ label: t("events1h"), primary: eventCount }}
+                  data={{ label: "", primary: eventCount }}
                   loading={events.isLoading}
+                  variant="compact"
                 />
               </OWidgetFrame>
             );
@@ -183,9 +187,9 @@ export default function DashboardPage() {
                 onClose={onClose}
               >
                 <OAISummaryCard
-                  title="自愈状态"
                   summary={healSummary}
                   newSubstrates={pendingCritical}
+                  className="!border-0 !shadow-none !bg-transparent"
                 />
               </OWidgetFrame>
             );
@@ -205,6 +209,7 @@ export default function DashboardPage() {
                 <OEventTimeline
                   events={timelineEvents}
                   emptyMessage="暂无事件"
+                  className="!border-0 !shadow-none !bg-transparent"
                 />
               </OWidgetFrame>
             );

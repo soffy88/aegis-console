@@ -1,7 +1,4 @@
-/**
- * Auth layout — unauthenticated routes (login).
- * No AppFrame/sidebar — just a centered card layout.
- */
+import "../../globals.css";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
