@@ -81,7 +81,7 @@ function LoginForm() {
       <OLoginPage
         title={t("title")}
         subtitle={t("subtitle")}
-        onSubmit={handleSubmit}
+        onEmailLogin={handleSubmit}
         errorMessage={error ?? undefined}
         loading={loading}
       />
