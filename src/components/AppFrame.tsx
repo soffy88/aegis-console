@@ -28,6 +28,7 @@ const ICON_PATHS: Record<string, string> = {
   backups: "M4 7c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 7v10c0 1.7 3.6 3 8 3s8-1.3 8-3V7M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3",
   domains: "M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c2.5 2.5 3.5 6 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-6-3.5-9s1-6.5 3.5-9z",
   alertIngest: "M22 6l-10 7L2 6m0 0a2 2 0 012-2h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6z",
+  metrics: "M3 3v18h18M7 14l3-4 3 3 4-6",
 };
 
 function Icon({ name, className }: { name: string; className?: string }) {
@@ -70,6 +71,7 @@ function buildNav(base: string): NavSection[] {
       items: [
         { key: "containers", href: `${base}/containers`, icon: "containers" },
         { key: "nodes", href: `${base}/nodes`, icon: "nodes" },
+        { key: "metrics", href: `${base}/metrics`, icon: "metrics" },
         { key: "domains", href: `${base}/domains`, icon: "domains" },
       ],
     },

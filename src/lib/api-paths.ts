@@ -157,4 +157,21 @@ export const paths = {
   backup: (orgId: string, backupId: string) => `/api/v1/orgs/${orgId}/backups/${backupId}`,
   backupRestore: (orgId: string, backupId: string) =>
     `/api/v1/orgs/${orgId}/backups/${backupId}/restore`,
+
+  // Metrics (host-level infra; not org-scoped)
+  metricsSeries: (hours = 24) => `/api/v1/metrics/series?hours=${hours}`,
+  metricsQuery: (params: {
+    metric_name: string;
+    hostname?: string;
+    hours?: number;
+    bucket_seconds?: number;
+    agg?: string;
+  }) => {
+    const q = new URLSearchParams({ metric_name: params.metric_name });
+    if (params.hostname) q.set("hostname", params.hostname);
+    if (params.hours) q.set("hours", String(params.hours));
+    if (params.bucket_seconds) q.set("bucket_seconds", String(params.bucket_seconds));
+    if (params.agg) q.set("agg", params.agg);
+    return `/api/v1/metrics/query?${q.toString()}`;
+  },
 } as const;
