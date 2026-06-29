@@ -14,6 +14,36 @@ import { useOrgIdBySlug } from "@/hooks/use-org-id";
 
 type ColDef<T> = ODataTableData<T>["columns"][number];
 
+/** Format one Docker port. Real payload is an array of
+ *  {host_port, container_port, protocol} objects (the Container type's
+ *  Record<string,string> is inaccurate), so never String() an object. */
+function fmtPort(p: unknown): string {
+  if (p && typeof p === "object") {
+    const o = p as Record<string, unknown>;
+    const hp = o.host_port ?? o.hostPort;
+    const cp = o.container_port ?? o.containerPort ?? o.port;
+    const proto = o.protocol ? `/${o.protocol}` : "";
+    if (hp && cp) return `${hp}→${cp}${proto}`;
+    if (cp) return `${cp}${proto}`;
+    return Object.values(o).filter(Boolean).join(":");
+  }
+  return String(p);
+}
+
+const ICON = {
+  play: "M7 5v14l11-7z",
+  stop: "M7 7h10v10H7z",
+  restart: "M21 12a9 9 0 11-3-6.7M21 4v5h-5",
+  info: "M12 3a9 9 0 100 18 9 9 0 000-18zM12 8h.01M11 12h1v5h1",
+};
+function ActIcon({ d }: { d: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d={d} />
+    </svg>
+  );
+}
+
 export default function ContainersPage() {
   const t = useTranslations("containers");
   const tc = useTranslations("common");
@@ -57,47 +87,47 @@ export default function ContainersPage() {
       accessorKey: "ports",
       header: t("ports"),
       cell: ({ row }) => {
-        const ports = row.original.ports;
-        if (!ports || (Array.isArray(ports) && ports.length === 0)) return "—";
-        if (Array.isArray(ports)) return ports.map((p) => String(p)).join(", ");
-        return String(ports);
+        const ports = row.original.ports as unknown;
+        if (!ports) return "—";
+        const entries = Array.isArray(ports)
+          ? ports.map(fmtPort)
+          : typeof ports === "object"
+            ? Object.entries(ports as Record<string, unknown>).map(([k, v]) =>
+                v ? `${fmtPort(v)} → ${k}` : k,
+              )
+            : [String(ports)];
+        if (entries.length === 0) return "—";
+        return (
+          <span className="font-mono text-xs text-[var(--muted-foreground)]">
+            {entries.join(", ")}
+          </span>
+        );
       },
     },
     {
       id: "actions",
       header: "",
-      cell: ({ row }) => (
-        <div className="flex gap-1">
-          <button
-            onClick={(e) => { e.stopPropagation(); act(row.original.name, "start"); }}
-            disabled={actionMutation.isPending}
-            className="rounded bg-green-100 px-2 py-0.5 text-xs hover:bg-green-200 disabled:opacity-50"
-          >
-            {tc("start")}
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); act(row.original.name, "stop"); }}
-            disabled={actionMutation.isPending}
-            className="rounded bg-yellow-100 px-2 py-0.5 text-xs hover:bg-yellow-200 disabled:opacity-50"
-          >
-            {tc("stop")}
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); act(row.original.name, "restart"); }}
-            disabled={actionMutation.isPending}
-            className="rounded bg-orange-100 px-2 py-0.5 text-xs hover:bg-orange-200 disabled:opacity-50"
-          >
-            {tc("restart")}
-          </button>
-          <Link
-            href={`/orgs/${org_slug}/containers/${row.original.name}`}
-            onClick={(e) => e.stopPropagation()}
-            className="rounded bg-gray-100 px-2 py-0.5 text-xs hover:bg-gray-200"
-          >
-            {tc("details")}
-          </Link>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const n = row.original.name;
+        const ib =
+          "grid h-7 w-7 place-items-center rounded-md border border-[var(--border)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)] disabled:opacity-40";
+        return (
+          <div className="flex items-center justify-end gap-1">
+            <button title={tc("start")} aria-label={tc("start")} onClick={(e) => { e.stopPropagation(); act(n, "start"); }} disabled={actionMutation.isPending} className={ib}>
+              <ActIcon d={ICON.play} />
+            </button>
+            <button title={tc("stop")} aria-label={tc("stop")} onClick={(e) => { e.stopPropagation(); act(n, "stop"); }} disabled={actionMutation.isPending} className={ib}>
+              <ActIcon d={ICON.stop} />
+            </button>
+            <button title={tc("restart")} aria-label={tc("restart")} onClick={(e) => { e.stopPropagation(); act(n, "restart"); }} disabled={actionMutation.isPending} className={ib}>
+              <ActIcon d={ICON.restart} />
+            </button>
+            <Link title={tc("details")} aria-label={tc("details")} href={`/orgs/${org_slug}/containers/${n}`} onClick={(e) => e.stopPropagation()} className={`${ib} hover:border-[var(--primary)] hover:text-[var(--primary)]`}>
+              <ActIcon d={ICON.info} />
+            </Link>
+          </div>
+        );
+      },
     },
   ];
 
@@ -127,13 +157,15 @@ export default function ContainersPage() {
         <p className="rounded bg-red-50 p-2 text-sm text-red-600">{actionError}</p>
       )}
 
-      <ODataTable<Container>
-        data={containers.data ? { columns, rows: containers.data } : null}
-        loading={containers.isLoading}
-        error={containers.error as Error | null}
-        empty={containers.data?.length === 0}
-        sortable
-      />
+      <div className="overflow-x-auto">
+        <ODataTable<Container>
+          data={containers.data ? { columns, rows: containers.data } : null}
+          loading={containers.isLoading}
+          error={containers.error as Error | null}
+          empty={containers.data?.length === 0}
+          sortable
+        />
+      </div>
     </div>
   );
 }
