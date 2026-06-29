@@ -8,6 +8,7 @@ vi.mock("@/hooks/use-org-id", () => ({ useOrgIdBySlug: vi.fn().mockReturnValue("
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   useParams: () => ({ org_slug: "test-org" }),
+  usePathname: () => "/orgs/test-org",
 }));
 
 function wrapper({ children }: { children: React.ReactNode }) {
@@ -17,26 +18,27 @@ function wrapper({ children }: { children: React.ReactNode }) {
 
 describe("Org Dashboard (smoke)", () => {
   beforeEach(() => {
-    vi.mocked(api.aegisFetch).mockImplementation((path: string) => {
-      if ((path as string).includes("/health")) return Promise.resolve({ status: "ok" });
-      return Promise.resolve([]);
-    });
+    vi.mocked(api.aegisFetch).mockImplementation(() => Promise.resolve([]));
   });
 
-  it("renders health banner", async () => {
+  it("renders the widget grid container", async () => {
     render(<DashboardPage />, { wrapper });
     await waitFor(() => {
-      expect(screen.getByRole("status")).toBeInTheDocument();
+      expect(document.querySelector(".oui-widget-grid")).toBeTruthy();
     });
   });
 
-  it("renders KPI grid container", () => {
+  it("renders the KPI widget titles", async () => {
     render(<DashboardPage />, { wrapper });
-    expect(document.querySelector(".grid")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByText("Total Apps")).toBeInTheDocument();
+    });
   });
 
-  it("renders Project Health panel", () => {
+  it("renders the event stream widget", async () => {
     render(<DashboardPage />, { wrapper });
-    expect(screen.getByTestId("project-health-panel")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Event Stream")).toBeInTheDocument();
+    });
   });
 });
