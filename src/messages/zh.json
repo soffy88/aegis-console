@@ -253,5 +253,19 @@
     "nodeInfo": "节点信息",
     "rawInfo": "节点原始数据",
     "nodeContainers": "该节点上的容器"
+  },
+  "brain": {
+    "title": "Brain 调试"
+  },
+  "members": {
+    "title": "成员",
+    "subtitle": "管理可访问该组织的成员",
+    "inviteTitle": "邀请成员",
+    "email": "邮箱",
+    "name": "姓名",
+    "role": "角色",
+    "sendInvite": "发送邀请",
+    "sending": "发送中…",
+    "inviteSent": "邀请已发送"
   }
 }

@@ -253,5 +253,19 @@
     "nodeInfo": "Node Information",
     "rawInfo": "Raw Node Data",
     "nodeContainers": "Containers on this Node"
+  },
+  "brain": {
+    "title": "Brain"
+  },
+  "members": {
+    "title": "Members",
+    "subtitle": "Manage who can access this organization",
+    "inviteTitle": "Invite a member",
+    "email": "Email",
+    "name": "Name",
+    "role": "Role",
+    "sendInvite": "Send invite",
+    "sending": "Sending…",
+    "inviteSent": "Invite sent"
   }
 }

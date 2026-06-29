@@ -75,8 +75,22 @@ export default function ContainersPage() {
   }
 
   const columns: ColDef<Container>[] = [
-    { accessorKey: "name", header: t("name") },
-    { accessorKey: "image", header: t("image") },
+    {
+      accessorKey: "name",
+      header: t("name"),
+      cell: ({ row }) => (
+        <span className="whitespace-nowrap font-medium">{row.original.name}</span>
+      ),
+    },
+    {
+      accessorKey: "image",
+      header: t("image"),
+      cell: ({ row }) => (
+        <span className="block max-w-[260px] truncate text-[var(--muted-foreground)]" title={row.original.image}>
+          {row.original.image}
+        </span>
+      ),
+    },
     {
       accessorKey: "status",
       header: t("status"),
