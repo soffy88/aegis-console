@@ -76,8 +76,11 @@ function LoginForm() {
     }
   }
 
+  // w-full max-w-sm: OLoginPage's .oui-auth-card is width:100% (oui ≥1.5.x), so
+  // the wrapper MUST be width-constrained or the card collapses to a narrow
+  // column (matches the Suspense fallback below).
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex w-full max-w-sm flex-col gap-4">
       <OLoginPage
         title={t("title")}
         subtitle={t("subtitle")}
