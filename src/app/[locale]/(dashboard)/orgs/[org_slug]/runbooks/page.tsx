@@ -36,7 +36,7 @@ export default function RunbooksPage() {
     { accessorKey: "trigger", header: "Trigger" },
     { accessorKey: "requires_approval", header: "Approval", cell: ({ row }) => row.original.requires_approval ? tc("yes") : tc("no") },
     { accessorKey: "source", header: "Source", cell: ({ row }) => (
-      <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${row.original.source === "plugin" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800"}`}>
+      <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${row.original.source === "plugin" ? "bg-purple-100 text-purple-800" : "bg-blue-500/15 text-blue-300"}`}>
         {row.original.source}
       </span>
     )},
@@ -77,17 +77,17 @@ export default function RunbooksPage() {
             <span className="text-xs text-muted-foreground italic">auto-heal plugin — no manual execute</span>
           ) : (
             <>
-              <button onClick={() => dryRun.mutate(rb.name)} className="rounded bg-blue-100 px-3 py-1 text-sm hover:bg-blue-200">
+              <button onClick={() => dryRun.mutate(rb.name)} className="rounded-md border border-[var(--primary)] px-3 py-1 text-sm text-[var(--primary)] transition-colors hover:bg-[var(--primary-subtle)]">
                 {t("dryRun")}
               </button>
-              <button onClick={() => setConfirm(rb.name)} className="rounded bg-red-100 px-3 py-1 text-sm hover:bg-red-200">
+              <button onClick={() => setConfirm(rb.name)} className="rounded-md border border-red-500/30 px-3 py-1 text-sm text-red-400 transition-colors hover:bg-red-500/10">
                 {t("executeLive")}
               </button>
               {confirm === rb.name && (
                 <div className="flex items-center gap-2 ml-2">
                   <span className="text-xs text-red-600">Confirm?</span>
                   <button onClick={() => { liveRun.mutate(rb.name); setConfirm(null); }} className="rounded bg-red-500 px-2 py-0.5 text-xs text-white">{tc("yes")}</button>
-                  <button onClick={() => setConfirm(null)} className="rounded bg-gray-200 px-2 py-0.5 text-xs">{tc("no")}</button>
+                  <button onClick={() => setConfirm(null)} className="rounded bg-[var(--muted)] px-2 py-0.5 text-xs">{tc("no")}</button>
                 </div>
               )}
             </>

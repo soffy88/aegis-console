@@ -155,7 +155,7 @@ export default function ContainerPage() {
         )}
       </section>
 
-      <section className="space-y-4 rounded-lg border bg-gray-50 p-4">
+      <section className="space-y-4 rounded-lg border border-[var(--border)] bg-[var(--muted)] p-4">
         <h2 className="text-lg font-semibold">Execute Command</h2>
         <div className="flex gap-2">
           <input
@@ -177,7 +177,7 @@ export default function ContainerPage() {
         </div>
 
         {execMutation.isError && (
-          <div className="rounded border border-red-200 bg-red-50 p-2 text-sm text-red-600">
+          <div className="rounded-md border border-red-500/30 bg-red-500/10 p-2 text-sm text-red-400">
             {(execMutation.error as Error).message}
           </div>
         )}
@@ -201,7 +201,7 @@ export default function ContainerPage() {
               </pre>
             )}
             {execMutation.data.stderr && (
-              <pre className="max-h-96 overflow-auto rounded border border-red-200 bg-red-50 p-4 font-mono text-xs text-red-600">
+              <pre className="max-h-96 overflow-auto rounded border border-red-500/30 bg-red-500/10 p-4 font-mono text-xs text-red-400">
                 {execMutation.data.stderr}
               </pre>
             )}

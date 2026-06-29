@@ -14,7 +14,7 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={() => { void navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-      className="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-xs hover:bg-gray-200"
+      className="ml-2 rounded-md border border-[var(--border)] px-1.5 py-0.5 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)]"
       aria-label="Copy trace ID"
     >
       {copied ? "✓" : "copy"}
@@ -25,7 +25,7 @@ function CopyButton({ text }: { text: string }) {
 function ChainNode({ node, onExpand, expanded }: { node: CausalChainNode; onExpand: () => void; expanded: boolean }) {
   return (
     <div
-      className="border-l-2 border-blue-300 pl-4 py-2 cursor-pointer hover:bg-blue-50 rounded"
+      className="border-l-2 border-[var(--primary)] pl-4 py-2 cursor-pointer hover:bg-[var(--muted)] rounded"
       style={{ marginLeft: `${node.depth * 24}px` }}
       onClick={onExpand}
       data-testid={`chain-node-${node.id}`}

@@ -21,14 +21,14 @@ interface Incident {
 type ColDef<T> = ODataTableData<T>["columns"][number];
 
 const SEVERITY_COLORS: Record<string, string> = {
-  critical: "bg-red-100 text-red-800",
-  warning: "bg-yellow-100 text-yellow-800",
-  info: "bg-blue-100 text-blue-800",
+  critical: "bg-red-500/15 text-red-300",
+  warning: "bg-yellow-500/15 text-yellow-300",
+  info: "bg-blue-500/15 text-blue-300",
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  open: "bg-orange-100 text-orange-800",
-  resolved: "bg-green-100 text-green-800",
+  open: "bg-orange-500/15 text-orange-300",
+  resolved: "bg-green-500/15 text-green-300",
 };
 
 export default function IncidentsPage() {
@@ -42,7 +42,7 @@ export default function IncidentsPage() {
       accessorKey: "severity",
       header: "Severity",
       cell: ({ row }) => (
-        <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${SEVERITY_COLORS[row.original.severity] ?? "bg-gray-100 text-gray-800"}`}>
+        <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${SEVERITY_COLORS[row.original.severity] ?? "bg-[var(--muted)] text-[var(--card-foreground)]"}`}>
           {row.original.severity}
         </span>
       ),
@@ -51,7 +51,7 @@ export default function IncidentsPage() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
-        <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${STATUS_COLORS[row.original.status] ?? "bg-gray-100 text-gray-800"}`}>
+        <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${STATUS_COLORS[row.original.status] ?? "bg-[var(--muted)] text-[var(--card-foreground)]"}`}>
           {row.original.status}
         </span>
       ),

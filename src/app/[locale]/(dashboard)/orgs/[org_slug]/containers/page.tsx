@@ -154,7 +154,7 @@ export default function ContainersPage() {
       </div>
 
       {actionError && (
-        <p className="rounded bg-red-50 p-2 text-sm text-red-600">{actionError}</p>
+        <p className="rounded-md border border-red-500/30 bg-red-500/10 p-2 text-sm text-red-400">{actionError}</p>
       )}
 
       <div className="overflow-x-auto">

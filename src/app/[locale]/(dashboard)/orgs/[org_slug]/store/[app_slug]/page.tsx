@@ -44,10 +44,10 @@ export default function AppDetailPage() {
           <h1 className="text-3xl font-bold">{app.name}</h1>
           <p className="text-muted-foreground text-lg">{app.description}</p>
           <div className="flex gap-2">
-            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-sm font-medium">
+            <span className="px-2 py-0.5 bg-[var(--primary-subtle)] text-[var(--primary)] rounded text-sm font-medium">
               {app.category}
             </span>
-            <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-sm font-medium">
+            <span className="px-2 py-0.5 bg-[var(--muted)] text-[var(--card-foreground)] rounded text-sm font-medium">
               {app.version}
             </span>
           </div>
@@ -88,7 +88,7 @@ export default function AppDetailPage() {
                   <div key={i} className="text-sm">
                     <p className="font-mono font-bold text-blue-600">{e.key}</p>
                     <p className="text-gray-500 text-xs">{e.description || "No description provided."}</p>
-                    <p className="text-xs mt-1">Default: <code className="bg-gray-100 px-1 rounded">{e.default_value}</code></p>
+                    <p className="text-xs mt-1">Default: <code className="bg-[var(--muted)] px-1 rounded">{e.default_value}</code></p>
                   </div>
                 ))}
               </div>

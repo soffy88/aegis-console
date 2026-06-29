@@ -100,7 +100,7 @@ export default function NodesPage() {
       cell: ({ row }) => (
         <Link
           href={`/orgs/${org_slug}/nodes/${row.original.node_id}`}
-          className="rounded bg-gray-100 px-2 py-1 text-xs hover:bg-gray-200"
+          className="rounded-md border border-[var(--border)] px-2 py-1 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)]"
         >
           {tc("details")}
         </Link>
@@ -177,7 +177,7 @@ export default function NodesPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="rounded px-4 py-2 hover:bg-gray-100"
+                  className="rounded-md px-4 py-2 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)]"
                 >
                   {tc("cancel")}
                 </button>

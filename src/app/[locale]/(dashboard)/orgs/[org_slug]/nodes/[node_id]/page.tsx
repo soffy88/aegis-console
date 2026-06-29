@@ -64,7 +64,7 @@ export default function NodePage() {
               key={action}
               onClick={() => actionMutation.mutate({ name: row.original.name, action })}
               disabled={actionMutation.isPending}
-              className="rounded bg-gray-100 px-2 py-1 text-xs hover:bg-gray-200 capitalize disabled:opacity-50"
+              className="rounded-md border border-[var(--border)] px-2 py-1 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)] capitalize disabled:opacity-50"
             >
               {tc(action)}
             </button>
@@ -123,7 +123,7 @@ export default function NodePage() {
         />
       </section>
 
-      <section className="space-y-2 rounded border bg-gray-50 p-4">
+      <section className="space-y-2 rounded-md border border-[var(--border)] bg-[var(--muted)] p-4">
         <h2 className="text-xs font-semibold uppercase text-gray-500">{t("rawInfo")}</h2>
         <OJsonViewer data={node ?? null} defaultExpandDepth={1} />
       </section>

@@ -93,7 +93,7 @@ export default function BrainPage() {
 
       {/* Debug Tabs */}
       <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
-        <div className="flex border-b bg-gray-50">
+        <div className="flex border-b border-[var(--border)] bg-[var(--muted)]">
           {(["triage", "rca", "plan"] as Tab[]).map((tab) => (
             <button
               key={tab}
@@ -130,7 +130,7 @@ export default function BrainPage() {
                 {triageMutation.data ? (
                   <div className="space-y-4">
                     <div className="flex gap-4">
-                      <div className="flex-1 rounded border bg-blue-50 p-3 text-center">
+                      <div className="flex-1 rounded-md border border-blue-500/30 bg-blue-500/10 p-3 text-center">
                         <p className="text-[10px] uppercase text-blue-600">Priority</p>
                         <p
                           className={`text-3xl font-bold ${
@@ -144,12 +144,12 @@ export default function BrainPage() {
                           {(triageMutation.data as any).priority_score}
                         </p>
                       </div>
-                      <div className="flex-1 rounded border bg-gray-50 p-3 text-center">
+                      <div className="flex-1 rounded-md border border-[var(--border)] bg-[var(--muted)] p-3 text-center">
                         <p className="text-[10px] uppercase text-gray-500">Escalate</p>
                         <OStatusBadge label={String((triageMutation.data as any).should_escalate)} />
                       </div>
                     </div>
-                    <div className="rounded border bg-gray-50 p-4">
+                    <div className="rounded-md border border-[var(--border)] bg-[var(--muted)] p-4">
                       <p className="text-sm font-semibold">{(triageMutation.data as any).classified_category}</p>
                       <p className="mt-1 text-sm text-gray-600">{(triageMutation.data as any).reason}</p>
                     </div>
@@ -215,7 +215,7 @@ export default function BrainPage() {
                 <h3 className="font-semibold text-gray-900">Investigation Result</h3>
                 {investigateMutation.data ? (
                   <div className="space-y-4">
-                    <div className="rounded border border-blue-200 bg-blue-50 p-4">
+                    <div className="rounded-md border border-blue-500/30 bg-blue-500/10 p-4">
                       <p className="text-lg font-bold text-blue-900">
                         {(investigateMutation.data as any).final_answer || "Investigation Skipped"}
                       </p>
@@ -237,7 +237,7 @@ export default function BrainPage() {
                               </summary>
                               <div className="mt-2 space-y-2 pl-4 text-[10px]">
                                 <p className="text-gray-500 italic">{step.thought}</p>
-                                <pre className="bg-gray-100 p-2 rounded max-h-20 overflow-hidden text-gray-700">
+                                <pre className="bg-[var(--muted)] p-2 rounded max-h-20 overflow-hidden text-[var(--muted-foreground)]">
                                   {step.observation?.slice(0, 200)}...
                                 </pre>
                               </div>
@@ -294,7 +294,7 @@ export default function BrainPage() {
                             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
                               {idx + 1}
                             </span>
-                            <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-800">
+                            <span className="rounded bg-[var(--primary-subtle)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--primary)]">
                               {step.plugin_id}
                             </span>
                           </div>
