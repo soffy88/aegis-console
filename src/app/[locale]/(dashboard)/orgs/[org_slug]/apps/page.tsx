@@ -73,17 +73,17 @@ function AppCard({ app, orgId, orgSlug }: { app: App; orgId: string; orgSlug: st
       <div className="flex gap-2 text-xs">
         <button
           onClick={() => void aegisFetch(paths.containerStart(orgId, app.app_name), { method: "POST" })}
-          className="rounded bg-green-100 px-2 py-1 hover:bg-green-200"
+          className="rounded-md border border-[var(--border)] px-2 py-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)]"
         >start</button>
         <button
           onClick={() => void aegisFetch(paths.containerStop(orgId, app.app_name), { method: "POST" })}
-          className="rounded bg-yellow-100 px-2 py-1 hover:bg-yellow-200"
+          className="rounded-md border border-[var(--border)] px-2 py-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)]"
         >stop</button>
         <button
           onClick={() => void aegisFetch(paths.containerRestart(orgId, app.app_name), { method: "POST" })}
-          className="rounded bg-orange-100 px-2 py-1 hover:bg-orange-200"
+          className="rounded-md border border-[var(--border)] px-2 py-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)]"
         >restart</button>
-        <Link href={`/orgs/${orgSlug}/apps/${app.id}`} className="rounded bg-gray-100 px-2 py-1 hover:bg-gray-200 ml-auto">
+        <Link href={`/orgs/${orgSlug}/apps/${app.id}`} className="rounded-md border border-[var(--border)] px-2 py-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)] ml-auto">
           details
         </Link>
       </div>

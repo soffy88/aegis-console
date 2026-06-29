@@ -16,7 +16,8 @@
     "nodes": "Nodes",
     "alertIngest": "Alert Ingest",
     "webhooks": "Webhooks",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "metrics": "Metrics"
   },
   "common": {
     "create": "Create",
@@ -253,5 +254,31 @@
     "nodeInfo": "Node Information",
     "rawInfo": "Raw Node Data",
     "nodeContainers": "Containers on this Node"
+  },
+  "brain": {
+    "title": "Brain"
+  },
+  "members": {
+    "title": "Members",
+    "subtitle": "Manage who can access this organization",
+    "inviteTitle": "Invite a member",
+    "email": "Email",
+    "name": "Name",
+    "role": "Role",
+    "sendInvite": "Send invite",
+    "sending": "Sending…",
+    "inviteSent": "Invite sent"
+  },
+  "metrics": {
+    "title": "Metrics",
+    "subtitle": "Host-level time series collected by aegis-agent",
+    "metric": "Metric",
+    "host": "Host",
+    "allHosts": "All hosts",
+    "range": "Range",
+    "agg": "Aggregation",
+    "noData": "No data in the selected range",
+    "noSeries": "No metrics ingested yet. Start aegis-agent to populate this view.",
+    "samples": "samples"
   }
 }

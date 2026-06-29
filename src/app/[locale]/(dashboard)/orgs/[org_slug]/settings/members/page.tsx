@@ -115,7 +115,7 @@ export default function MembersPage() {
         row.original.role === "owner" ? null : (
           <button
             onClick={() => removeMutation.mutate(row.original.user_id)}
-            className="rounded bg-red-100 px-2 py-0.5 text-xs text-red-700 hover:bg-red-200"
+            className="rounded-md border border-red-500/30 px-2 py-0.5 text-xs text-red-400 transition-colors hover:bg-red-500/10"
           >
             {tc("remove")}
           </button>

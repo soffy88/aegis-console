@@ -47,7 +47,7 @@ export default function ExecutionPage() {
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">{t("executionTitle")}: {data.runbook_name}</h1>
       <div className="flex items-center gap-3">
-        <span className="rounded bg-gray-100 px-2 py-1 text-sm font-mono">{data.status}</span>
+        <span className="rounded-md bg-[var(--muted)] px-2 py-1 text-sm font-mono">{data.status}</span>
         {data.dry_run && <span className="text-xs text-blue-600">[DRY RUN]</span>}
       </div>
 
@@ -65,7 +65,7 @@ export default function ExecutionPage() {
               <span className="font-medium text-sm">{step.step_name}</span>
               <span className="text-xs text-muted-foreground">{step.status}</span>
             </div>
-            {step.output && <pre className="mt-1 text-xs bg-gray-50 p-2 rounded overflow-x-auto">{step.output}</pre>}
+            {step.output && <pre className="mt-1 text-xs bg-[var(--muted)] p-2 rounded-md overflow-x-auto">{step.output}</pre>}
           </div>
         ))}
       </div>

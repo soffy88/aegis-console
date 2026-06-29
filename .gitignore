@@ -34,3 +34,7 @@ next-env.d.ts
 # Playwright
 test-results/
 playwright-report/
+
+# WSL download artifacts
+*Zone.Identifier
+*:Zone.Identifier

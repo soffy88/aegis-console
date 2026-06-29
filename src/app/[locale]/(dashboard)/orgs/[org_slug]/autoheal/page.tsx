@@ -14,9 +14,9 @@ import type { AutoHealEvent, AutoHealStats } from "@/types/aegis";
 type ColDef<T> = ODataTableData<T>["columns"][number];
 
 const SEVERITY_COLORS: Record<string, string> = {
-  critical: "bg-red-100 text-red-800",
-  warning: "bg-yellow-100 text-yellow-800",
-  info: "bg-blue-100 text-blue-800",
+  critical: "bg-red-500/15 text-red-300",
+  warning: "bg-yellow-500/15 text-yellow-300",
+  info: "bg-blue-500/15 text-blue-300",
 };
 
 export default function AutoHealPage() {
@@ -65,7 +65,7 @@ export default function AutoHealPage() {
       cell: ({ row }) => (
         <span
           className={`rounded px-1.5 py-0.5 text-xs font-medium ${
-            SEVERITY_COLORS[row.original.severity] ?? "bg-gray-100 text-gray-800"
+            SEVERITY_COLORS[row.original.severity] ?? "bg-[var(--muted)] text-[var(--card-foreground)]"
           }`}
         >
           {row.original.severity}
@@ -106,7 +106,7 @@ export default function AutoHealPage() {
               {t("retry")}
             </button>
           )}
-          <button className="rounded bg-gray-100 px-2 py-1 text-xs hover:bg-gray-200">
+          <button className="rounded-md border border-[var(--border)] px-2 py-1 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)]">
             {tc("details")}
           </button>
         </div>

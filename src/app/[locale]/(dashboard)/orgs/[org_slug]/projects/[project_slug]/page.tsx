@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { OKPICard, OSparkline } from "@helios/blocks";
@@ -21,12 +22,19 @@ export default function ProjectDetailPage() {
   });
 
   const healthEnabled = !!orgId && !!projectId && !!(project?.config?.health_url);
-  const { data: health, isLoading: healthLoading } = useQuery<ProjectHealth>({
+  const { data: health, isLoading: healthLoading, dataUpdatedAt } = useQuery<ProjectHealth>({
     queryKey: ["project-health", orgId, projectId],
     queryFn: () => aegisFetch<ProjectHealth>(paths.projectHealth(orgId!, projectId!)),
     enabled: healthEnabled,
     refetchInterval: 30_000,
   });
+
+  // Build a real rolling history from observed probes (no backend history endpoint yet).
+  const [healthHistory, setHealthHistory] = useState<number[]>([]);
+  useEffect(() => {
+    if (!dataUpdatedAt || !health) return;
+    setHealthHistory((h) => [...h, health.healthy ? 1 : 0].slice(-30));
+  }, [dataUpdatedAt]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) return <p>Loading…</p>;
   if (!project) return <p className="text-muted-foreground">Project not found.</p>;
@@ -65,15 +73,23 @@ export default function ProjectDetailPage() {
         <section className="rounded border p-4 space-y-2">
           <h2 className="font-semibold">Health Probe</h2>
           <p className="text-sm text-muted-foreground font-mono">{String(project.config.health_url)}</p>
-          {/* TODO: replace hardcoded values with backend history endpoint */}
-          <OSparkline
-            values={[1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1]}
-            indicator={health?.healthy ? "up" : "down"}
-            width={120}
-            height={32}
-            fill
-            ariaLabel="health last 24h"
-          />
+          {healthHistory.length > 1 ? (
+            <>
+              <OSparkline
+                values={healthHistory}
+                indicator={health?.healthy ? "up" : "down"}
+                width={120}
+                height={32}
+                fill
+                ariaLabel="observed health probes"
+              />
+              <p className="text-xs text-muted-foreground">
+                {healthHistory.length} probes since page opened (every 30s)
+              </p>
+            </>
+          ) : (
+            <p className="text-xs text-muted-foreground">Collecting probe history…</p>
+          )}
           {health?.error && (
             <p className="text-sm text-destructive">{health.error}</p>
           )}

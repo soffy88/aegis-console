@@ -1,10 +1,13 @@
 "use client";
 
+// Simplified login: a plain email + password form. Deliberately does NOT use
+// @helios/oui OLoginPage (its phone/wechat tabs aren't wired to a backend and
+// its card had layout regressions across oui versions). This is the minimal
+// thing that reliably works against POST /api/v1/auth/login.
+
 import { Suspense, useState } from "react";
-import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useRouter, Link } from "@/i18n/navigation";
-import { OLoginPage } from "@helios/oui/pages";
 import { login } from "@/lib/auth/client";
 import { scheduleRefresh } from "@/lib/auth/auto-refresh";
 import { loadUserOrgs, useOrgStore } from "@/lib/org-context";
@@ -12,19 +15,14 @@ import { loadUserOrgs, useOrgStore } from "@/lib/org-context";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const setActiveOrg = useOrgStore((s) => s.setActiveOrg);
-  const t = useTranslations("login");
 
-  async function handleSubmit({
-    email,
-    password,
-  }: {
-    email: string;
-    password: string;
-    remember: boolean;
-  }) {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     setLoading(true);
     setError(null);
 
@@ -38,18 +36,8 @@ function LoginForm() {
         setActiveOrg(orgs[0].slug);
         const defaultRedirect = `/orgs/${orgs[0].slug}`;
         const rawNext = searchParams.get("next");
-        // Open-redirect guard: canonicalize via URL parser, then validate the
-        // POST-PARSE result — not the raw or pre-cleaned input.
-        //
-        // Why two steps?
-        //   1. strip \t\n\r  — browsers silently drop these, so "/\nevil.com"
-        //      becomes "//evil.com" after strip; removing them first closes that gap.
-        //   2. parse + assert origin — catches every scheme/authority the browser
-        //      would recognize (data:, javascript:, //host, …).
-        //   3. re-assert startsWith checks on `candidate` (the actual value we
-        //      navigate to) — URL dot-segment normalisation can rewrite the path
-        //      (e.g. "/.//..//evil.com" → "//evil.com"), so checking `cleaned`
-        //      pre-parse is insufficient.
+        // Open-redirect guard: strip control chars, parse, then validate the
+        // post-parse origin/path (URL normalisation can rewrite "/.//..//x").
         let safe = defaultRedirect;
         if (rawNext) {
           const cleaned = rawNext.replace(/[\t\n\r]/g, "");
@@ -63,7 +51,9 @@ function LoginForm() {
             ) {
               safe = candidate;
             }
-          } catch { /* invalid URL — fall through to defaultRedirect */ }
+          } catch {
+            /* invalid URL — fall through to defaultRedirect */
+          }
         }
         router.replace(safe);
       } else {
@@ -77,18 +67,51 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <OLoginPage
-        title={t("title")}
-        subtitle={t("subtitle")}
-        onEmailLogin={handleSubmit}
-        errorMessage={error ?? undefined}
-        loading={loading}
-      />
-      <div className="text-center text-sm text-gray-500">
-        {t("noAccount")}{" "}
-        <Link href="/register" className="text-blue-600 hover:underline">
-          {t("register")}
+    <div className="w-full max-w-sm rounded-lg border border-gray-700 bg-gray-900 p-8 shadow-lg">
+      <h1 className="mb-1 text-center text-2xl font-semibold text-white">Sign in to Aegis</h1>
+      <p className="mb-6 text-center text-sm text-gray-400">Self-hosted PaaS management console</p>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <label className="flex flex-col gap-1 text-sm text-gray-300">
+          Email
+          <input
+            type="email"
+            required
+            autoFocus
+            autoComplete="username"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="rounded-md border border-gray-600 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-sm text-gray-300">
+          Password
+          <input
+            type="password"
+            required
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="rounded-md border border-gray-600 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
+          />
+        </label>
+
+        {error && <p className="text-sm text-red-400">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="mt-2 rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+        >
+          {loading ? "Signing in…" : "Sign in"}
+        </button>
+      </form>
+
+      <div className="mt-4 text-center text-sm text-gray-500">
+        No account?{" "}
+        <Link href="/register" className="text-blue-500 hover:underline">
+          Register
         </Link>
       </div>
     </div>

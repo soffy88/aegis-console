@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import DomainsPage from "@/app/[locale]/orgs/[org_slug]/domains/page";
+import DomainsPage from "@/app/[locale]/(dashboard)/orgs/[org_slug]/domains/page";
 import * as api from "@/lib/api";
 
 vi.mock("@/lib/api", () => ({ aegisFetch: vi.fn() }));
@@ -10,12 +10,13 @@ vi.mock("next/navigation", () => ({
   useParams: () => ({ org_slug: "test-org" }),
 }));
 
+// Caddy EdgeRoute shape (domain is read from match[0].host[0]).
 const mockDomains = [
   {
-    domain: "app.example.com",
-    target_url: "http://localhost:8080",
-    tls_enabled: true,
-    created_at: "2026-01-01T00:00:00Z",
+    "@id": "route-app",
+    match: [{ host: ["app.example.com"] }],
+    handle: [{ handler: "reverse_proxy", upstreams: [{ dial: "localhost:8080" }] }],
+    terminal: true,
   },
 ];
 

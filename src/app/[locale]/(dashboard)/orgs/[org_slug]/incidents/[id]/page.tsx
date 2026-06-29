@@ -29,14 +29,14 @@ interface IncidentDetail {
 }
 
 const SEVERITY_COLORS: Record<string, string> = {
-  critical: "bg-red-100 text-red-800",
-  warning: "bg-yellow-100 text-yellow-800",
-  info: "bg-blue-100 text-blue-800",
+  critical: "bg-red-500/15 text-red-300",
+  warning: "bg-yellow-500/15 text-yellow-300",
+  info: "bg-blue-500/15 text-blue-300",
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  open: "bg-orange-100 text-orange-800",
-  resolved: "bg-green-100 text-green-800",
+  open: "bg-orange-500/15 text-orange-300",
+  resolved: "bg-green-500/15 text-green-300",
 };
 
 export default function IncidentDetailPage() {
@@ -76,10 +76,10 @@ export default function IncidentDetailPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`rounded px-2 py-0.5 text-xs font-medium ${SEVERITY_COLORS[data.severity] ?? "bg-gray-100 text-gray-800"}`}>
+          <span className={`rounded px-2 py-0.5 text-xs font-medium ${SEVERITY_COLORS[data.severity] ?? "bg-[var(--muted)] text-[var(--card-foreground)]"}`}>
             {data.severity}
           </span>
-          <span className={`rounded px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[data.status] ?? "bg-gray-100 text-gray-800"}`}>
+          <span className={`rounded px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[data.status] ?? "bg-[var(--muted)] text-[var(--card-foreground)]"}`}>
             {data.status}
           </span>
         </div>
@@ -128,7 +128,7 @@ export default function IncidentDetailPage() {
               <div key={ev.id} className="rounded border p-3 text-sm">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-medium">{ev.event_type}</span>
-                  <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${SEVERITY_COLORS[ev.severity] ?? "bg-gray-100 text-gray-800"}`}>
+                  <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${SEVERITY_COLORS[ev.severity] ?? "bg-[var(--muted)] text-[var(--card-foreground)]"}`}>
                     {ev.severity}
                   </span>
                   {ev.service && (

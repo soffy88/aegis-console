@@ -16,7 +16,8 @@
     "nodes": "节点",
     "alertIngest": "告警接入",
     "webhooks": "Webhook",
-    "signOut": "退出登录"
+    "signOut": "退出登录",
+    "metrics": "监控指标"
   },
   "common": {
     "create": "创建",
@@ -253,5 +254,31 @@
     "nodeInfo": "节点信息",
     "rawInfo": "节点原始数据",
     "nodeContainers": "该节点上的容器"
+  },
+  "brain": {
+    "title": "Brain 调试"
+  },
+  "members": {
+    "title": "成员",
+    "subtitle": "管理可访问该组织的成员",
+    "inviteTitle": "邀请成员",
+    "email": "邮箱",
+    "name": "姓名",
+    "role": "角色",
+    "sendInvite": "发送邀请",
+    "sending": "发送中…",
+    "inviteSent": "邀请已发送"
+  },
+  "metrics": {
+    "title": "监控指标",
+    "subtitle": "aegis-agent 采集的主机级时间序列",
+    "metric": "指标",
+    "host": "主机",
+    "allHosts": "全部主机",
+    "range": "时间范围",
+    "agg": "聚合方式",
+    "noData": "所选范围内无数据",
+    "noSeries": "尚无指标数据。启动 aegis-agent 后此页将自动填充。",
+    "samples": "采样点"
   }
 }

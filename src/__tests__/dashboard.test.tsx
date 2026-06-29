@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import DashboardPage from "@/app/[locale]/orgs/[org_slug]/page";
+import DashboardPage from "@/app/[locale]/(dashboard)/orgs/[org_slug]/page";
 import * as api from "@/lib/api";
 
 vi.mock("@/lib/api", () => ({ aegisFetch: vi.fn() }));
@@ -16,39 +16,46 @@ function wrapper({ children }: { children: React.ReactNode }) {
   return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
 }
 
-describe("DashboardPage (ORCAPanel)", () => {
+describe("DashboardPage (widget grid)", () => {
   beforeEach(() => {
     vi.mocked(api.aegisFetch).mockImplementation((path: string) => {
-      if ((path as string).includes("/health")) return Promise.resolve({ status: "ok" });
-      if ((path as string).includes("/apps")) return Promise.resolve([{ id: "1", app_name: "redis", status: "running", installed_at: "" }]);
-      if ((path as string).includes("/events")) return Promise.resolve([{ id: "e1", ts: "2026-01-01T00:00:00Z", event_type: "test", severity: "info" }]);
-      if ((path as string).includes("/projects")) return Promise.resolve([
-        { id: "p-1", org_id: "org-111", slug: "stratum", name: "Stratum", display_name: "Stratum", environment: "prod", config: null, docker_labels: null, archived_at: null, created_at: "" }
-      ]);
+      if ((path as string).includes("/apps"))
+        return Promise.resolve([
+          { id: "1", app_name: "redis", status: "running", installed_at: "" },
+          { id: "2", app_name: "broken", status: "failed", installed_at: "" },
+        ]);
+      if ((path as string).includes("/events"))
+        return Promise.resolve([
+          { id: "e1", ts: "2026-01-01T00:00:00Z", event_type: "deploy", severity: "info" },
+        ]);
       return Promise.resolve([]);
     });
   });
 
-  it("renders KPI row with app counts", async () => {
+  it("renders the widget grid with the KPI titles", async () => {
     render(<DashboardPage />, { wrapper });
     await waitFor(() => {
-      expect(screen.getByTestId("kpi-row")).toBeInTheDocument();
+      expect(screen.getByText("Total Apps")).toBeInTheDocument();
     });
+    expect(screen.getByText("Running")).toBeInTheDocument();
+    expect(screen.getByText("Failed")).toBeInTheDocument();
+    expect(screen.getByText("Events (1h)")).toBeInTheDocument();
+    expect(document.querySelector(".oui-widget-grid")).toBeTruthy();
   });
 
-  it("renders app grid with status badges", async () => {
+  it("renders app counts derived from the apps query", async () => {
     render(<DashboardPage />, { wrapper });
+    // 2 apps total, 1 running, 1 failed → "2" and at least one "1" rendered.
     await waitFor(() => {
-      expect(screen.getByTestId("app-grid")).toBeInTheDocument();
-      expect(screen.getByText("redis")).toBeInTheDocument();
+      expect(screen.getByText("2")).toBeInTheDocument();
     });
+    expect(screen.getAllByText("1").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("renders project health panel", async () => {
+  it("renders the event stream timeline", async () => {
     render(<DashboardPage />, { wrapper });
     await waitFor(() => {
-      expect(screen.getByTestId("project-health-panel")).toBeInTheDocument();
-      expect(screen.getByText("Stratum")).toBeInTheDocument();
+      expect(screen.getByText("Event Stream")).toBeInTheDocument();
     });
   });
 });
