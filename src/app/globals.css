@@ -1,3 +1,9 @@
 @import 'tailwindcss';
+/* Tailwind v4 ignores node_modules by default, so utility classes used ONLY by
+   the @helios/oui|blocks component markup (e.g. py-24/px-10/space-x-2 on the
+   login page) were never generated → components collapsed/cramped. Explicitly
+   register the packages as content sources so their utilities are emitted. */
+@source '../../node_modules/@helios/oui/dist';
+@source '../../node_modules/@helios/blocks/dist';
 @import '@helios/blocks/styles.css';
 @import '@helios/oui/styles.css';
