@@ -1,0 +1,13 @@
+# Package a locally-built Next standalone (workaround for the broken builder stage:
+# platform OUI tgz version drift). Run `NEXT_PUBLIC_AEGIS_API=... npm run build`
+# first, then build this. Mirrors Dockerfile.prod's runtime stage.
+FROM node:22-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
+COPY .next/standalone ./
+COPY .next/static ./.next/static
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://127.0.0.1:3000/ || exit 1
+CMD ["node", "server.js"]
