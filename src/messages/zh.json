@@ -17,7 +17,10 @@
     "alertIngest": "告警接入",
     "webhooks": "Webhook",
     "signOut": "退出登录",
-    "metrics": "监控指标"
+    "metrics": "监控指标",
+    "images": "镜像",
+    "networks": "网络",
+    "volumes": "数据卷"
   },
   "common": {
     "create": "创建",
@@ -280,5 +283,28 @@
     "noData": "所选范围内无数据",
     "noSeries": "尚无指标数据。启动 aegis-agent 后此页将自动填充。",
     "samples": "采样点"
+  },
+  "images": {
+    "title": "镜像",
+    "repoTags": "仓库:标签",
+    "imageId": "镜像 ID",
+    "size": "大小",
+    "image": "镜像",
+    "tag": "标签",
+    "pull": "拉取",
+    "prune": "清理未用"
+  },
+  "networks": {
+    "title": "网络",
+    "name": "名称",
+    "driver": "驱动",
+    "scope": "范围",
+    "internal": "内部"
+  },
+  "volumes": {
+    "title": "数据卷",
+    "name": "名称",
+    "driver": "驱动",
+    "mountpoint": "挂载点"
   }
 }
