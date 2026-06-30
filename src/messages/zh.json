@@ -282,7 +282,8 @@
     "agg": "聚合方式",
     "noData": "所选范围内无数据",
     "noSeries": "尚无指标数据。启动 aegis-agent 后此页将自动填充。",
-    "samples": "采样点"
+    "samples": "采样点",
+    "detail": "详细查询"
   },
   "images": {
     "title": "镜像",

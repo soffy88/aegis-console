@@ -282,7 +282,8 @@
     "agg": "Aggregation",
     "noData": "No data in the selected range",
     "noSeries": "No metrics ingested yet. Start aegis-agent to populate this view.",
-    "samples": "samples"
+    "samples": "samples",
+    "detail": "Detailed query"
   },
   "images": {
     "title": "Images",
