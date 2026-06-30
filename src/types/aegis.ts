@@ -23,6 +23,7 @@ export interface AppInstallResult {
 export interface Container {
   name: string;
   image: string;
+  state?: string;
   status: string;
   created: string;
   ports: Record<string, string>;

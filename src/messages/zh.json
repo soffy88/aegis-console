@@ -77,9 +77,9 @@
     "title": "出错了"
   },
   "dashboard": {
-    "totalApps": "应用总数",
+    "totalApps": "容器总数",
     "running": "运行中",
-    "failed": "异常",
+    "failed": "已停止",
     "events1h": "事件（1小时）",
     "applications": "应用列表",
     "eventStream": "事件流",
