@@ -137,6 +137,13 @@ export const paths = {
   dockerNetwork: (orgId: string, networkId: string) =>
     `/api/v1/orgs/${orgId}/docker/networks/${networkId}`,
   dockerVolumes: (orgId: string) => `/api/v1/orgs/${orgId}/docker/volumes`,
+  dockerVolume: (orgId: string, name: string) =>
+    `/api/v1/orgs/${orgId}/docker/volumes/${name}`,
+  dockerImages: (orgId: string) => `/api/v1/orgs/${orgId}/docker/images`,
+  dockerImagePull: (orgId: string) => `/api/v1/orgs/${orgId}/docker/images/pull`,
+  dockerImage: (orgId: string, image: string) =>
+    `/api/v1/orgs/${orgId}/docker/images/${image}`,
+  dockerSystemPrune: (orgId: string) => `/api/v1/orgs/${orgId}/docker/system/prune`,
 
   // AutoHeal
   autohealEvents: (orgId: string) => `/api/v1/orgs/${orgId}/autoheal/events`,

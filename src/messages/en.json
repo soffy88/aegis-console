@@ -17,7 +17,10 @@
     "alertIngest": "Alert Ingest",
     "webhooks": "Webhooks",
     "signOut": "Sign out",
-    "metrics": "Metrics"
+    "metrics": "Metrics",
+    "images": "Images",
+    "networks": "Networks",
+    "volumes": "Volumes"
   },
   "common": {
     "create": "Create",
@@ -280,5 +283,28 @@
     "noData": "No data in the selected range",
     "noSeries": "No metrics ingested yet. Start aegis-agent to populate this view.",
     "samples": "samples"
+  },
+  "images": {
+    "title": "Images",
+    "repoTags": "Repository:Tag",
+    "imageId": "Image ID",
+    "size": "Size",
+    "image": "Image",
+    "tag": "Tag",
+    "pull": "Pull",
+    "prune": "Prune unused"
+  },
+  "networks": {
+    "title": "Networks",
+    "name": "Name",
+    "driver": "Driver",
+    "scope": "Scope",
+    "internal": "Internal"
+  },
+  "volumes": {
+    "title": "Volumes",
+    "name": "Name",
+    "driver": "Driver",
+    "mountpoint": "Mount point"
   }
 }
