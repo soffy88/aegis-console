@@ -83,6 +83,61 @@ function LineChart({ points, unit }: { points: QueryPoint[]; unit: string }) {
   );
 }
 
+// ── Tiled overview of the main monitoring metrics (shown without any selection) ──
+type Tile = { metric: string; label: string; agg: string; fmt: (v: number) => string; accent: (v: number) => string };
+
+const fmtGB = (v: number) => `${(v / 1e9).toFixed(1)} GB`;
+const KEY_METRICS: Tile[] = [
+  { metric: "container_cpu_percent", label: "最忙容器 CPU", agg: "max",
+    fmt: (v) => `${v.toFixed(0)}%`, accent: (v) => (v >= 1000 ? "text-red-400" : v >= 700 ? "text-amber-400" : "text-blue-400") },
+  { metric: "container_memory_working_set_bytes", label: "最大容器内存", agg: "max",
+    fmt: fmtGB, accent: (v) => (v >= 28e9 ? "text-red-400" : v >= 20e9 ? "text-amber-400" : "text-blue-400") },
+  { metric: "container_fs_usage_bytes", label: "磁盘使用", agg: "max",
+    fmt: (v) => `${(v / 1e9).toFixed(0)} GB`, accent: () => "text-blue-400" },
+  { metric: "probe_up", label: "服务在线", agg: "min",
+    fmt: (v) => (v >= 1 ? "全部在线" : "有掉线"), accent: (v) => (v >= 1 ? "text-emerald-400" : "text-red-400") },
+];
+
+function Sparkline({ points, className }: { points: QueryPoint[]; className?: string }) {
+  const w = 280;
+  const h = 52;
+  if (points.length === 0) return <div className="h-[52px]" />;
+  const vals = points.map((p) => p.value);
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const span = max - min || 1;
+  const step = points.length > 1 ? w / (points.length - 1) : 0;
+  const coords = points.map((p, i) => `${(i * step).toFixed(1)},${(h - ((p.value - min) / span) * h).toFixed(1)}`);
+  return (
+    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className={className}>
+      <polyline points={coords.join(" ")} fill="none" stroke="currentColor" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}
+
+function MetricTile({ tile }: { tile: Tile }) {
+  const { data } = useQuery<QueryResult>({
+    queryKey: ["mtile", tile.metric, tile.agg],
+    queryFn: () =>
+      aegisFetch<QueryResult>(
+        paths.metricsQuery({ metric_name: tile.metric, hours: 6, bucket_seconds: 300, agg: tile.agg }),
+      ),
+    refetchInterval: 30000,
+  });
+  const points = data?.points ?? [];
+  const last = points.length > 0 ? points[points.length - 1]!.value : null;
+  const accent = last !== null ? tile.accent(last) : "text-muted-foreground";
+  return (
+    <div className="rounded-xl border bg-card p-4 shadow-sm">
+      <p className="text-muted-foreground text-sm">{tile.label}</p>
+      <p className={`mt-1 text-2xl font-bold ${accent}`}>{last !== null ? tile.fmt(last) : "—"}</p>
+      <div className={`mt-2 ${accent}`}>
+        <Sparkline points={points} />
+      </div>
+    </div>
+  );
+}
+
 export default function MetricsPage() {
   const t = useTranslations("metrics");
   const [metric, setMetric] = useState<string>("");
@@ -143,10 +198,17 @@ export default function MetricsPage() {
   });
 
   return (
-    <div className="max-w-4xl space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground">{t("subtitle")}</p>
+      </div>
+
+      {/* Tiled overview — main monitoring metrics, shown without any selection */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {KEY_METRICS.map((tile) => (
+          <MetricTile key={tile.metric} tile={tile} />
+        ))}
       </div>
 
       {!seriesLoading && metricNames.length === 0 && (
@@ -157,6 +219,7 @@ export default function MetricsPage() {
 
       {metricNames.length > 0 && (
         <>
+          <h2 className="border-t pt-4 text-lg font-semibold">{t("detail")}</h2>
           <div className="flex flex-wrap gap-4">
             <label className="flex flex-col gap-1 text-sm">
               <span className="text-muted-foreground">{t("metric")}</span>
