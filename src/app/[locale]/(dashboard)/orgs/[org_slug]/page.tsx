@@ -7,7 +7,7 @@ import { OKPICard, OAISummaryCard, OEventTimeline } from "@helios/blocks";
 import type { TimelineEvent } from "@helios/blocks";
 import { OWidgetGrid, OWidgetFrame, useWidgetStorage } from "@helios/oui";
 import type { WidgetLayout } from "@helios/oui";
-import type { App, Event } from "@/types/aegis";
+import type { Container, Event } from "@/types/aegis";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
 import { useOrgIdBySlug } from "@/hooks/use-org-id";
@@ -21,15 +21,24 @@ const INITIAL: WidgetLayout[] = [
   { id: "timeline", col: 7,  row: 3, colSpan: 6, rowSpan: 3, zoom: 1, visible: true, locked: true },
 ];
 
+interface AutohealStats {
+  today_total: number;
+  today_handled: number;
+  pending_critical: number;
+  pending_total: number;
+}
+
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
   const { org_slug } = useParams<{ org_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
 
-  const apps = useQuery<App[]>({
-    queryKey: ["apps", orgId],
-    queryFn: () => aegisFetch<App[]>(paths.apps(orgId!)),
+  // Real-time container view (all host containers) for the headline cards.
+  const containers = useQuery<Container[]>({
+    queryKey: ["containers", orgId, "dashboard"],
+    queryFn: () => aegisFetch<Container[]>(`${paths.containers(orgId!)}?all=true`),
     enabled: !!orgId,
+    refetchInterval: 5000,
   });
 
   const events = useQuery<Event[]>({
@@ -39,17 +48,18 @@ export default function DashboardPage() {
     refetchInterval: 2000,
   });
 
-  const autohealStats = useQuery<any>({
+  const autohealStats = useQuery<AutohealStats>({
     queryKey: ["autoheal-stats", orgId],
-    queryFn: () => aegisFetch<any>(paths.autohealStats(orgId!)),
+    queryFn: () => aegisFetch<AutohealStats>(paths.autohealStats(orgId!)),
     enabled: !!orgId,
     refetchInterval: 30000,
   });
 
-  const totalApps = apps.data?.length ?? 0;
-  const runningCount =
-    apps.data?.filter((a) => a.status === "running" || a.status === "completed").length ?? 0;
-  const failedCount = apps.data?.filter((a) => a.status === "failed").length ?? 0;
+  // Headline cards now reflect real containers (more live than registered apps).
+  const cstate = (c: Container) => c.state ?? c.status;
+  const totalApps = containers.data?.length ?? 0;
+  const runningCount = containers.data?.filter((c) => cstate(c) === "running").length ?? 0;
+  const failedCount = containers.data?.filter((c) => cstate(c) !== "running").length ?? 0;
   const eventCount = events.data?.length ?? 0;
   const pendingCritical: number = autohealStats.data?.pending_critical ?? 0;
 
@@ -104,7 +114,7 @@ export default function DashboardPage() {
               >
                 <OKPICard
                   data={{ label: "", primary: totalApps }}
-                  loading={apps.isLoading}
+                  loading={containers.isLoading}
                   variant="compact"
                 />
               </OWidgetFrame>
@@ -124,7 +134,7 @@ export default function DashboardPage() {
               >
                 <OKPICard
                   data={{ label: "", primary: runningCount, indicator: "up" }}
-                  loading={apps.isLoading}
+                  loading={containers.isLoading}
                   variant="compact"
                 />
               </OWidgetFrame>
@@ -148,7 +158,7 @@ export default function DashboardPage() {
                     primary: failedCount,
                     indicator: failedCount > 0 ? "down" : "neutral",
                   }}
-                  loading={apps.isLoading}
+                  loading={containers.isLoading}
                   variant="compact"
                 />
               </OWidgetFrame>

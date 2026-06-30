@@ -77,9 +77,9 @@
     "title": "Something went wrong"
   },
   "dashboard": {
-    "totalApps": "Total Apps",
+    "totalApps": "Containers",
     "running": "Running",
-    "failed": "Failed",
+    "failed": "Stopped",
     "events1h": "Events (1h)",
     "applications": "Applications",
     "eventStream": "Event Stream",

@@ -109,9 +109,17 @@ export default function MetricsPage() {
     [series, metric],
   );
 
-  // Default to the first metric once series load.
+  // Default to a useful key metric (cAdvisor / uptime) if present, else the first.
   useEffect(() => {
-    if (!metric && metricNames.length > 0) setMetric(metricNames[0]!);
+    if (!metric && metricNames.length > 0) {
+      const preferred = [
+        "container_cpu_percent",
+        "container_memory_working_set_bytes",
+        "probe_up",
+        "container_memory_usage_bytes",
+      ];
+      setMetric(preferred.find((p) => metricNames.includes(p)) ?? metricNames[0]!);
+    }
   }, [metric, metricNames]);
 
   const unit = useMemo(
