@@ -122,6 +122,25 @@ export default function AlertRulesListPage() {
         )}
       </header>
 
+      <div className="grid grid-cols-3 gap-4">
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("statTotal")}</p>
+          <p className="mt-1 text-2xl font-bold">{data?.length ?? 0}</p>
+        </div>
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("statEnabled")}</p>
+          <p className="mt-1 text-2xl font-bold text-emerald-400">
+            {data?.filter((r) => r.enabled).length ?? 0}
+          </p>
+        </div>
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("statDisabled")}</p>
+          <p className="mt-1 text-2xl font-bold">
+            {data?.filter((r) => !r.enabled).length ?? 0}
+          </p>
+        </div>
+      </div>
+
       {showCreate && (
         <section className="rounded-lg border bg-card p-4 space-y-3">
           <h2 className="text-lg font-semibold">{t("create")}</h2>
