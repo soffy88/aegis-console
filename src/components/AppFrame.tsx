@@ -66,6 +66,7 @@ function buildNav(base: string): NavSection[] {
         { key: "apps", href: `${base}/apps`, icon: "apps" },
         { key: "appInstall", href: `${base}/apps/install`, icon: "appInstall" },
         { key: "store", href: `${base}/store`, icon: "store" },
+        { key: "gitDeploy", href: `${base}/git-deploy`, icon: "appInstall" },
         { key: "projects", href: `${base}/projects`, icon: "projects" },
       ],
     },

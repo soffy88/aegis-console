@@ -22,7 +22,8 @@
     "networks": "网络",
     "volumes": "数据卷",
     "uptime": "在线探测",
-    "autohealPolicies": "自愈策略"
+    "autohealPolicies": "自愈策略",
+    "gitDeploy": "Git 部署"
   },
   "common": {
     "create": "创建",
