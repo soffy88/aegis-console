@@ -124,27 +124,29 @@ export default function AutoHealPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase text-gray-500">{t("todayTotal")}</p>
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("todayTotal")}</p>
           <p className="mt-1 text-2xl font-bold">{stats.data?.today_total ?? 0}</p>
         </div>
-        <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase text-gray-500">{t("todayHandled")}</p>
-          <p className="mt-1 text-2xl font-bold text-green-600">{stats.data?.today_handled ?? 0}</p>
-        </div>
-        <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase text-gray-500 text-red-600">
-            {t("pendingCritical")}
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("handledRate")}</p>
+          <p className="mt-1 text-2xl font-bold text-emerald-400">
+            {(() => {
+              const tt = stats.data?.today_total ?? 0;
+              const th = stats.data?.today_handled ?? 0;
+              return tt > 0 ? `${Math.round((th / tt) * 100)}%` : "—";
+            })()}
           </p>
-          <p className="mt-1 text-2xl font-bold text-red-600">
+        </div>
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("pendingCritical")}</p>
+          <p className={`mt-1 text-2xl font-bold ${(stats.data?.pending_critical ?? 0) > 0 ? "text-red-400" : "text-emerald-400"}`}>
             {stats.data?.pending_critical ?? 0}
           </p>
         </div>
-        <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase text-gray-500 text-orange-600">
-            {t("pendingTotal")}
-          </p>
-          <p className="mt-1 text-2xl font-bold text-orange-600">
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("pendingTotal")}</p>
+          <p className={`mt-1 text-2xl font-bold ${(stats.data?.pending_total ?? 0) > 0 ? "text-amber-400" : ""}`}>
             {stats.data?.pending_total ?? 0}
           </p>
         </div>

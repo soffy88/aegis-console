@@ -123,7 +123,10 @@
     "startedAt": "Started At",
     "starting": "Starting…",
     "stopping": "Stopping…",
-    "restarting": "Restarting…"
+    "restarting": "Restarting…",
+    "total": "Total",
+    "runningCount": "Running",
+    "stoppedCount": "Stopped"
   },
   "events": {
     "title": "Events",
@@ -231,7 +234,8 @@
     "pendingTotal": "Pending Total",
     "handled": "Handled",
     "pending": "Pending",
-    "retry": "Retry"
+    "retry": "Retry",
+    "handledRate": "Handled rate"
   },
   "backups": {
     "title": "Backup & Restore",

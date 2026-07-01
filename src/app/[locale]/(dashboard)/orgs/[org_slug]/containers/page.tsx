@@ -153,6 +153,18 @@ export default function ContainersPage() {
     refetchInterval: 5000,
   });
 
+  // Always-all query for the summary tiles (independent of the "show stopped" toggle).
+  const allContainers = useQuery<Container[]>({
+    queryKey: ["containers", orgId, "all-stats"],
+    queryFn: () => aegisFetch<Container[]>(`${paths.containers(orgId!)}?all=true`),
+    enabled: !!orgId,
+    refetchInterval: 5000,
+  });
+  const cst = (c: Container) => c.state ?? c.status;
+  const cTotal = allContainers.data?.length ?? 0;
+  const cRunning = allContainers.data?.filter((c) => cst(c) === "running").length ?? 0;
+  const cStopped = cTotal - cRunning;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -165,6 +177,21 @@ export default function ContainersPage() {
           />
           {t("showStopped")}
         </label>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("total")}</p>
+          <p className="mt-1 text-2xl font-bold">{cTotal}</p>
+        </div>
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("runningCount")}</p>
+          <p className="mt-1 text-2xl font-bold text-emerald-400">{cRunning}</p>
+        </div>
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("stoppedCount")}</p>
+          <p className={`mt-1 text-2xl font-bold ${cStopped > 0 ? "text-amber-400" : ""}`}>{cStopped}</p>
+        </div>
       </div>
 
       {actionError && (

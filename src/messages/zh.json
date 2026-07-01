@@ -123,7 +123,10 @@
     "startedAt": "启动时间",
     "starting": "启动中…",
     "stopping": "停止中…",
-    "restarting": "重启中…"
+    "restarting": "重启中…",
+    "total": "总数",
+    "runningCount": "运行中",
+    "stoppedCount": "已停止"
   },
   "events": {
     "title": "事件",
@@ -231,7 +234,8 @@
     "pendingTotal": "待处理总数",
     "handled": "已处理",
     "pending": "待处理",
-    "retry": "重试"
+    "retry": "重试",
+    "handledRate": "处理率"
   },
   "backups": {
     "title": "备份与恢复",
