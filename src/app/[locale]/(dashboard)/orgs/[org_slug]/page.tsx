@@ -28,6 +28,36 @@ interface AutohealStats {
   pending_total: number;
 }
 
+interface MetricQueryResult {
+  points: { ts: string; value: number }[];
+}
+
+function TileSpark({ points, className }: { points: { value: number }[]; className?: string }) {
+  const w = 260;
+  const h = 40;
+  if (points.length === 0) return <div className="h-[40px]" />;
+  const vals = points.map((p) => p.value);
+  const min = Math.min(...vals);
+  const span = Math.max(...vals) - min || 1;
+  const step = points.length > 1 ? w / (points.length - 1) : 0;
+  const c = points.map((p, i) => `${(i * step).toFixed(1)},${(h - ((p.value - min) / span) * h).toFixed(1)}`);
+  return (
+    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className={className}>
+      <polyline points={c.join(" ")} fill="none" stroke="currentColor" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}
+
+function StatTile({ label, value, accent, points }: { label: string; value: string; accent: string; points?: { value: number }[] }) {
+  return (
+    <div className="rounded-xl border bg-card p-4 shadow-sm">
+      <p className="text-muted-foreground text-sm">{label}</p>
+      <p className={`mt-1 text-2xl font-bold ${accent}`}>{value}</p>
+      {points && <div className={`mt-2 ${accent}`}><TileSpark points={points} /></div>}
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
   const { org_slug } = useParams<{ org_slug: string }>();
@@ -54,6 +84,20 @@ export default function DashboardPage() {
     enabled: !!orgId,
     refetchInterval: 30000,
   });
+
+  // Monitoring tiles (global metrics — not org-scoped).
+  const mq = (metric_name: string, agg: string) => ({
+    queryKey: ["dash-metric", metric_name, agg],
+    queryFn: () =>
+      aegisFetch<MetricQueryResult>(
+        paths.metricsQuery({ metric_name, hours: 6, bucket_seconds: 300, agg }),
+      ),
+    refetchInterval: 30000,
+  });
+  const online = useQuery<MetricQueryResult>(mq("probe_up", "min"));
+  const cpu = useQuery<MetricQueryResult>(mq("container_cpu_percent", "max"));
+  const mem = useQuery<MetricQueryResult>(mq("container_memory_working_set_bytes", "max"));
+  const lastOf = (q?: MetricQueryResult) => (q && q.points.length > 0 ? q.points[q.points.length - 1]!.value : null);
 
   // Headline cards now reflect real containers (more live than registered apps).
   const cstate = (c: Container) => c.state ?? c.status;
@@ -85,14 +129,46 @@ export default function DashboardPage() {
     initialLayouts: INITIAL,
   });
 
+  const onlineV = lastOf(online.data);
+  const cpuV = lastOf(cpu.data);
+  const memV = lastOf(mem.data);
+
   return (
-    <OWidgetGrid
-      widgets={widgets}
-      onWidgetChange={updateWidget}
-      gridCols={12}
-      rowHeight={72}
-      gap={12}
-    >
+    <div className="space-y-4">
+      {/* At-a-glance operational health — tiled */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatTile
+          label="服务在线"
+          value={onlineV === null ? "—" : onlineV >= 1 ? "全部在线" : "有掉线"}
+          accent={onlineV === null ? "text-muted-foreground" : onlineV >= 1 ? "text-emerald-400" : "text-red-400"}
+          points={online.data?.points}
+        />
+        <StatTile
+          label="最忙容器 CPU"
+          value={cpuV === null ? "—" : `${cpuV.toFixed(0)}%`}
+          accent={cpuV === null ? "text-muted-foreground" : cpuV >= 1000 ? "text-red-400" : cpuV >= 700 ? "text-amber-400" : "text-blue-400"}
+          points={cpu.data?.points}
+        />
+        <StatTile
+          label="最大容器内存"
+          value={memV === null ? "—" : `${(memV / 1e9).toFixed(1)} GB`}
+          accent={memV === null ? "text-muted-foreground" : memV >= 28e9 ? "text-red-400" : memV >= 20e9 ? "text-amber-400" : "text-blue-400"}
+          points={mem.data?.points}
+        />
+        <StatTile
+          label="自愈待处理(严重)"
+          value={autohealStats.isLoading ? "…" : String(pendingCritical)}
+          accent={pendingCritical > 0 ? "text-red-400" : "text-emerald-400"}
+        />
+      </div>
+
+      <OWidgetGrid
+        widgets={widgets}
+        onWidgetChange={updateWidget}
+        gridCols={12}
+        rowHeight={72}
+        gap={12}
+      >
       {({ id, layout }) => {
         if (!layout.visible) return null;
         const onZoomChange = (wid: string, zoom: number) => updateWidget(wid, { zoom });
@@ -227,6 +303,7 @@ export default function DashboardPage() {
             return null;
         }
       }}
-    </OWidgetGrid>
+      </OWidgetGrid>
+    </div>
   );
 }
