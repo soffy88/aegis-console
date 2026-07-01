@@ -22,7 +22,8 @@
     "networks": "Networks",
     "volumes": "Volumes",
     "uptime": "Uptime",
-    "autohealPolicies": "Autoheal Policies"
+    "autohealPolicies": "Autoheal Policies",
+    "gitDeploy": "Git Deploy"
   },
   "common": {
     "create": "Create",

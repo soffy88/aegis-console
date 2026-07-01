@@ -14,6 +14,8 @@ export const paths = {
 
   // Projects
   projects: (orgId: string) => `/api/v1/orgs/${orgId}/projects`,
+  gitDeploy: (orgId: string, projectId: string) =>
+    `/api/v1/orgs/${orgId}/git-deploy?project_id=${projectId}`,
   project: (orgId: string, projectId: string) =>
     `/api/v1/orgs/${orgId}/projects/${projectId}`,
   projectHealth: (orgId: string, projectId: string) =>
