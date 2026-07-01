@@ -26,6 +26,12 @@ export interface Container {
   state?: string;
   status: string;
   created: string;
+  /** Real timestamp field returned by the backend (oprim ContainerInfo). */
+  started_at?: string;
+  health?: string;
+  container_id?: string;
+  /** Docker labels; `com.docker.compose.project` drives project grouping. */
+  labels?: Record<string, string>;
   ports: Record<string, string>;
 }
 

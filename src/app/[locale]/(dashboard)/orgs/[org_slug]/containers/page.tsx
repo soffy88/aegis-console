@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -13,6 +13,14 @@ import { paths } from "@/lib/api-paths";
 import { useOrgIdBySlug } from "@/hooks/use-org-id";
 
 type ColDef<T> = ODataTableData<T>["columns"][number];
+type Action = "start" | "stop" | "restart";
+
+/** Docker Compose stamps this label on every container it manages; it is the
+ *  grouping key used by Docker Desktop / Portainer to render "stacks". */
+const PROJECT_LABEL = "com.docker.compose.project";
+const projectOf = (c: Container) => c.labels?.[PROJECT_LABEL] ?? "";
+const stateOf = (c: Container) => c.state ?? c.status;
+const isRunning = (c: Container) => stateOf(c) === "running";
 
 /** Format one Docker port. Real payload is an array of
  *  {host_port, container_port, protocol} objects (the Container type's
@@ -30,15 +38,33 @@ function fmtPort(p: unknown): string {
   return String(p);
 }
 
+function fmtStarted(c: Container): string {
+  const s = c.started_at ?? c.created;
+  if (!s) return "—";
+  const d = new Date(s);
+  // oprim reports "0001-01-01T..." for never-started; guard against it.
+  if (Number.isNaN(d.getTime()) || d.getFullYear() < 2000) return "—";
+  return d.toLocaleString();
+}
+
+function actionUrl(orgId: string, name: string, action: Action): string {
+  return action === "start"
+    ? paths.containerStart(orgId, name)
+    : action === "stop"
+      ? paths.containerStop(orgId, name)
+      : paths.containerRestart(orgId, name);
+}
+
 const ICON = {
   play: "M7 5v14l11-7z",
   stop: "M7 7h10v10H7z",
   restart: "M21 12a9 9 0 11-3-6.7M21 4v5h-5",
   info: "M12 3a9 9 0 100 18 9 9 0 000-18zM12 8h.01M11 12h1v5h1",
+  chevron: "M9 6l6 6-6 6",
 };
-function ActIcon({ d }: { d: string }) {
+function ActIcon({ d, className = "h-4 w-4" }: { d: string; className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d={d} />
     </svg>
   );
@@ -52,27 +78,46 @@ export default function ContainersPage() {
   const qc = useQueryClient();
   const [showAll, setShowAll] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+
+  const invalidate = () => {
+    setActionError(null);
+    void qc.invalidateQueries({ queryKey: ["containers", orgId] });
+  };
 
   const actionMutation = useMutation({
-    mutationFn: ({ name, action }: { name: string; action: "start" | "stop" | "restart" }) => {
-      const url =
-        action === "start"
-          ? paths.containerStart(orgId!, name)
-          : action === "stop"
-            ? paths.containerStop(orgId!, name)
-            : paths.containerRestart(orgId!, name);
-      return aegisFetch(url, { method: "POST" });
-    },
-    onSuccess: () => {
-      setActionError(null);
-      void qc.invalidateQueries({ queryKey: ["containers", orgId] });
-    },
+    mutationFn: ({ name, action }: { name: string; action: Action }) =>
+      aegisFetch(actionUrl(orgId!, name, action), { method: "POST" }),
+    onSuccess: invalidate,
     onError: (err: Error) => setActionError(err.message),
   });
 
-  function act(name: string, action: "start" | "stop" | "restart") {
+  // Stack-level bulk action: fire one request per relevant container, tolerate
+  // partial failure (a no-op on an already-stopped container shouldn't abort).
+  const bulkMutation = useMutation({
+    mutationFn: async ({ names, action }: { names: string[]; action: Action }) => {
+      const results = await Promise.allSettled(
+        names.map((name) => aegisFetch(actionUrl(orgId!, name, action), { method: "POST" })),
+      );
+      const failed = results.filter((r) => r.status === "rejected");
+      if (failed.length)
+        throw new Error(`${failed.length}/${names.length} failed: ${(failed[0] as PromiseRejectedResult).reason?.message ?? ""}`);
+    },
+    onSuccess: invalidate,
+    onError: (err: Error) => setActionError(err.message),
+  });
+
+  function act(name: string, action: Action) {
     actionMutation.mutate({ name, action });
   }
+  function bulkAct(items: Container[], action: Action) {
+    const targets =
+      action === "start" ? items.filter((c) => !isRunning(c)) : items.filter(isRunning);
+    if (targets.length === 0) return;
+    bulkMutation.mutate({ names: targets.map((c) => c.name), action });
+  }
+
+  const busy = actionMutation.isPending || bulkMutation.isPending;
 
   const columns: ColDef<Container>[] = [
     {
@@ -96,7 +141,13 @@ export default function ContainersPage() {
       header: t("status"),
       cell: ({ row }) => <OStatusBadge label={row.original.status} />,
     },
-    { accessorKey: "created", header: t("started") },
+    {
+      accessorKey: "started_at",
+      header: t("started"),
+      cell: ({ row }) => (
+        <span className="whitespace-nowrap text-[var(--muted-foreground)]">{fmtStarted(row.original)}</span>
+      ),
+    },
     {
       accessorKey: "ports",
       header: t("ports"),
@@ -127,13 +178,13 @@ export default function ContainersPage() {
           "grid h-7 w-7 place-items-center rounded-md border border-[var(--border)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)] disabled:opacity-40";
         return (
           <div className="flex items-center justify-end gap-1">
-            <button title={tc("start")} aria-label={tc("start")} onClick={(e) => { e.stopPropagation(); act(n, "start"); }} disabled={actionMutation.isPending} className={ib}>
+            <button title={tc("start")} aria-label={tc("start")} onClick={(e) => { e.stopPropagation(); act(n, "start"); }} disabled={busy} className={ib}>
               <ActIcon d={ICON.play} />
             </button>
-            <button title={tc("stop")} aria-label={tc("stop")} onClick={(e) => { e.stopPropagation(); act(n, "stop"); }} disabled={actionMutation.isPending} className={ib}>
+            <button title={tc("stop")} aria-label={tc("stop")} onClick={(e) => { e.stopPropagation(); act(n, "stop"); }} disabled={busy} className={ib}>
               <ActIcon d={ICON.stop} />
             </button>
-            <button title={tc("restart")} aria-label={tc("restart")} onClick={(e) => { e.stopPropagation(); act(n, "restart"); }} disabled={actionMutation.isPending} className={ib}>
+            <button title={tc("restart")} aria-label={tc("restart")} onClick={(e) => { e.stopPropagation(); act(n, "restart"); }} disabled={busy} className={ib}>
               <ActIcon d={ICON.restart} />
             </button>
             <Link title={tc("details")} aria-label={tc("details")} href={`/orgs/${org_slug}/containers/${n}`} onClick={(e) => e.stopPropagation()} className={`${ib} hover:border-[var(--primary)] hover:text-[var(--primary)]`}>
@@ -160,23 +211,57 @@ export default function ContainersPage() {
     enabled: !!orgId,
     refetchInterval: 5000,
   });
-  const cst = (c: Container) => c.state ?? c.status;
   const cTotal = allContainers.data?.length ?? 0;
-  const cRunning = allContainers.data?.filter((c) => cst(c) === "running").length ?? 0;
+  const cRunning = allContainers.data?.filter(isRunning).length ?? 0;
   const cStopped = cTotal - cRunning;
+
+  // Group by compose project; real projects sorted alphabetically, standalone last.
+  const groups = useMemo(() => {
+    const map = new Map<string, Container[]>();
+    for (const c of containers.data ?? []) {
+      const k = projectOf(c);
+      const arr = map.get(k);
+      if (arr) arr.push(c);
+      else map.set(k, [c]);
+    }
+    return [...map.entries()]
+      .map(([key, items]) => ({
+        key,
+        label: key || t("ungrouped"),
+        items: [...items].sort((a, b) => a.name.localeCompare(b.name)),
+        running: items.filter(isRunning).length,
+      }))
+      .sort((a, b) => (a.key === "" ? 1 : b.key === "" ? -1 : a.key.localeCompare(b.key)));
+  }, [containers.data, t]);
+
+  const allCollapsed = groups.length > 0 && groups.every((g) => collapsed.has(g.key));
+  function toggleGroup(key: string) {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+  function toggleAll() {
+    setCollapsed(allCollapsed ? new Set() : new Set(groups.map((g) => g.key)));
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={showAll}
-            onChange={(e) => setShowAll(e.target.checked)}
-          />
-          {t("showStopped")}
-        </label>
+        <div className="flex items-center gap-4 text-sm">
+          {groups.length > 0 && (
+            <button onClick={toggleAll} className="text-[var(--muted-foreground)] hover:text-[var(--card-foreground)]">
+              {allCollapsed ? t("expandAll") : t("collapseAll")}
+            </button>
+          )}
+          <label className="flex items-center gap-2">
+            <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} />
+            {t("showStopped")}
+          </label>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -198,15 +283,59 @@ export default function ContainersPage() {
         <p className="rounded-md border border-red-500/30 bg-red-500/10 p-2 text-sm text-red-400">{actionError}</p>
       )}
 
-      <div className="overflow-x-auto">
+      {containers.isLoading || containers.error ? (
         <ODataTable<Container>
-          data={containers.data ? { columns, rows: containers.data } : null}
+          data={null}
           loading={containers.isLoading}
           error={containers.error as Error | null}
-          empty={containers.data?.length === 0}
-          sortable
         />
-      </div>
+      ) : groups.length === 0 ? (
+        <p className="rounded-xl border bg-card p-8 text-center text-sm text-[var(--muted-foreground)]">{t("empty")}</p>
+      ) : (
+        <div className="space-y-3">
+          {groups.map((g) => {
+            const open = !collapsed.has(g.key);
+            const dot =
+              g.running === g.items.length ? "bg-emerald-400" : g.running > 0 ? "bg-amber-400" : "bg-[var(--muted-foreground)]";
+            const gib =
+              "grid h-7 w-7 place-items-center rounded-md border border-[var(--border)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)] disabled:opacity-40";
+            return (
+              <div key={g.key} className="overflow-hidden rounded-xl border bg-card shadow-sm">
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <button
+                    onClick={() => toggleGroup(g.key)}
+                    aria-expanded={open}
+                    className="flex flex-1 items-center gap-2 text-left"
+                  >
+                    <ActIcon d={ICON.chevron} className={`h-4 w-4 shrink-0 text-[var(--muted-foreground)] transition-transform ${open ? "rotate-90" : ""}`} />
+                    <span className={`h-2 w-2 shrink-0 rounded-full ${dot}`} />
+                    <span className="font-semibold">{g.label}</span>
+                    <span className="text-xs text-[var(--muted-foreground)]">
+                      {t("projectContainers", { running: g.running, total: g.items.length })}
+                    </span>
+                  </button>
+                  <div className="flex items-center gap-1">
+                    <button title={t("startAll")} aria-label={t("startAll")} onClick={() => bulkAct(g.items, "start")} disabled={busy} className={gib}>
+                      <ActIcon d={ICON.play} />
+                    </button>
+                    <button title={t("stopAll")} aria-label={t("stopAll")} onClick={() => bulkAct(g.items, "stop")} disabled={busy} className={gib}>
+                      <ActIcon d={ICON.stop} />
+                    </button>
+                    <button title={t("restartAll")} aria-label={t("restartAll")} onClick={() => bulkAct(g.items, "restart")} disabled={busy} className={gib}>
+                      <ActIcon d={ICON.restart} />
+                    </button>
+                  </div>
+                </div>
+                {open && (
+                  <div className="overflow-x-auto border-t border-[var(--border)]">
+                    <ODataTable<Container> data={{ columns, rows: g.items }} sortable />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
