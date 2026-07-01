@@ -20,7 +20,9 @@
     "metrics": "Metrics",
     "images": "Images",
     "networks": "Networks",
-    "volumes": "Volumes"
+    "volumes": "Volumes",
+    "uptime": "Uptime",
+    "autohealPolicies": "Autoheal Policies"
   },
   "common": {
     "create": "Create",
