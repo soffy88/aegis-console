@@ -115,7 +115,7 @@ function Sparkline({ points, className }: { points: QueryPoint[]; className?: st
   );
 }
 
-function MetricTile({ tile }: { tile: Tile }) {
+function MetricTile({ tile, onSelect }: { tile: Tile; onSelect: (metric: string) => void }) {
   const { data } = useQuery<QueryResult>({
     queryKey: ["mtile", tile.metric, tile.agg],
     queryFn: () =>
@@ -128,13 +128,17 @@ function MetricTile({ tile }: { tile: Tile }) {
   const last = points.length > 0 ? points[points.length - 1]!.value : null;
   const accent = last !== null ? tile.accent(last) : "text-muted-foreground";
   return (
-    <div className="rounded-xl border bg-card p-4 shadow-sm">
+    <button
+      type="button"
+      onClick={() => onSelect(tile.metric)}
+      className="rounded-xl border bg-card p-4 text-left shadow-sm transition hover:border-[var(--primary)] hover:shadow-md"
+    >
       <p className="text-muted-foreground text-sm">{tile.label}</p>
       <p className={`mt-1 text-2xl font-bold ${accent}`}>{last !== null ? tile.fmt(last) : "—"}</p>
       <div className={`mt-2 ${accent}`}>
         <Sparkline points={points} />
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -207,7 +211,14 @@ export default function MetricsPage() {
       {/* Tiled overview — main monitoring metrics, shown without any selection */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {KEY_METRICS.map((tile) => (
-          <MetricTile key={tile.metric} tile={tile} />
+          <MetricTile
+            key={tile.metric}
+            tile={tile}
+            onSelect={(m) => {
+              setMetric(m);
+              document.getElementById("metric-detail")?.scrollIntoView({ behavior: "smooth" });
+            }}
+          />
         ))}
       </div>
 
@@ -219,7 +230,7 @@ export default function MetricsPage() {
 
       {metricNames.length > 0 && (
         <>
-          <h2 className="border-t pt-4 text-lg font-semibold">{t("detail")}</h2>
+          <h2 id="metric-detail" className="scroll-mt-4 border-t pt-4 text-lg font-semibold">{t("detail")}</h2>
           <div className="flex flex-wrap gap-4">
             <label className="flex flex-col gap-1 text-sm">
               <span className="text-muted-foreground">{t("metric")}</span>

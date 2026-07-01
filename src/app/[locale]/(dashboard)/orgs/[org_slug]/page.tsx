@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -48,13 +49,19 @@ function TileSpark({ points, className }: { points: { value: number }[]; classNa
   );
 }
 
-function StatTile({ label, value, accent, points }: { label: string; value: string; accent: string; points?: { value: number }[] }) {
-  return (
-    <div className="rounded-xl border bg-card p-4 shadow-sm">
+function StatTile({ label, value, accent, points, href }: { label: string; value: string; accent: string; points?: { value: number }[]; href?: string }) {
+  const inner = (
+    <>
       <p className="text-muted-foreground text-sm">{label}</p>
       <p className={`mt-1 text-2xl font-bold ${accent}`}>{value}</p>
       {points && <div className={`mt-2 ${accent}`}><TileSpark points={points} /></div>}
-    </div>
+    </>
+  );
+  const cls = "block rounded-xl border bg-card p-4 shadow-sm";
+  return href ? (
+    <Link href={href} className={`${cls} transition hover:border-[var(--primary)] hover:shadow-md`}>{inner}</Link>
+  ) : (
+    <div className={cls}>{inner}</div>
   );
 }
 
@@ -142,23 +149,27 @@ export default function DashboardPage() {
           value={onlineV === null ? "—" : onlineV >= 1 ? "全部在线" : "有掉线"}
           accent={onlineV === null ? "text-muted-foreground" : onlineV >= 1 ? "text-emerald-400" : "text-red-400"}
           points={online.data?.points}
+          href={`/orgs/${org_slug}/containers`}
         />
         <StatTile
           label="最忙容器 CPU"
           value={cpuV === null ? "—" : `${cpuV.toFixed(0)}%`}
           accent={cpuV === null ? "text-muted-foreground" : cpuV >= 1000 ? "text-red-400" : cpuV >= 700 ? "text-amber-400" : "text-blue-400"}
           points={cpu.data?.points}
+          href={`/orgs/${org_slug}/metrics`}
         />
         <StatTile
           label="最大容器内存"
           value={memV === null ? "—" : `${(memV / 1e9).toFixed(1)} GB`}
           accent={memV === null ? "text-muted-foreground" : memV >= 28e9 ? "text-red-400" : memV >= 20e9 ? "text-amber-400" : "text-blue-400"}
           points={mem.data?.points}
+          href={`/orgs/${org_slug}/metrics`}
         />
         <StatTile
           label="自愈待处理(严重)"
           value={autohealStats.isLoading ? "…" : String(pendingCritical)}
           accent={pendingCritical > 0 ? "text-red-400" : "text-emerald-400"}
+          href={`/orgs/${org_slug}/autoheal`}
         />
       </div>
 
