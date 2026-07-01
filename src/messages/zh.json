@@ -20,7 +20,9 @@
     "metrics": "监控指标",
     "images": "镜像",
     "networks": "网络",
-    "volumes": "数据卷"
+    "volumes": "数据卷",
+    "uptime": "在线探测",
+    "autohealPolicies": "自愈策略"
   },
   "common": {
     "create": "创建",
