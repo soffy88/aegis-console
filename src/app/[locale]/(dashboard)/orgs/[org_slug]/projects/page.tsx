@@ -32,6 +32,26 @@ export default function ProjectsPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">{t("title")}</h1>
+
+      <div className="grid grid-cols-3 gap-4">
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("statTotal")}</p>
+          <p className="mt-1 text-2xl font-bold">{data?.length ?? 0}</p>
+        </div>
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("statProd")}</p>
+          <p className="mt-1 text-2xl font-bold text-blue-400">
+            {data?.filter((p) => p.environment === "prod").length ?? 0}
+          </p>
+        </div>
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("statOther")}</p>
+          <p className="mt-1 text-2xl font-bold">
+            {data?.filter((p) => p.environment !== "prod").length ?? 0}
+          </p>
+        </div>
+      </div>
+
       {!isLoading && data?.length === 0 && (
         <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] py-16 text-center">
           <svg viewBox="0 0 24 24" className="h-10 w-10 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

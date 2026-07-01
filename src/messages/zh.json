@@ -137,7 +137,10 @@
     "traceId": "Trace ID",
     "empty": "暂无事件",
     "causalChain": "因果链",
-    "payload": "载荷"
+    "payload": "载荷",
+    "statRecent": "最近",
+    "statCritical": "严重",
+    "statWarning": "警告"
   },
   "webhooks": {
     "title": "Webhook 订阅",
@@ -175,7 +178,10 @@
     "empty": "暂无告警规则",
     "notFound": "规则不存在",
     "save": "保存规则",
-    "saving": "保存中…"
+    "saving": "保存中…",
+    "statTotal": "规则数",
+    "statEnabled": "启用",
+    "statDisabled": "停用"
   },
   "releaseGates": {
     "title": "发布门控",
@@ -191,7 +197,10 @@
     "noProjects": "暂无项目",
     "environment": "环境",
     "alertRules": "告警规则",
-    "releaseGates": "发布门控"
+    "releaseGates": "发布门控",
+    "statTotal": "总数",
+    "statProd": "生产",
+    "statOther": "其它"
   },
   "alertIngest": {
     "title": "告警接入调试",

@@ -137,7 +137,10 @@
     "traceId": "Trace ID",
     "empty": "No events yet",
     "causalChain": "Causal Chain",
-    "payload": "Payload"
+    "payload": "Payload",
+    "statRecent": "Recent",
+    "statCritical": "Critical",
+    "statWarning": "Warning"
   },
   "webhooks": {
     "title": "Webhook Subscriptions",
@@ -175,7 +178,10 @@
     "empty": "No alert rules",
     "notFound": "Rule not found",
     "save": "Save rule",
-    "saving": "Saving…"
+    "saving": "Saving…",
+    "statTotal": "Rules",
+    "statEnabled": "Enabled",
+    "statDisabled": "Disabled"
   },
   "releaseGates": {
     "title": "Release Gates",
@@ -191,7 +197,10 @@
     "noProjects": "No projects found in this org.",
     "environment": "Environment",
     "alertRules": "Alert Rules",
-    "releaseGates": "Release Gates"
+    "releaseGates": "Release Gates",
+    "statTotal": "Total",
+    "statProd": "Production",
+    "statOther": "Other"
   },
   "alertIngest": {
     "title": "Alert Ingest Debug",

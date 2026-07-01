@@ -53,6 +53,25 @@ export default function EventsPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">{t("title")}</h1>
 
+      <div className="grid grid-cols-3 gap-4">
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("statRecent")}</p>
+          <p className="mt-1 text-2xl font-bold">{events.data?.length ?? 0}</p>
+        </div>
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("statCritical")}</p>
+          <p className="mt-1 text-2xl font-bold text-red-400">
+            {events.data?.filter((e) => e.severity === "critical" || e.severity === "error").length ?? 0}
+          </p>
+        </div>
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <p className="text-muted-foreground text-sm">{t("statWarning")}</p>
+          <p className="mt-1 text-2xl font-bold text-amber-400">
+            {events.data?.filter((e) => e.severity === "warning").length ?? 0}
+          </p>
+        </div>
+      </div>
+
       <OEventTimeline
         events={timelineEvents}
         onEventClick={(e) => router.push(`/orgs/${org_slug}/events/${e.id}`)}
