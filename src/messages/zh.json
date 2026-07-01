@@ -129,7 +129,15 @@
     "restarting": "重启中…",
     "total": "总数",
     "runningCount": "运行中",
-    "stoppedCount": "已停止"
+    "stoppedCount": "已停止",
+    "ungrouped": "未分组",
+    "projectContainers": "{running}/{total} 运行中",
+    "startAll": "全部启动",
+    "stopAll": "全部停止",
+    "restartAll": "全部重启",
+    "collapseAll": "全部折叠",
+    "expandAll": "全部展开",
+    "empty": "暂无容器"
   },
   "events": {
     "title": "事件",

@@ -129,7 +129,15 @@
     "restarting": "Restarting…",
     "total": "Total",
     "runningCount": "Running",
-    "stoppedCount": "Stopped"
+    "stoppedCount": "Stopped",
+    "ungrouped": "Ungrouped",
+    "projectContainers": "{running}/{total} running",
+    "startAll": "Start all",
+    "stopAll": "Stop all",
+    "restartAll": "Restart all",
+    "collapseAll": "Collapse all",
+    "expandAll": "Expand all",
+    "empty": "No containers"
   },
   "events": {
     "title": "Events",
