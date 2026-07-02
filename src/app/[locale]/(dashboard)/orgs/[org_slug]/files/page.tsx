@@ -50,7 +50,14 @@ export default function FilesPage() {
   const [cwd, setCwd] = useState<string | null>(null);
   const [showHidden, setShowHidden] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [editing, setEditing] = useState<{ path: string; content: string } | null>(null);
+  // Detail panel for a single entry — the ONLY place rename/delete live, so they
+  // can't be triggered by an accidental click on the list. `content` is the file
+  // text (null for a directory or an un-previewable/too-large file).
+  const [detail, setDetail] = useState<{
+    entry: Entry;
+    content: string | null;
+    loading: boolean;
+  } | null>(null);
   const uploadRef = useRef<HTMLInputElement>(null);
 
   const rootsQ = useQuery<{ roots: string[] }>({
@@ -105,18 +112,27 @@ export default function FilesPage() {
       aegisFetch(paths.fileWrite(orgId!), { method: "PUT", body: JSON.stringify(v) }),
     onSuccess: () => {
       setError(null);
-      setEditing(null);
+      setDetail(null);
       invalidate();
     },
     onError: (e: Error) => setError(e.message),
   });
 
-  async function openFile(e: Entry) {
+  // Open the detail panel for an entry. For a file, fetch its text; a directory
+  // (or an unreadable/too-large file) opens with content=null.
+  async function openDetail(e: Entry) {
+    setError(null);
+    setDetail({ entry: e, content: null, loading: !e.is_dir });
+    if (e.is_dir) return;
     try {
       const res = await aegisFetch<{ content: string }>(paths.fileRead(orgId!, e.path));
-      setEditing({ path: e.path, content: res.content });
-      setError(null);
+      setDetail((d) =>
+        d && d.entry.path === e.path ? { ...d, content: res.content, loading: false } : d,
+      );
     } catch (err) {
+      setDetail((d) =>
+        d && d.entry.path === e.path ? { ...d, content: null, loading: false } : d,
+      );
       setError((err as Error).message);
     }
   }
@@ -154,12 +170,14 @@ export default function FilesPage() {
   function rename(e: Entry) {
     const name = window.prompt(t("renamePrompt"), e.name);
     if (!name || name === e.name) return;
-    const dir = e.path.slice(0, e.path.length - e.name.length);
-    renameM.mutate({ src: e.path, dst: `${dir}${name}` });
+    const parent = e.path.slice(0, e.path.length - e.name.length);
+    renameM.mutate({ src: e.path, dst: `${parent}${name}` });
+    setDetail(null);
   }
   function remove(e: Entry) {
     if (!window.confirm(t("deleteConfirm", { name: e.name }))) return;
     deleteM.mutate(e.path);
+    setDetail(null);
   }
 
   const breadcrumbs = useMemo(() => {
@@ -212,29 +230,18 @@ export default function FilesPage() {
     {
       accessorKey: "actions",
       header: "",
-      cell: ({ row }) => {
-        const e = row.original;
-        return (
-          <div className="flex justify-end gap-1" onClick={(ev) => ev.stopPropagation()}>
-            {!e.is_dir && (
-              <>
-                <button className="fm-btn" onClick={() => openFile(e)}>
-                  {t("view")}
-                </button>
-                <button className="fm-btn" onClick={() => download(e)}>
-                  {t("download")}
-                </button>
-              </>
-            )}
-            <button className="fm-btn" onClick={() => rename(e)}>
-              {t("rename")}
-            </button>
-            <button className="fm-btn fm-btn-danger" onClick={() => remove(e)}>
-              {tc("delete")}
-            </button>
-          </div>
-        );
-      },
+      cell: ({ row }) => (
+        <div className="flex justify-end" onClick={(ev) => ev.stopPropagation()}>
+          <button
+            className="fm-btn"
+            title={t("manage")}
+            aria-label={t("manage")}
+            onClick={() => openDetail(row.original)}
+          >
+            ⋯
+          </button>
+        </div>
+      ),
     },
   ];
 
@@ -326,6 +333,7 @@ export default function FilesPage() {
               empty={listingQ.data?.entries.length === 0}
               onRowClick={(e) => {
                 if (e.is_dir) setCwd(e.path);
+                else openDetail(e);
               }}
               sortable
             />
@@ -333,34 +341,74 @@ export default function FilesPage() {
         </>
       )}
 
-      {editing && (
+      {detail && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setEditing(null)}
+          onClick={() => setDetail(null)}
         >
           <div
-            className="flex h-[80vh] w-full max-w-4xl flex-col gap-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4"
+            className="flex max-h-[85vh] w-full max-w-4xl flex-col gap-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between">
-              <span className="truncate font-mono text-sm">{editing.path}</span>
-              <button className="fm-btn" onClick={() => setEditing(null)}>
+            <div className="flex items-center justify-between gap-4">
+              <span className="flex min-w-0 items-center gap-2 font-mono text-sm">
+                <span aria-hidden>
+                  {detail.entry.is_dir ? "📁" : detail.entry.is_symlink ? "🔗" : "📄"}
+                </span>
+                <span className="truncate">{detail.entry.path}</span>
+              </span>
+              <button className="fm-btn shrink-0" onClick={() => setDetail(null)}>
                 {tc("cancel")}
               </button>
             </div>
-            <textarea
-              className="flex-1 resize-none rounded-md border border-[var(--border)] bg-[var(--muted)] p-2 font-mono text-xs"
-              value={editing.content}
-              onChange={(e) => setEditing({ ...editing, content: e.target.value })}
-            />
-            <div className="flex justify-end gap-2">
-              <button
-                className="rounded-md bg-[var(--primary)] px-3 py-1.5 text-sm text-[var(--primary-foreground)] disabled:opacity-50"
-                disabled={writeM.isPending}
-                onClick={() => writeM.mutate({ path: editing.path, content: editing.content })}
-              >
-                {tc("save")}
-              </button>
+
+            {/* File body: editable text, or a hint when not previewable */}
+            {!detail.entry.is_dir &&
+              (detail.loading ? (
+                <p className="text-sm text-[var(--muted-foreground)]">{tc("loading")}</p>
+              ) : detail.content !== null ? (
+                <textarea
+                  className="h-[60vh] flex-1 resize-none rounded-md border border-[var(--border)] bg-[var(--muted)] p-2 font-mono text-xs"
+                  value={detail.content}
+                  onChange={(e) =>
+                    setDetail((d) => (d ? { ...d, content: e.target.value } : d))
+                  }
+                />
+              ) : (
+                <p className="text-sm text-[var(--muted-foreground)]">{t("notViewable")}</p>
+              ))}
+            {detail.entry.is_dir && (
+              <p className="text-sm text-[var(--muted-foreground)]">{t("directoryHint")}</p>
+            )}
+
+            {/* Footer: safe actions on the left, destructive on the right */}
+            <div className="flex items-center justify-between gap-2 border-t border-[var(--border)] pt-3">
+              <div className="flex gap-2">
+                {!detail.entry.is_dir && (
+                  <button className="fm-btn" onClick={() => download(detail.entry)}>
+                    {t("download")}
+                  </button>
+                )}
+                {!detail.entry.is_dir && detail.content !== null && (
+                  <button
+                    className="rounded-md bg-[var(--primary)] px-3 py-1.5 text-sm text-[var(--primary-foreground)] disabled:opacity-50"
+                    disabled={writeM.isPending}
+                    onClick={() =>
+                      writeM.mutate({ path: detail.entry.path, content: detail.content ?? "" })
+                    }
+                  >
+                    {tc("save")}
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <button className="fm-btn" onClick={() => rename(detail.entry)}>
+                  {t("rename")}
+                </button>
+                <button className="fm-btn fm-btn-danger" onClick={() => remove(detail.entry)}>
+                  {tc("delete")}
+                </button>
+              </div>
             </div>
           </div>
         </div>
