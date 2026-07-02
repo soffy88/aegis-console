@@ -23,7 +23,8 @@
     "volumes": "Volumes",
     "uptime": "Uptime",
     "autohealPolicies": "Autoheal Policies",
-    "gitDeploy": "Git Deploy"
+    "gitDeploy": "Git Deploy",
+    "files": "Files"
   },
   "common": {
     "create": "Create",
@@ -331,5 +332,24 @@
     "name": "Name",
     "driver": "Driver",
     "mountpoint": "Mount point"
+  },
+  "files": {
+    "title": "Files",
+    "name": "Name",
+    "size": "Size",
+    "modified": "Modified",
+    "mode": "Mode",
+    "view": "View",
+    "download": "Download",
+    "rename": "Rename",
+    "refresh": "Refresh",
+    "newFolder": "New Folder",
+    "newFolderPrompt": "New folder name",
+    "renamePrompt": "New name",
+    "deleteConfirm": "Delete \"{name}\"? This cannot be undone.",
+    "upload": "Upload",
+    "up": "Up",
+    "showHidden": "Show hidden",
+    "disabled": "File manager is not configured. Set AEGIS_FILE_MANAGER_ROOTS and bind-mount the host directories into the aegis-backend container."
   }
 }

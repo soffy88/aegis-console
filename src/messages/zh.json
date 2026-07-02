@@ -23,7 +23,8 @@
     "volumes": "数据卷",
     "uptime": "在线探测",
     "autohealPolicies": "自愈策略",
-    "gitDeploy": "Git 部署"
+    "gitDeploy": "Git 部署",
+    "files": "文件"
   },
   "common": {
     "create": "创建",
@@ -331,5 +332,24 @@
     "name": "名称",
     "driver": "驱动",
     "mountpoint": "挂载点"
+  },
+  "files": {
+    "title": "文件",
+    "name": "名称",
+    "size": "大小",
+    "modified": "修改时间",
+    "mode": "权限",
+    "view": "查看",
+    "download": "下载",
+    "rename": "重命名",
+    "refresh": "刷新",
+    "newFolder": "新建文件夹",
+    "newFolderPrompt": "新文件夹名称",
+    "renamePrompt": "新名称",
+    "deleteConfirm": "删除「{name}」？此操作不可撤销。",
+    "upload": "上传",
+    "up": "上一级",
+    "showHidden": "显示隐藏文件",
+    "disabled": "文件管理器未配置。请设置 AEGIS_FILE_MANAGER_ROOTS 并把宿主机目录 bind-mount 进 aegis-backend 容器。"
   }
 }

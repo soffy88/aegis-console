@@ -32,6 +32,7 @@ const ICON_PATHS: Record<string, string> = {
   domains: "M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c2.5 2.5 3.5 6 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-6-3.5-9s1-6.5 3.5-9z",
   alertIngest: "M22 6l-10 7L2 6m0 0a2 2 0 012-2h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6z",
   metrics: "M3 3v18h18M7 14l3-4 3 3 4-6",
+  files: "M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7zM3 11h18",
 };
 
 function Icon({ name, className }: { name: string; className?: string }) {
@@ -78,6 +79,7 @@ function buildNav(base: string): NavSection[] {
         { key: "networks", href: `${base}/networks`, icon: "networks" },
         { key: "volumes", href: `${base}/volumes`, icon: "volumes" },
         { key: "nodes", href: `${base}/nodes`, icon: "nodes" },
+        { key: "files", href: `${base}/files`, icon: "files" },
         { key: "metrics", href: `${base}/metrics`, icon: "metrics" },
         { key: "uptime", href: `${base}/uptime`, icon: "metrics" },
         { key: "domains", href: `${base}/domains`, icon: "domains" },

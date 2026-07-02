@@ -68,3 +68,42 @@ export async function aegisFetch<T>(
   }
   return res.json() as Promise<T>;
 }
+
+/** Resolve a valid Bearer token, refreshing once if needed. */
+async function authHeader(): Promise<Record<string, string>> {
+  let token = getValidToken();
+  if (!token) {
+    const ok = await refreshToken();
+    if (!ok) throw new ApiError(401, "Session expired. Please log in again.");
+    token = getValidToken();
+  }
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+/** Authenticated GET that returns the raw response body as a Blob (for downloads). */
+export async function aegisBlob(path: string): Promise<Blob> {
+  const res = await fetch(`${getApiBase()}${path}`, {
+    headers: await authHeader(),
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new ApiError(res.status, text);
+  }
+  return res.blob();
+}
+
+/** Authenticated multipart POST (browser sets the Content-Type boundary). */
+export async function aegisUpload<T>(path: string, form: FormData): Promise<T> {
+  const res = await fetch(`${getApiBase()}${path}`, {
+    method: "POST",
+    headers: await authHeader(),
+    credentials: "include",
+    body: form,
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new ApiError(res.status, text);
+  }
+  return res.json() as Promise<T>;
+}

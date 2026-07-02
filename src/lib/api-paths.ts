@@ -147,6 +147,21 @@ export const paths = {
     `/api/v1/orgs/${orgId}/docker/images/${image}`,
   dockerSystemPrune: (orgId: string) => `/api/v1/orgs/${orgId}/docker/system/prune`,
 
+  // Files (host filesystem manager — sandboxed to AEGIS_FILE_MANAGER_ROOTS)
+  fileRoots: (orgId: string) => `/api/v1/orgs/${orgId}/files/roots`,
+  fileList: (orgId: string, path: string, showHidden = true) =>
+    `/api/v1/orgs/${orgId}/files/list?path=${encodeURIComponent(path)}&show_hidden=${showHidden}`,
+  fileRead: (orgId: string, path: string) =>
+    `/api/v1/orgs/${orgId}/files/read?path=${encodeURIComponent(path)}`,
+  fileDownload: (orgId: string, path: string) =>
+    `/api/v1/orgs/${orgId}/files/download?path=${encodeURIComponent(path)}`,
+  fileWrite: (orgId: string) => `/api/v1/orgs/${orgId}/files/write`,
+  fileMkdir: (orgId: string) => `/api/v1/orgs/${orgId}/files/mkdir`,
+  fileUpload: (orgId: string) => `/api/v1/orgs/${orgId}/files/upload`,
+  fileRename: (orgId: string) => `/api/v1/orgs/${orgId}/files/rename`,
+  fileDelete: (orgId: string, path: string) =>
+    `/api/v1/orgs/${orgId}/files/delete?path=${encodeURIComponent(path)}`,
+
   // AutoHeal
   autohealEvents: (orgId: string) => `/api/v1/orgs/${orgId}/autoheal/events`,
   autohealEvent: (orgId: string, eventId: string) =>
