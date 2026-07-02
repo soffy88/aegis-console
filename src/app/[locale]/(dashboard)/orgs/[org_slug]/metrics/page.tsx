@@ -88,6 +88,12 @@ type Tile = { metric: string; label: string; agg: string; fmt: (v: number) => st
 
 const fmtGB = (v: number) => `${(v / 1e9).toFixed(1)} GB`;
 const KEY_METRICS: Tile[] = [
+  // Whole-host totals (node_exporter). "整机" = the whole machine incl. non-container
+  // processes — vs the per-container "最忙/最大" tiles below which flag a single hot container.
+  { metric: "node_cpu_percent", label: "整机 CPU", agg: "avg",
+    fmt: (v) => `${v.toFixed(0)}%`, accent: (v) => (v >= 85 ? "text-red-400" : v >= 60 ? "text-amber-400" : "text-blue-400") },
+  { metric: "node_memory_used_percent", label: "整机内存", agg: "avg",
+    fmt: (v) => `${v.toFixed(0)}%`, accent: (v) => (v >= 90 ? "text-red-400" : v >= 75 ? "text-amber-400" : "text-blue-400") },
   { metric: "container_cpu_percent", label: "最忙容器 CPU", agg: "max",
     fmt: (v) => `${v.toFixed(0)}%`, accent: (v) => (v >= 1000 ? "text-red-400" : v >= 700 ? "text-amber-400" : "text-blue-400") },
   { metric: "container_memory_working_set_bytes", label: "最大容器内存", agg: "max",
@@ -209,7 +215,7 @@ export default function MetricsPage() {
       </div>
 
       {/* Tiled overview — main monitoring metrics, shown without any selection */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {KEY_METRICS.map((tile) => (
           <MetricTile
             key={tile.metric}
