@@ -447,13 +447,14 @@
   },
   "websites": {
     "title": "网站",
-    "hint": "把某个目录(文件管理白名单内)作为静态或 PHP 站点部署,自动分配端口。绑定域名请到「域名」页。",
+    "hint": "把目录部署为静态/PHP 站点。填域名即自动经 Caddy 绑定路由;域名 DNS 指向隧道后,HTTPS 由 Cloudflare 边缘自动提供。",
     "name": "名称",
     "rootDir": "根目录",
     "deploy": "部署",
     "status": "状态",
     "ports": "端口",
     "remove": "删除",
-    "removeConfirm": "删除网站「{name}」？"
+    "removeConfirm": "删除网站「{name}」？",
+    "domain": "域名"
   }
 }

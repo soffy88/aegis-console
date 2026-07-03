@@ -8,7 +8,7 @@ import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
 import { useOrgIdBySlug } from "@/hooks/use-org-id";
 
-type Site = { name: string; container: string; status: string; ports: string };
+type Site = { name: string; container: string; status: string; ports: string; domain?: string | null };
 
 export default function WebsitesPage() {
   const t = useTranslations("websites");
@@ -17,6 +17,7 @@ export default function WebsitesPage() {
   const qc = useQueryClient();
   const [name, setName] = useState("");
   const [rootDir, setRootDir] = useState("");
+  const [domain, setDomain] = useState("");
   const [php, setPhp] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -28,14 +29,19 @@ export default function WebsitesPage() {
 
   const createM = useMutation({
     mutationFn: () =>
-      aegisFetch<{ port: number }>(paths.websites(orgId!), {
+      aegisFetch<{ port: number; domain_bound?: boolean; https?: string }>(paths.websites(orgId!), {
         method: "POST",
-        body: JSON.stringify({ name, root_dir: rootDir, php }),
+        body: JSON.stringify({ name, root_dir: rootDir, php, ...(domain ? { domain } : {}) }),
       }),
     onSuccess: (r) => {
-      setMsg(`✓ ${name} → port ${r.port}`);
+      setMsg(
+        `✓ ${name} → port ${r.port}` +
+          (r.domain_bound ? ` · ${domain} bound` : "") +
+          (r.https ? ` · ${r.https}` : ""),
+      );
       setName("");
       setRootDir("");
+      setDomain("");
       qc.invalidateQueries({ queryKey: ["websites", orgId] });
     },
     onError: (e: Error) => setMsg(`✗ ${e.message}`),
@@ -60,6 +66,10 @@ export default function WebsitesPage() {
           {t("rootDir")}
           <input value={rootDir} onChange={(e) => setRootDir(e.target.value)} placeholder="/mnt/d/sites/my-site" className={`${inp} w-full`} />
         </label>
+        <label className="flex flex-col gap-1 text-xs text-[var(--muted-foreground)]">
+          {t("domain")}
+          <input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="site.example.com" className={`${inp} w-52`} />
+        </label>
         <label className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
           <input type="checkbox" checked={php} onChange={(e) => setPhp(e.target.checked)} /> PHP
         </label>
@@ -77,6 +87,7 @@ export default function WebsitesPage() {
         <thead>
           <tr className="border-b border-[var(--border)] text-left text-xs text-[var(--muted-foreground)]">
             <th className="p-2">{t("name")}</th>
+            <th className="p-2">{t("domain")}</th>
             <th className="p-2">{t("status")}</th>
             <th className="p-2">{t("ports")}</th>
             <th className="p-2" />
@@ -86,6 +97,7 @@ export default function WebsitesPage() {
           {(list.data ?? []).map((s) => (
             <tr key={s.container} className="border-b border-[var(--border)]/40">
               <td className="p-2 font-medium">{s.name}</td>
+              <td className="p-2 font-mono text-xs">{s.domain ?? "—"}</td>
               <td className="p-2 text-xs">{s.status}</td>
               <td className="p-2 font-mono text-xs">{s.ports}</td>
               <td className="p-2 text-right">

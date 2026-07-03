@@ -447,13 +447,14 @@
   },
   "websites": {
     "title": "Websites",
-    "hint": "Serve a directory (inside the file-manager roots) as a static or PHP site on an auto-assigned port. Bind a domain via the Domains page.",
+    "hint": "Serve a directory as a static/PHP site. Bind a domain and it's auto-routed via Caddy; HTTPS is handled by the Cloudflare edge once the domain points at the tunnel.",
     "name": "Name",
     "rootDir": "Root directory",
     "deploy": "Deploy",
     "status": "Status",
     "ports": "Ports",
     "remove": "Remove",
-    "removeConfirm": "Remove website \"{name}\"?"
+    "removeConfirm": "Remove website \"{name}\"?",
+    "domain": "Domain"
   }
 }
