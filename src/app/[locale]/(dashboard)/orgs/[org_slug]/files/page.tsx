@@ -20,7 +20,13 @@ type Entry = {
   mode: string;
 };
 
-type Listing = { path: string; parent: string | null; entries: Entry[] };
+type Listing = {
+  path: string;
+  parent: string | null;
+  entries: Entry[];
+  total?: number;
+  truncated?: boolean;
+};
 type ColDef<T> = ODataTableData<T>["columns"][number];
 
 function fmtBytes(n: number): string {
@@ -322,6 +328,15 @@ export default function FilesPage() {
           {error && (
             <p className="rounded-md border border-red-500/30 bg-red-500/10 p-2 text-sm text-red-400">
               {error}
+            </p>
+          )}
+
+          {listingQ.data?.truncated && (
+            <p className="rounded-md border border-yellow-500/30 bg-yellow-500/10 p-2 text-sm text-yellow-500">
+              {t("truncated", {
+                shown: listingQ.data.entries.length,
+                total: listingQ.data.total ?? listingQ.data.entries.length,
+              })}
             </p>
           )}
 
