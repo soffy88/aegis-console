@@ -17,6 +17,7 @@
     "alertIngest": "Alert Ingest",
     "webhooks": "Webhooks",
     "signOut": "Sign out",
+    "account": "Account",
     "metrics": "Metrics",
     "images": "Images",
     "networks": "Networks",
@@ -355,5 +356,18 @@
     "notViewable": "This file can't be previewed as text — download it instead.",
     "directoryHint": "This is a directory. Use Rename or Delete below, or click its name to open it.",
     "truncated": "Showing the first {shown} of {total} entries. Open a deeper subfolder to see the rest."
+  },
+  "account": {
+    "title": "Account",
+    "changePassword": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password (min 8)",
+    "confirmPassword": "Confirm new password",
+    "submit": "Update password",
+    "saving": "Saving…",
+    "success": "Password updated.",
+    "mismatch": "The new passwords do not match.",
+    "tooShort": "New password must be at least 8 characters.",
+    "wrongCurrent": "Current password is incorrect."
   }
 }

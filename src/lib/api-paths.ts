@@ -11,6 +11,7 @@ export const paths = {
   logout: () => `/api/v1/auth/logout`,
   refresh: () => `/api/v1/auth/refresh`,
   me: () => `/api/v1/auth/me`,
+  changePassword: () => `/api/v1/auth/password`,
 
   // Projects
   projects: (orgId: string) => `/api/v1/orgs/${orgId}/projects`,

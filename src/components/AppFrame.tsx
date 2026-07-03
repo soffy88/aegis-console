@@ -33,6 +33,7 @@ const ICON_PATHS: Record<string, string> = {
   alertIngest: "M22 6l-10 7L2 6m0 0a2 2 0 012-2h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6z",
   metrics: "M3 3v18h18M7 14l3-4 3 3 4-6",
   files: "M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7zM3 11h18",
+  account: "M6 10V8a6 6 0 0112 0v2M5 10h14a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9a1 1 0 011-1zM12 15v2",
 };
 
 function Icon({ name, className }: { name: string; className?: string }) {
@@ -102,6 +103,10 @@ function buildNav(base: string): NavSection[] {
         { key: "backups", href: `${base}/backups`, icon: "backups" },
         { key: "alertIngest", href: `${base}/alerts/ingest`, icon: "alertIngest" },
       ],
+    },
+    {
+      label: "Settings",
+      items: [{ key: "account", href: `${base}/settings/account`, icon: "account" }],
     },
   ];
 }
