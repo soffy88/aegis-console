@@ -21,6 +21,19 @@ export const paths = {
   firewallRule: (orgId: string, num: number) => `/api/v1/orgs/${orgId}/firewall/rules/${num}`,
   logsSearch: (orgId: string, q: string, tail = 200) =>
     `/api/v1/orgs/${orgId}/docker/logs/search?q=${encodeURIComponent(q)}&tail=${tail}`,
+  apmServices: (orgId: string, minutes = 60) =>
+    `/api/v1/orgs/${orgId}/telemetry/services?minutes=${minutes}`,
+  apmTraces: (orgId: string, service = "", minutes = 60) =>
+    `/api/v1/orgs/${orgId}/telemetry/traces?minutes=${minutes}${service ? `&service=${encodeURIComponent(service)}` : ""}`,
+  apmTrace: (orgId: string, traceId: string) =>
+    `/api/v1/orgs/${orgId}/telemetry/traces/${traceId}`,
+  apmTopology: (orgId: string, minutes = 60) =>
+    `/api/v1/orgs/${orgId}/telemetry/topology?minutes=${minutes}`,
+  slos: (orgId: string) => `/api/v1/orgs/${orgId}/slos`,
+  slo: (orgId: string, id: string) => `/api/v1/orgs/${orgId}/slos/${id}`,
+  lokiStatus: (orgId: string) => `/api/v1/orgs/${orgId}/loki/status`,
+  lokiQuery: (orgId: string, query: string, minutes = 60) =>
+    `/api/v1/orgs/${orgId}/loki/query?query=${encodeURIComponent(query)}&minutes=${minutes}`,
   storeItem: (orgId: string, slug: string) => `/api/v1/orgs/${orgId}/store/${slug}`,
   dbInstances: (orgId: string) => `/api/v1/orgs/${orgId}/databases`,
   dbList: (orgId: string, name: string) => `/api/v1/orgs/${orgId}/databases/${name}/dbs`,

@@ -31,7 +31,11 @@
     "hostTerminal": "宿主机终端",
     "logs": "日志",
     "firewall": "防火墙",
-    "websites": "网站"
+    "websites": "网站",
+    "apm": "APM / 追踪",
+    "serviceMap": "服务拓扑",
+    "slo": "SLO",
+    "loki": "Loki 日志"
   },
   "common": {
     "create": "创建",
@@ -456,5 +460,42 @@
     "remove": "删除",
     "removeConfirm": "删除网站「{name}」？",
     "domain": "域名"
+  },
+  "apm": {
+    "title": "APM / 分布式追踪",
+    "hint": "从 OTLP 追踪算出每服务 RED(速率/错误/耗时)。把应用的 OpenTelemetry 导出器指向 /api/v1/telemetry/v1/traces。",
+    "empty": "暂无追踪。向 /api/v1/telemetry/v1/traces 发送 OTLP 追踪即可在此看到服务。",
+    "service": "服务",
+    "rpm": "请求/分",
+    "errorPct": "错误率",
+    "recentTraces": "近期追踪",
+    "waterfall": "追踪瀑布"
+  },
+  "serviceMap": {
+    "title": "服务拓扑",
+    "hint": "从追踪的父/子 span 自动发现的服务依赖图。",
+    "empty": "暂无跨服务调用追踪。"
+  },
+  "slo": {
+    "title": "SLO / 错误预算",
+    "hint": "为每个服务设定成功目标;SLI 从采集的追踪计算。",
+    "name": "名称",
+    "service": "服务",
+    "objective": "目标 %",
+    "currentSli": "当前 SLI",
+    "budget": "剩余预算",
+    "burnRate": "燃尽率",
+    "create": "创建",
+    "delete": "删除",
+    "note": "SLI 基于保留的追踪数据(约 48 小时)计算,长窗口受保留期限制。"
+  },
+  "loki": {
+    "title": "Loki 日志",
+    "hint": "用 LogQL 查询有索引、可留存的日志后端。",
+    "notConfigured": "未配置 Loki。请从应用市场安装 Loki 并设置 AEGIS_LOKI_URL 以启用索引日志检索(内置「日志」页无需配置)。",
+    "run": "查询",
+    "count": "{n} 行",
+    "reachable": "可达",
+    "unreachable": "不可达"
   }
 }

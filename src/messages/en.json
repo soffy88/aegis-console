@@ -31,7 +31,11 @@
     "hostTerminal": "Host Terminal",
     "logs": "Logs",
     "firewall": "Firewall",
-    "websites": "Websites"
+    "websites": "Websites",
+    "apm": "APM / Traces",
+    "serviceMap": "Service Map",
+    "slo": "SLOs",
+    "loki": "Loki Logs"
   },
   "common": {
     "create": "Create",
@@ -456,5 +460,42 @@
     "remove": "Remove",
     "removeConfirm": "Remove website \"{name}\"?",
     "domain": "Domain"
+  },
+  "apm": {
+    "title": "APM / Distributed Traces",
+    "hint": "Per-service RED (rate/errors/duration) from OTLP traces. Point apps' OpenTelemetry exporter at /api/v1/telemetry/v1/traces.",
+    "empty": "No traces yet. Send OTLP traces to /api/v1/telemetry/v1/traces to see services here.",
+    "service": "Service",
+    "rpm": "req/min",
+    "errorPct": "Errors",
+    "recentTraces": "Recent traces",
+    "waterfall": "Trace waterfall"
+  },
+  "serviceMap": {
+    "title": "Service Map",
+    "hint": "Auto-discovered service dependency graph from trace parent/child spans.",
+    "empty": "No inter-service calls traced yet."
+  },
+  "slo": {
+    "title": "SLOs / Error Budget",
+    "hint": "Track a success objective per service; SLI is computed from ingested traces.",
+    "name": "Name",
+    "service": "Service",
+    "objective": "Objective %",
+    "currentSli": "Current SLI",
+    "budget": "Budget left",
+    "burnRate": "Burn rate",
+    "create": "Create",
+    "delete": "Delete",
+    "note": "SLI is computed over retained trace data (~48h), so long windows are bounded by retention."
+  },
+  "loki": {
+    "title": "Loki Logs",
+    "hint": "Query an indexed, retained log backend with LogQL.",
+    "notConfigured": "Loki is not configured. Install Loki from the App Store and set AEGIS_LOKI_URL to enable indexed log search (the built-in Logs page needs no setup).",
+    "run": "Run",
+    "count": "{n} lines",
+    "reachable": "reachable",
+    "unreachable": "unreachable"
   }
 }
