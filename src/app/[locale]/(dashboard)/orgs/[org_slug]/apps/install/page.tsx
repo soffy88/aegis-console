@@ -19,6 +19,10 @@ const schema = z.object({
     .refine((v) => !/\s/.test(v), "No whitespace allowed"),
   app_version: z.string().optional(),
   domain: z.string().optional(),
+  host_port: z
+    .string()
+    .optional()
+    .refine((v) => !v || /^\d{2,5}$/.test(v), "Port must be 2-5 digits"),
 });
 
 type Fields = z.infer<typeof schema>;
@@ -38,6 +42,7 @@ export default function InstallPage() {
     install_dir: "",
     app_version: "",
     domain: "",
+    host_port: "",
   });
   const [errors, setErrors] = useState<FieldErrors>({});
 
@@ -77,12 +82,13 @@ export default function InstallPage() {
       setErrors(fe);
       return;
     }
-    const { app_name, install_dir, app_version, domain } = result.data;
+    const { app_name, install_dir, app_version, domain, host_port } = result.data;
     mutation.mutate({
       app_name,
       install_dir,
       ...(app_version ? { app_version } : {}),
       ...(domain ? { domain } : {}),
+      ...(host_port ? { host_port: Number(host_port) } : {}),
     });
   }
 
@@ -101,6 +107,14 @@ export default function InstallPage() {
         </OFormField>
         <OFormField label="Domain" htmlFor="domain" error={errors.domain}>
           <OTextInput id="domain" value={fields.domain} onChange={set("domain")} placeholder="app.example.com" />
+        </OFormField>
+        <OFormField
+          label="Host Port"
+          htmlFor="host_port"
+          error={errors.host_port}
+          help="Multi-container apps only. Leave blank to use the default (auto-freed if taken)."
+        >
+          <OTextInput id="host_port" value={fields.host_port ?? ""} onChange={set("host_port")} placeholder="18090" />
         </OFormField>
         {mutation.isError && (
           <p className="text-sm text-destructive">{(mutation.error as Error).message}</p>

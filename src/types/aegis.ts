@@ -13,11 +13,13 @@ export interface AppInstallPayload {
   app_version?: string;
   install_dir: string;
   domain?: string;
+  host_port?: number;
 }
 
 export interface AppInstallResult {
   install_id: string;
   status: "installing";
+  host_port?: number | null;
 }
 
 export interface Container {
