@@ -35,7 +35,14 @@
     "apm": "APM / 追踪",
     "serviceMap": "服务拓扑",
     "slo": "SLO",
-    "loki": "Loki 日志"
+    "loki": "Loki 日志",
+    "kubernetes": "Kubernetes",
+    "rum": "RUM",
+    "profiling": "性能剖析",
+    "correlation": "事件关联",
+    "security": "安全",
+    "statusComponents": "状态页",
+    "channels": "通知渠道"
   },
   "common": {
     "create": "创建",
@@ -474,7 +481,13 @@
   "serviceMap": {
     "title": "服务拓扑",
     "hint": "从追踪的父/子 span 自动发现的服务依赖图。",
-    "empty": "暂无跨服务调用追踪。"
+    "empty": "暂无跨服务调用追踪。",
+    "rcaLabel": "对某服务做根因分析",
+    "rcaRun": "分析",
+    "likelyRoot": "最可能根因",
+    "depth": "深度",
+    "score": "评分",
+    "rcaNone": "未发现下游错误服务。"
   },
   "slo": {
     "title": "SLO / 错误预算",
@@ -497,5 +510,70 @@
     "count": "{n} 行",
     "reachable": "可达",
     "unreachable": "不可达"
+  },
+  "rum": {
+    "title": "真实用户监测 (RUM)",
+    "hint": "通过 beacon 采集真实浏览器页面加载耗时(p50/p95)。",
+    "snippet": "Beacon 代码(嵌入你的应用)",
+    "empty": "暂无 RUM 数据——把 beacon 代码嵌入你的应用。",
+    "app": "应用",
+    "page": "页面",
+    "views": "访问量"
+  },
+  "profiling": {
+    "title": "持续剖析",
+    "hint": "经 Grafana Pyroscope 出 CPU/内存火焰图。应用需接 Pyroscope SDK/agent。",
+    "notConfigured": "未配置 Pyroscope。请从应用市场安装 Pyroscope 并设置 AEGIS_PYROSCOPE_URL。",
+    "open": "打开 Pyroscope",
+    "reachable": "可达",
+    "unreachable": "不可达"
+  },
+  "correlation": {
+    "title": "事件关联降噪",
+    "hint": "按 服务+资源+类型 把相关事件归组,降低告警噪音。",
+    "rawEvents": "原始事件",
+    "groups": "归组数",
+    "noiseReduction": "降噪比",
+    "service": "服务",
+    "resource": "资源",
+    "type": "类型",
+    "events": "事件数",
+    "lastSeen": "最近"
+  },
+  "security": {
+    "title": "安全态势",
+    "hint": "容器配置风险扫描(CSPM 轻量版)。更深 CVE 扫描:从市场装 Trivy。",
+    "scanned": "已扫描",
+    "high": "高危",
+    "medium": "中危",
+    "low": "低危",
+    "severity": "级别",
+    "container": "容器",
+    "check": "检查项",
+    "detail": "详情"
+  },
+  "channels": {
+    "title": "通知渠道",
+    "hint": "外发告警集成:Slack / Discord / Telegram / Webhook。",
+    "name": "名称",
+    "create": "创建",
+    "test": "测试"
+  },
+  "statusComponents": {
+    "title": "状态页组件",
+    "overall": "整体",
+    "name": "组件名",
+    "save": "保存"
+  },
+  "kubernetes": {
+    "title": "Kubernetes",
+    "notConfigured": "未配置 Kubernetes。设置 AEGIS_KUBECONFIG 指向挂载的 kubeconfig 即可查看集群。",
+    "nodes": "节点",
+    "pods": "Pod",
+    "pod": "Pod",
+    "phase": "状态",
+    "ready": "就绪",
+    "restarts": "重启",
+    "node": "节点"
   }
 }

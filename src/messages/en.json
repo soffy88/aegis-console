@@ -35,7 +35,14 @@
     "apm": "APM / Traces",
     "serviceMap": "Service Map",
     "slo": "SLOs",
-    "loki": "Loki Logs"
+    "loki": "Loki Logs",
+    "kubernetes": "Kubernetes",
+    "rum": "RUM",
+    "profiling": "Profiling",
+    "correlation": "Correlation",
+    "security": "Security",
+    "statusComponents": "Status Page",
+    "channels": "Channels"
   },
   "common": {
     "create": "Create",
@@ -474,7 +481,13 @@
   "serviceMap": {
     "title": "Service Map",
     "hint": "Auto-discovered service dependency graph from trace parent/child spans.",
-    "empty": "No inter-service calls traced yet."
+    "empty": "No inter-service calls traced yet.",
+    "rcaLabel": "Root-cause a service",
+    "rcaRun": "Analyze",
+    "likelyRoot": "Likely root",
+    "depth": "depth",
+    "score": "score",
+    "rcaNone": "No erroring downstream service found."
   },
   "slo": {
     "title": "SLOs / Error Budget",
@@ -497,5 +510,70 @@
     "count": "{n} lines",
     "reachable": "reachable",
     "unreachable": "unreachable"
+  },
+  "rum": {
+    "title": "Real User Monitoring",
+    "hint": "Real browser page-load timing (p50/p95) per page from a beacon snippet.",
+    "snippet": "Beacon snippet (embed in your app)",
+    "empty": "No RUM data yet — embed the beacon snippet in your app.",
+    "app": "App",
+    "page": "Page",
+    "views": "Views"
+  },
+  "profiling": {
+    "title": "Continuous Profiling",
+    "hint": "CPU/memory flamegraphs via Grafana Pyroscope. Apps need the Pyroscope SDK/agent.",
+    "notConfigured": "Pyroscope not configured. Install Pyroscope from the App Store and set AEGIS_PYROSCOPE_URL.",
+    "open": "Open Pyroscope",
+    "reachable": "reachable",
+    "unreachable": "unreachable"
+  },
+  "correlation": {
+    "title": "Event Correlation",
+    "hint": "Related events grouped by service+resource+type to cut alert noise.",
+    "rawEvents": "Raw events",
+    "groups": "Groups",
+    "noiseReduction": "Noise reduction",
+    "service": "Service",
+    "resource": "Resource",
+    "type": "Type",
+    "events": "Events",
+    "lastSeen": "Last seen"
+  },
+  "security": {
+    "title": "Security Posture",
+    "hint": "Container misconfiguration scan (CSPM-lite). Deeper CVE scanning: install Trivy from the App Store.",
+    "scanned": "Scanned",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "severity": "Severity",
+    "container": "Container",
+    "check": "Check",
+    "detail": "Detail"
+  },
+  "channels": {
+    "title": "Notification Channels",
+    "hint": "Outbound alert integrations: Slack / Discord / Telegram / webhook.",
+    "name": "Name",
+    "create": "Create",
+    "test": "Test"
+  },
+  "statusComponents": {
+    "title": "Status Page Components",
+    "overall": "Overall",
+    "name": "Component name",
+    "save": "Save"
+  },
+  "kubernetes": {
+    "title": "Kubernetes",
+    "notConfigured": "Kubernetes not configured. Set AEGIS_KUBECONFIG to a mounted kubeconfig to view the cluster.",
+    "nodes": "Nodes",
+    "pods": "Pods",
+    "pod": "Pod",
+    "phase": "Phase",
+    "ready": "Ready",
+    "restarts": "Restarts",
+    "node": "Node"
   }
 }
