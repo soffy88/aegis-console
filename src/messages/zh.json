@@ -42,7 +42,8 @@
     "correlation": "事件关联",
     "security": "安全",
     "statusComponents": "状态页",
-    "channels": "通知渠道"
+    "channels": "通知渠道",
+    "memory": "内存管理"
   },
   "common": {
     "create": "创建",
@@ -575,5 +576,25 @@
     "ready": "就绪",
     "restarts": "重启",
     "node": "节点"
+  },
+  "memory": {
+    "title": "内存管理",
+    "hint": "每容器内存用量对比上限、整机+swap 概览,并可就地设置/清除容器内存上限。",
+    "hostMem": "整机内存",
+    "hostSwap": "整机 swap",
+    "available": "可用",
+    "noLimitCount": "无上限容器",
+    "noLimitHint": "未设内存上限——可吃满整机内存。",
+    "container": "容器",
+    "usage": "用量",
+    "limit": "上限",
+    "ofLimit": "占上限",
+    "action": "",
+    "unlimited": "无限制",
+    "setLimit": "设上限",
+    "save": "保存",
+    "clear": "清除",
+    "cancel": "取消",
+    "caveat": "上限作用于运行中的容器,容器被重建(如 compose up)后会重置——要永久生效请同时写进 compose/run 定义。Docker 无法从运行中的容器移除已设上限,要恢复无限制需重建容器。"
   }
 }

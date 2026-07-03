@@ -86,6 +86,9 @@ export const paths = {
     `/api/v1/orgs/${orgId}/docker/containers/${name}/restart`,
   containerLogs: (orgId: string, name: string) =>
     `/api/v1/orgs/${orgId}/docker/containers/${name}/logs`,
+  memoryOverview: (orgId: string) => `/api/v1/orgs/${orgId}/docker/memory/overview`,
+  containerLimits: (orgId: string, name: string) =>
+    `/api/v1/orgs/${orgId}/docker/containers/${name}/limits`,
 
   // Events
   events: (orgId: string) => `/api/v1/orgs/${orgId}/events`,

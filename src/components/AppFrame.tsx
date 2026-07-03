@@ -40,6 +40,7 @@ const ICON_PATHS: Record<string, string> = {
   apm: "M3 3v18h18M7 15l3-4 3 2 4-6",
   serviceMap: "M6 6a2 2 0 100-.01M18 6a2 2 0 100-.01M12 19a2 2 0 100-.01M7 7l4 10M17 7l-4 10",
   slo: "M12 3a9 9 0 109 9h-9V3z M12 3v9l6.4 6.4",
+  memory: "M4 7h16v10H4V7zm3 0v10m5-10v10m5-10v10M2 9v6m20-6v6",
 };
 
 function Icon({ name, className }: { name: string; className?: string }) {
@@ -90,6 +91,7 @@ function buildNav(base: string): NavSection[] {
         { key: "kubernetes", href: `${base}/kubernetes`, icon: "nodes" },
         { key: "files", href: `${base}/files`, icon: "files" },
         { key: "metrics", href: `${base}/metrics`, icon: "metrics" },
+        { key: "memory", href: `${base}/memory`, icon: "memory" },
         { key: "uptime", href: `${base}/uptime`, icon: "metrics" },
         { key: "domains", href: `${base}/domains`, icon: "domains" },
         { key: "certificates", href: `${base}/certificates`, icon: "account" },

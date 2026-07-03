@@ -42,7 +42,8 @@
     "correlation": "Correlation",
     "security": "Security",
     "statusComponents": "Status Page",
-    "channels": "Channels"
+    "channels": "Channels",
+    "memory": "Memory"
   },
   "common": {
     "create": "Create",
@@ -575,5 +576,25 @@
     "ready": "Ready",
     "restarts": "Restarts",
     "node": "Node"
+  },
+  "memory": {
+    "title": "Memory Management",
+    "hint": "Per-container memory usage vs limit, host + swap overview, and set/clear container memory caps.",
+    "hostMem": "Host memory",
+    "hostSwap": "Host swap",
+    "available": "available",
+    "noLimitCount": "Uncapped containers",
+    "noLimitHint": "No memory limit set — can consume all host RAM.",
+    "container": "Container",
+    "usage": "Usage",
+    "limit": "Limit",
+    "ofLimit": "% of limit",
+    "action": "",
+    "unlimited": "unlimited",
+    "setLimit": "Set limit",
+    "save": "Save",
+    "clear": "Clear",
+    "cancel": "Cancel",
+    "caveat": "Limits apply to the live container and reset if it is recreated (e.g. compose up) — for a permanent cap also set it in the container's compose/run definition. Docker cannot remove a limit from a running container; recreate it without one to go unlimited."
   }
 }
