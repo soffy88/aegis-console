@@ -447,7 +447,7 @@
   },
   "websites": {
     "title": "网站",
-    "hint": "把目录部署为静态/PHP 站点。填域名即自动经 Caddy 绑定路由;域名 DNS 指向隧道后,HTTPS 由 Cloudflare 边缘自动提供。",
+    "hint": "把目录部署为静态/PHP 站点。填域名即由 Caddy 自动绑定路由并签发 Let's Encrypt 证书(把域名 DNS 指向本机,开放 80/443 端口即可)。",
     "name": "名称",
     "rootDir": "根目录",
     "deploy": "部署",

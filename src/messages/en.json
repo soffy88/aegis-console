@@ -447,7 +447,7 @@
   },
   "websites": {
     "title": "Websites",
-    "hint": "Serve a directory as a static/PHP site. Bind a domain and it's auto-routed via Caddy; HTTPS is handled by the Cloudflare edge once the domain points at the tunnel.",
+    "hint": "Serve a directory as a static/PHP site. Bind a domain and Caddy auto-routes it and issues a Let's Encrypt certificate (point the domain's DNS at this host, ports 80/443 open).",
     "name": "Name",
     "rootDir": "Root directory",
     "deploy": "Deploy",
