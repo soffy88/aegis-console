@@ -58,19 +58,11 @@ export default function StorePage() {
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded border px-3 py-1.5 text-sm">
           <option value="">All categories</option>
+          <option value="AI">AI</option>
           <option value="Automation">Automation</option>
-          <option value="Backup">Backup</option>
-          <option value="Cloud">Cloud</option>
-          <option value="Continuousintegration">CI/CD</option>
-          <option value="Dashboard">Dashboard</option>
           <option value="Database">Database</option>
           <option value="Development">Development</option>
-          <option value="Dns">DNS</option>
-          <option value="Docker">Docker</option>
-          <option value="Downloaders">Downloader</option>
-          <option value="Filesharing">File Sharing</option>
-          <option value="Games">Games</option>
-          <option value="Homeautomation">Home Automation</option>
+          <option value="Home">Home</option>
           <option value="Management">Management</option>
           <option value="Media">Media</option>
           <option value="Messaging">Messaging</option>
@@ -78,11 +70,7 @@ export default function StorePage() {
           <option value="Network">Network</option>
           <option value="Productivity">Productivity</option>
           <option value="Security">Security</option>
-          <option value="Social">Social</option>
           <option value="Storage">Storage</option>
-          <option value="Streaming">Streaming</option>
-          <option value="Tools">Tools</option>
-          <option value="Video">Video</option>
           <option value="Web">Web</option>
         </select>
       </div>
