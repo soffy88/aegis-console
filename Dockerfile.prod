@@ -5,8 +5,8 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@10 --activate
 
 COPY package.json pnpm-lock.yaml ./
-COPY --from=platform OUI/helios-blocks-2.6.0.tgz /platform/OUI/
-COPY --from=platform OUI/helios-oui-1.5.2.tgz /platform/OUI/
+COPY --from=platform OUI/helios-blocks-2.15.0.tgz /platform/OUI/
+COPY --from=platform OUI/helios-oui-1.8.0.tgz /platform/OUI/
 RUN pnpm install --frozen-lockfile
 
 COPY . .
