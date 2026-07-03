@@ -27,7 +27,7 @@ interface AcceptResult {
 
 const schema = z
   .object({
-    password: z.string().min(12, "Password must be at least 12 characters"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
     confirm: z.string(),
     display_name: z.string().optional(),
   })
