@@ -1,11 +1,9 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { ODataTable } from "@helios/blocks";
-import type { ODataTableData } from "@helios/blocks";
 import { aegisBlob, aegisFetch, aegisUpload } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
 import { useOrgIdBySlug } from "@/hooks/use-org-id";
@@ -27,7 +25,6 @@ type Listing = {
   total?: number;
   truncated?: boolean;
 };
-type ColDef<T> = ODataTableData<T>["columns"][number];
 
 function fmtBytes(n: number): string {
   if (n < 1024) return `${n} B`;
@@ -44,6 +41,138 @@ function fmtBytes(n: number): string {
 function fmtTime(epoch: number): string {
   if (!epoch) return "—";
   return new Date(epoch * 1000).toLocaleString();
+}
+
+const ROW_H = 40; // fixed row height — required for windowed virtualization
+
+/**
+ * Virtualized file list. Only the rows visible in the scroll viewport (plus a
+ * small overscan) are mounted, so a directory with tens of thousands of entries
+ * keeps ~30 DOM rows instead of one per file — clicking into a big folder can no
+ * longer freeze the main thread. Row height is fixed so offsets are pure math.
+ */
+function VirtualFileTable({
+  entries,
+  loading,
+  error,
+  labels,
+  onRowClick,
+  onManage,
+}: {
+  entries: Entry[];
+  loading: boolean;
+  error: Error | null;
+  labels: {
+    name: string;
+    size: string;
+    modified: string;
+    mode: string;
+    manage: string;
+    empty: string;
+    loading: string;
+  };
+  onRowClick: (e: Entry) => void;
+  onManage: (e: Entry) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [viewH, setViewH] = useState(480);
+  const total = entries.length;
+
+  // Measure the viewport height (once mounted, per listing, and on window resize).
+  // The container height is CSS-fixed (min of 65vh and content), so this never
+  // feeds back into layout — no resize loop.
+  // Scroll is reset per listing by remounting (the parent keys this component on
+  // the directory), so no scroll-reset effect is needed here.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => setViewH(el.clientHeight);
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [total]);
+
+  if (error) {
+    return (
+      <p className="rounded-md border border-red-500/30 bg-red-500/10 p-2 text-sm text-red-400">
+        {error.message}
+      </p>
+    );
+  }
+  if (loading) {
+    return <p className="p-3 text-sm text-[var(--muted-foreground)]">{labels.loading}</p>;
+  }
+  if (total === 0) {
+    return <p className="p-3 text-sm text-[var(--muted-foreground)]">{labels.empty}</p>;
+  }
+
+  const overscan = 10;
+  const start = Math.max(0, Math.floor(scrollTop / ROW_H) - overscan);
+  const end = Math.min(total, Math.ceil((scrollTop + viewH) / ROW_H) + overscan);
+  const visible: { e: Entry; i: number }[] = [];
+  for (let i = start; i < end; i++) {
+    const e = entries[i];
+    if (e) visible.push({ e, i });
+  }
+
+  return (
+    <div className="rounded-md border border-[var(--border)]">
+      <div
+        className="flex items-center gap-3 border-b border-[var(--border)] bg-[var(--muted)] px-3 text-xs font-medium text-[var(--muted-foreground)]"
+        style={{ height: 34 }}
+      >
+        <span className="min-w-0 flex-1">{labels.name}</span>
+        <span className="w-24 text-right">{labels.size}</span>
+        <span className="hidden w-44 sm:block">{labels.modified}</span>
+        <span className="hidden w-24 md:block">{labels.mode}</span>
+        <span className="w-10" />
+      </div>
+      <div
+        ref={ref}
+        onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
+        className="overflow-y-auto overflow-x-hidden"
+        style={{ height: `min(65vh, ${total * ROW_H}px)` }}
+      >
+        <div style={{ height: total * ROW_H, position: "relative" }}>
+          {visible.map(({ e, i }) => (
+            <div
+              key={e.path}
+              onClick={() => onRowClick(e)}
+              className="absolute inset-x-0 flex cursor-pointer items-center gap-3 border-b border-[var(--border)]/40 px-3 text-sm hover:bg-[var(--muted)]"
+              style={{ top: i * ROW_H, height: ROW_H }}
+            >
+              <span className="flex min-w-0 flex-1 items-center gap-2 font-medium">
+                <span aria-hidden>{e.is_dir ? "📁" : e.is_symlink ? "🔗" : "📄"}</span>
+                <span className={`truncate ${e.is_dir ? "text-[var(--primary)]" : ""}`}>
+                  {e.name}
+                </span>
+              </span>
+              <span className="w-24 text-right tabular-nums">
+                {e.is_dir ? "—" : fmtBytes(e.size)}
+              </span>
+              <span className="hidden w-44 text-xs text-[var(--muted-foreground)] sm:block">
+                {fmtTime(e.mtime)}
+              </span>
+              <span className="hidden w-24 font-mono text-xs text-[var(--muted-foreground)] md:block">
+                {e.mode}
+              </span>
+              <span className="flex w-10 justify-end" onClick={(ev) => ev.stopPropagation()}>
+                <button
+                  className="fm-btn"
+                  title={labels.manage}
+                  aria-label={labels.manage}
+                  onClick={() => onManage(e)}
+                >
+                  ⋯
+                </button>
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function FilesPage() {
@@ -200,57 +329,6 @@ export default function FilesPage() {
     return crumbs;
   }, [dir, roots]);
 
-  const columns: ColDef<Entry>[] = [
-    {
-      accessorKey: "name",
-      header: t("name"),
-      cell: ({ row }) => {
-        const e = row.original;
-        return (
-          <span className="flex items-center gap-2 font-medium">
-            <span aria-hidden>{e.is_dir ? "📁" : e.is_symlink ? "🔗" : "📄"}</span>
-            <span className={e.is_dir ? "text-[var(--primary)]" : ""}>{e.name}</span>
-          </span>
-        );
-      },
-    },
-    {
-      accessorKey: "size",
-      header: t("size"),
-      cell: ({ row }) => (row.original.is_dir ? "—" : fmtBytes(row.original.size)),
-    },
-    {
-      accessorKey: "mtime",
-      header: t("modified"),
-      cell: ({ row }) => (
-        <span className="text-xs text-[var(--muted-foreground)]">{fmtTime(row.original.mtime)}</span>
-      ),
-    },
-    {
-      accessorKey: "mode",
-      header: t("mode"),
-      cell: ({ row }) => (
-        <span className="font-mono text-xs text-[var(--muted-foreground)]">{row.original.mode}</span>
-      ),
-    },
-    {
-      accessorKey: "actions",
-      header: "",
-      cell: ({ row }) => (
-        <div className="flex justify-end" onClick={(ev) => ev.stopPropagation()}>
-          <button
-            className="fm-btn"
-            title={t("manage")}
-            aria-label={t("manage")}
-            onClick={() => openDetail(row.original)}
-          >
-            ⋯
-          </button>
-        </div>
-      ),
-    },
-  ];
-
   return (
     <div className="space-y-4">
       <style>{`
@@ -340,19 +418,26 @@ export default function FilesPage() {
             </p>
           )}
 
-          <div className="overflow-x-auto">
-            <ODataTable<Entry>
-              data={listingQ.data ? { columns, rows: listingQ.data.entries } : null}
-              loading={listingQ.isLoading}
-              error={listingQ.error as Error | null}
-              empty={listingQ.data?.entries.length === 0}
-              onRowClick={(e) => {
-                if (e.is_dir) setCwd(e.path);
-                else openDetail(e);
-              }}
-              sortable
-            />
-          </div>
+          <VirtualFileTable
+            key={`${dir}|${showHidden}`}
+            entries={listingQ.data?.entries ?? []}
+            loading={listingQ.isLoading}
+            error={listingQ.error as Error | null}
+            labels={{
+              name: t("name"),
+              size: t("size"),
+              modified: t("modified"),
+              mode: t("mode"),
+              manage: t("manage"),
+              empty: t("empty"),
+              loading: tc("loading"),
+            }}
+            onRowClick={(e) => {
+              if (e.is_dir) setCwd(e.path);
+              else openDetail(e);
+            }}
+            onManage={openDetail}
+          />
         </>
       )}
 

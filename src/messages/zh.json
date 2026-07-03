@@ -355,7 +355,8 @@
     "manage": "管理",
     "notViewable": "该文件无法以文本预览，请改用下载。",
     "directoryHint": "这是一个目录。可在下方重命名或删除，或点它的名字进入。",
-    "truncated": "仅显示前 {shown} / 共 {total} 项。请进入更深的子目录查看其余文件。"
+    "truncated": "仅显示前 {shown} / 共 {total} 项。请进入更深的子目录查看其余文件。",
+    "empty": "此文件夹为空。"
   },
   "account": {
     "title": "账户",

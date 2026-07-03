@@ -355,7 +355,8 @@
     "manage": "Manage",
     "notViewable": "This file can't be previewed as text — download it instead.",
     "directoryHint": "This is a directory. Use Rename or Delete below, or click its name to open it.",
-    "truncated": "Showing the first {shown} of {total} entries. Open a deeper subfolder to see the rest."
+    "truncated": "Showing the first {shown} of {total} entries. Open a deeper subfolder to see the rest.",
+    "empty": "This folder is empty."
   },
   "account": {
     "title": "Account",
