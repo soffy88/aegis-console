@@ -45,6 +45,7 @@ export default function InstallPage() {
     host_port: "",
   });
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [paramValues, setParamValues] = useState<Record<string, string>>({});
 
   const { data: projects } = useQuery<Project[]>({
     queryKey: ["projects", orgId],
@@ -53,6 +54,15 @@ export default function InstallPage() {
     staleTime: 60_000,
   });
   const defaultProjectId = projects?.[0]?.id ?? null;
+
+  // Catalog entry drives per-app install params (declared in the store item).
+  const { data: item } = useQuery<{ params?: { key: string; label: string; type?: string; default?: string }[] }>({
+    queryKey: ["storeItem", orgId, storeSlug],
+    queryFn: () => aegisFetch(paths.storeItem(orgId!, storeSlug)),
+    enabled: !!orgId && !!storeSlug,
+    staleTime: 60_000,
+  });
+  const appParams = item?.params ?? [];
 
   const mutation = useMutation({
     mutationFn: (payload: AppInstallPayload) =>
@@ -83,12 +93,14 @@ export default function InstallPage() {
       return;
     }
     const { app_name, install_dir, app_version, domain, host_port } = result.data;
+    const params = Object.fromEntries(Object.entries(paramValues).filter(([, v]) => v !== ""));
     mutation.mutate({
       app_name,
       install_dir,
       ...(app_version ? { app_version } : {}),
       ...(domain ? { domain } : {}),
       ...(host_port ? { host_port: Number(host_port) } : {}),
+      ...(Object.keys(params).length ? { params } : {}),
     });
   }
 
@@ -116,6 +128,17 @@ export default function InstallPage() {
         >
           <OTextInput id="host_port" value={fields.host_port ?? ""} onChange={set("host_port")} placeholder="18090" />
         </OFormField>
+        {appParams.map((p) => (
+          <OFormField key={p.key} label={p.label} htmlFor={`param_${p.key}`}>
+            <OTextInput
+              id={`param_${p.key}`}
+              type={p.type === "password" ? "password" : "text"}
+              value={paramValues[p.key] ?? ""}
+              onChange={(e) => setParamValues((prev) => ({ ...prev, [p.key]: e.target.value }))}
+              placeholder={p.default ?? ""}
+            />
+          </OFormField>
+        ))}
         {mutation.isError && (
           <p className="text-sm text-destructive">{(mutation.error as Error).message}</p>
         )}

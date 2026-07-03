@@ -25,7 +25,9 @@
     "uptime": "Uptime",
     "autohealPolicies": "Autoheal Policies",
     "gitDeploy": "Git Deploy",
-    "files": "Files"
+    "files": "Files",
+    "certificates": "Certificates",
+    "databases": "Databases"
   },
   "common": {
     "create": "Create",
@@ -370,5 +372,41 @@
     "mismatch": "The new passwords do not match.",
     "tooShort": "New password must be at least 8 characters.",
     "wrongCurrent": "Current password is incorrect."
+  },
+  "certs": {
+    "title": "Certificates",
+    "hint": "Live TLS certificate status for your registered domains (probed on :443).",
+    "refresh": "Refresh",
+    "loading": "Loading…",
+    "empty": "No TLS-enabled domains yet. Add a domain to see its certificate here.",
+    "domain": "Domain",
+    "status": "Status",
+    "issuer": "Issuer",
+    "expires": "Expires",
+    "daysLeft": "Days left",
+    "valid": "Valid",
+    "expiringSoon": "Expiring soon",
+    "expired": "Expired",
+    "unreachable": "Unreachable"
+  },
+  "databases": {
+    "title": "Databases",
+    "hint": "Create and manage databases on Postgres/MySQL/MariaDB apps you installed from the store.",
+    "empty": "No database apps installed. Install PostgreSQL, MySQL or MariaDB from the App Store to manage databases here.",
+    "noCreds": "no root creds",
+    "newDbName": "new_database_name",
+    "create": "Create",
+    "drop": "Drop",
+    "dropConfirm": "Drop database \"{db}\"? This permanently deletes all its data.",
+    "loading": "Loading…"
+  },
+  "compose": {
+    "title": "Compose",
+    "hint": "Edit the docker-compose for this app and redeploy. Saving runs `docker compose up -d`.",
+    "notCompose": "This is a single-container app — it has no compose file to edit.",
+    "saveRedeploy": "Save & Redeploy",
+    "saving": "Redeploying…",
+    "redeployed": "Redeployed successfully.",
+    "editCompose": "Edit Compose"
   }
 }

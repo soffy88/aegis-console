@@ -14,6 +14,7 @@ export interface AppInstallPayload {
   install_dir: string;
   domain?: string;
   host_port?: number;
+  params?: Record<string, string>;
 }
 
 export interface AppInstallResult {

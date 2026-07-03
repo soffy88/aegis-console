@@ -12,6 +12,12 @@ export const paths = {
   refresh: () => `/api/v1/auth/refresh`,
   me: () => `/api/v1/auth/me`,
   changePassword: () => `/api/v1/auth/password`,
+  certificates: (orgId: string) => `/api/v1/orgs/${orgId}/domains/certificates`,
+  storeItem: (orgId: string, slug: string) => `/api/v1/orgs/${orgId}/store/${slug}`,
+  dbInstances: (orgId: string) => `/api/v1/orgs/${orgId}/databases`,
+  dbList: (orgId: string, name: string) => `/api/v1/orgs/${orgId}/databases/${name}/dbs`,
+  dbDrop: (orgId: string, name: string, db: string) =>
+    `/api/v1/orgs/${orgId}/databases/${name}/dbs/${db}`,
 
   // Projects
   projects: (orgId: string) => `/api/v1/orgs/${orgId}/projects`,
@@ -26,6 +32,11 @@ export const paths = {
   apps: (orgId: string) => `/api/v1/orgs/${orgId}/apps`,
   app: (orgId: string, appId: string) => `/api/v1/orgs/${orgId}/apps/${appId}`,
   appInstall: (orgId: string) => `/api/v1/orgs/${orgId}/apps/install`,
+  appCompose: (orgId: string, installId: string) =>
+    `/api/v1/orgs/${orgId}/apps/${installId}/compose`,
+  appBackup: (orgId: string, installId: string) =>
+    `/api/v1/orgs/${orgId}/apps/${installId}/backup`,
+  backupStorage: (orgId: string) => `/api/v1/orgs/${orgId}/backup-storage`,
 
   // Docker
   containers: (orgId: string) => `/api/v1/orgs/${orgId}/docker/containers`,

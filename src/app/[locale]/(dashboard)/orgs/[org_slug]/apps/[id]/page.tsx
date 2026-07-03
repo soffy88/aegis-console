@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { OStatusBadge } from "@helios/blocks";
 import type { App } from "@/types/aegis";
 import { aegisFetch } from "@/lib/api";
@@ -18,6 +20,16 @@ export default function AppDetailPage() {
     enabled: !!orgId,
   });
 
+  const [backupMsg, setBackupMsg] = useState<string | null>(null);
+  const backup = useMutation({
+    mutationFn: () =>
+      aegisFetch<{ target: string; size_bytes: number }>(paths.appBackup(orgId!, id), {
+        method: "POST",
+      }),
+    onSuccess: (r) => setBackupMsg(`✓ ${r.target} (${(r.size_bytes / 1024).toFixed(1)} KB)`),
+    onError: (e: Error) => setBackupMsg(`✗ ${e.message}`),
+  });
+
   if (isLoading) return <p>Loading…</p>;
   if (error) return <p className="text-destructive">Error: {(error as Error).message}</p>;
   if (!app) return <p className="text-muted-foreground">App not found.</p>;
@@ -27,7 +39,24 @@ export default function AppDetailPage() {
       <div className="flex items-center gap-4">
         <h1 className="text-2xl font-bold">{app.app_name}</h1>
         <OStatusBadge label={app.status} />
+        <button
+          onClick={() => {
+            setBackupMsg(null);
+            backup.mutate();
+          }}
+          disabled={backup.isPending}
+          className="ml-auto rounded-md border border-[var(--border)] px-3 py-1 text-sm hover:bg-[var(--muted)] disabled:opacity-50"
+        >
+          {backup.isPending ? "Backing up…" : "Backup to S3"}
+        </button>
+        <Link
+          href={`/orgs/${org_slug}/apps/${id}/compose`}
+          className="rounded-md border border-[var(--border)] px-3 py-1 text-sm hover:bg-[var(--muted)]"
+        >
+          Edit Compose
+        </Link>
       </div>
+      {backupMsg && <p className="font-mono text-xs text-[var(--muted-foreground)]">{backupMsg}</p>}
       <dl className="grid grid-cols-2 gap-2 text-sm">
         <dt className="text-muted-foreground">Version</dt>
         <dd>{app.app_version ?? "—"}</dd>

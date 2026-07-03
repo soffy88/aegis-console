@@ -25,7 +25,9 @@
     "uptime": "在线探测",
     "autohealPolicies": "自愈策略",
     "gitDeploy": "Git 部署",
-    "files": "文件"
+    "files": "文件",
+    "certificates": "证书",
+    "databases": "数据库"
   },
   "common": {
     "create": "创建",
@@ -370,5 +372,41 @@
     "mismatch": "两次输入的新密码不一致。",
     "tooShort": "新密码至少 8 位。",
     "wrongCurrent": "当前密码不正确。"
+  },
+  "certs": {
+    "title": "SSL 证书",
+    "hint": "对已登记域名实时探测 443 端口的 TLS 证书状态。",
+    "refresh": "刷新",
+    "loading": "加载中…",
+    "empty": "暂无启用 TLS 的域名。添加域名后可在此查看其证书。",
+    "domain": "域名",
+    "status": "状态",
+    "issuer": "签发机构",
+    "expires": "到期时间",
+    "daysLeft": "剩余天数",
+    "valid": "有效",
+    "expiringSoon": "即将过期",
+    "expired": "已过期",
+    "unreachable": "无法连接"
+  },
+  "databases": {
+    "title": "数据库",
+    "hint": "在你从市场安装的 Postgres/MySQL/MariaDB 应用上创建和管理数据库。",
+    "empty": "未安装数据库应用。请从应用市场安装 PostgreSQL、MySQL 或 MariaDB 后在此管理。",
+    "noCreds": "无 root 凭据",
+    "newDbName": "新数据库名",
+    "create": "创建",
+    "drop": "删除",
+    "dropConfirm": "删除数据库「{db}」？将永久删除其所有数据。",
+    "loading": "加载中…"
+  },
+  "compose": {
+    "title": "Compose 编辑",
+    "hint": "编辑此应用的 docker-compose 并重新部署。保存会执行 `docker compose up -d`。",
+    "notCompose": "这是单容器应用——没有可编辑的 compose 文件。",
+    "saveRedeploy": "保存并重部署",
+    "saving": "重部署中…",
+    "redeployed": "重新部署成功。",
+    "editCompose": "编辑 Compose"
   }
 }
