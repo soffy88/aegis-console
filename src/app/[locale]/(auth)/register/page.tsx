@@ -94,7 +94,7 @@ export default function RegisterPage() {
             name="org_slug"
             type="text"
             required
-            pattern="^[a-z0-9-]+$"
+            pattern="^[a-z0-9\-]+$"
             className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="my-org"
           />
