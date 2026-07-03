@@ -94,24 +94,40 @@ export async function register(req: RegisterRequest): Promise<RegisterResponse> 
 /**
  * POST /auth/refresh — use httpOnly refresh cookie to get a new access token.
  * Returns true if a new token was obtained, false if the session has expired.
+ *
+ * Single-flight: the server ROTATES the refresh cookie on every call (the
+ * consumed JTI is revoked immediately). If several requests each fired their
+ * own refresh concurrently, the first would win and the rest would replay an
+ * already-revoked JTI → 401 (and wipe the freshly-acquired token). We coalesce
+ * all concurrent callers onto one in-flight request so only one rotation runs.
  */
+let _inflight: Promise<boolean> | null = null;
+
 export async function refreshToken(): Promise<boolean> {
-  const res = await fetch(`${getApiBase()}/api/v1/auth/refresh`, {
-    method: "POST",
-    credentials: "include", // sends the httpOnly refresh cookie
-  });
+  if (_inflight) return _inflight;
+  _inflight = (async () => {
+    try {
+      const res = await fetch(`${getApiBase()}/api/v1/auth/refresh`, {
+        method: "POST",
+        credentials: "include", // sends the httpOnly refresh cookie
+      });
 
-  if (!res.ok) {
-    clearAccessToken();
-    return false;
-  }
+      if (!res.ok) {
+        clearAccessToken();
+        return false;
+      }
 
-  const data: LoginResponse = await res.json();
-  setAccessToken({
-    token: data.access_token,
-    expiresAt: Math.floor(Date.now() / 1000) + data.expires_in,
-  });
-  return true;
+      const data: LoginResponse = await res.json();
+      setAccessToken({
+        token: data.access_token,
+        expiresAt: Math.floor(Date.now() / 1000) + data.expires_in,
+      });
+      return true;
+    } finally {
+      _inflight = null;
+    }
+  })();
+  return _inflight;
 }
 
 /**
