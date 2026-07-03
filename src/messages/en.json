@@ -27,7 +27,11 @@
     "gitDeploy": "Git Deploy",
     "files": "Files",
     "certificates": "Certificates",
-    "databases": "Databases"
+    "databases": "Databases",
+    "hostTerminal": "Host Terminal",
+    "logs": "Logs",
+    "firewall": "Firewall",
+    "websites": "Websites"
   },
   "common": {
     "create": "Create",
@@ -358,7 +362,11 @@
     "notViewable": "This file can't be previewed as text — download it instead.",
     "directoryHint": "This is a directory. Use Rename or Delete below, or click its name to open it.",
     "truncated": "Showing the first {shown} of {total} entries. Open a deeper subfolder to see the rest.",
-    "empty": "This folder is empty."
+    "empty": "This folder is empty.",
+    "permissions": "Permissions",
+    "applyChmod": "chmod",
+    "compress": "Compress (zip)",
+    "extract": "Extract here"
   },
   "account": {
     "title": "Account",
@@ -408,5 +416,44 @@
     "saving": "Redeploying…",
     "redeployed": "Redeployed successfully.",
     "editCompose": "Edit Compose"
+  },
+  "hostTerminal": {
+    "title": "Host Terminal",
+    "warning": "⚠ This opens a privileged shell with full host access. Owner/admin use only.",
+    "hint": "A privileged helper container is started with the host mounted at /host. For a full host shell run:",
+    "open": "Open Host Terminal"
+  },
+  "logs": {
+    "title": "Log Search",
+    "hint": "Search recent logs across all running containers (built-in aggregation, no external Loki needed).",
+    "searchPlaceholder": "Filter text (empty = all recent lines)",
+    "search": "Search",
+    "loading": "Loading…",
+    "count": "{n} lines",
+    "empty": "No matching log lines."
+  },
+  "firewall": {
+    "title": "Firewall",
+    "warning": "⚠ Manages the host firewall (ufw) via a privileged helper. Be careful not to lock yourself out.",
+    "port": "Port",
+    "protocol": "Protocol",
+    "action": "Action",
+    "addRule": "Add rule",
+    "ruleNum": "Rule #",
+    "deleteRule": "Delete",
+    "backend": "Backend",
+    "loading": "Loading…",
+    "empty": "No rules / not available."
+  },
+  "websites": {
+    "title": "Websites",
+    "hint": "Serve a directory (inside the file-manager roots) as a static or PHP site on an auto-assigned port. Bind a domain via the Domains page.",
+    "name": "Name",
+    "rootDir": "Root directory",
+    "deploy": "Deploy",
+    "status": "Status",
+    "ports": "Ports",
+    "remove": "Remove",
+    "removeConfirm": "Remove website \"{name}\"?"
   }
 }

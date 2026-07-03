@@ -13,6 +13,14 @@ export const paths = {
   me: () => `/api/v1/auth/me`,
   changePassword: () => `/api/v1/auth/password`,
   certificates: (orgId: string) => `/api/v1/orgs/${orgId}/domains/certificates`,
+  hostShell: (orgId: string) => `/api/v1/orgs/${orgId}/docker/host-shell`,
+  firewall: (orgId: string) => `/api/v1/orgs/${orgId}/firewall`,
+  websites: (orgId: string) => `/api/v1/orgs/${orgId}/websites`,
+  website: (orgId: string, name: string) => `/api/v1/orgs/${orgId}/websites/${name}`,
+  firewallRules: (orgId: string) => `/api/v1/orgs/${orgId}/firewall/rules`,
+  firewallRule: (orgId: string, num: number) => `/api/v1/orgs/${orgId}/firewall/rules/${num}`,
+  logsSearch: (orgId: string, q: string, tail = 200) =>
+    `/api/v1/orgs/${orgId}/docker/logs/search?q=${encodeURIComponent(q)}&tail=${tail}`,
   storeItem: (orgId: string, slug: string) => `/api/v1/orgs/${orgId}/store/${slug}`,
   dbInstances: (orgId: string) => `/api/v1/orgs/${orgId}/databases`,
   dbList: (orgId: string, name: string) => `/api/v1/orgs/${orgId}/databases/${name}/dbs`,
@@ -173,6 +181,9 @@ export const paths = {
   fileRename: (orgId: string) => `/api/v1/orgs/${orgId}/files/rename`,
   fileDelete: (orgId: string, path: string) =>
     `/api/v1/orgs/${orgId}/files/delete?path=${encodeURIComponent(path)}`,
+  fileChmod: (orgId: string) => `/api/v1/orgs/${orgId}/files/chmod`,
+  fileCompress: (orgId: string) => `/api/v1/orgs/${orgId}/files/compress`,
+  fileExtract: (orgId: string) => `/api/v1/orgs/${orgId}/files/extract`,
 
   // AutoHeal
   autohealEvents: (orgId: string) => `/api/v1/orgs/${orgId}/autoheal/events`,

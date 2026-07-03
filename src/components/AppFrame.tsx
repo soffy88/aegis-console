@@ -35,6 +35,8 @@ const ICON_PATHS: Record<string, string> = {
   files: "M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7zM3 11h18",
   account: "M6 10V8a6 6 0 0112 0v2M5 10h14a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9a1 1 0 011-1zM12 15v2",
   database: "M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3",
+  terminal: "M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1zM7 9l3 3-3 3M13 15h4",
+  firewall: "M12 3l8 3v5c0 4.5-3 8-8 10-5-2-8-5.5-8-10V6l8-3zM9 8h6M9 12h6M9 16h6",
 };
 
 function Icon({ name, className }: { name: string; className?: string }) {
@@ -70,6 +72,7 @@ function buildNav(base: string): NavSection[] {
         { key: "appInstall", href: `${base}/apps/install`, icon: "appInstall" },
         { key: "store", href: `${base}/store`, icon: "store" },
         { key: "gitDeploy", href: `${base}/git-deploy`, icon: "appInstall" },
+        { key: "websites", href: `${base}/websites`, icon: "domains" },
         { key: "projects", href: `${base}/projects`, icon: "projects" },
       ],
     },
@@ -86,6 +89,8 @@ function buildNav(base: string): NavSection[] {
         { key: "uptime", href: `${base}/uptime`, icon: "metrics" },
         { key: "domains", href: `${base}/domains`, icon: "domains" },
         { key: "certificates", href: `${base}/certificates`, icon: "account" },
+        { key: "hostTerminal", href: `${base}/host-terminal`, icon: "terminal" },
+        { key: "firewall", href: `${base}/firewall`, icon: "firewall" },
       ],
     },
     {
@@ -96,6 +101,7 @@ function buildNav(base: string): NavSection[] {
         { key: "autoheal", href: `${base}/autoheal`, icon: "autoheal" },
         { key: "autohealPolicies", href: `${base}/autoheal-policies`, icon: "autoheal" },
         { key: "brain", href: `${base}/brain`, icon: "brain" },
+        { key: "logs", href: `${base}/logs`, icon: "runbooks" },
         { key: "runbooks", href: `${base}/runbooks`, icon: "runbooks" },
       ],
     },

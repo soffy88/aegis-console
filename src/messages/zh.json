@@ -27,7 +27,11 @@
     "gitDeploy": "Git 部署",
     "files": "文件",
     "certificates": "证书",
-    "databases": "数据库"
+    "databases": "数据库",
+    "hostTerminal": "宿主机终端",
+    "logs": "日志",
+    "firewall": "防火墙",
+    "websites": "网站"
   },
   "common": {
     "create": "创建",
@@ -358,7 +362,11 @@
     "notViewable": "该文件无法以文本预览，请改用下载。",
     "directoryHint": "这是一个目录。可在下方重命名或删除，或点它的名字进入。",
     "truncated": "仅显示前 {shown} / 共 {total} 项。请进入更深的子目录查看其余文件。",
-    "empty": "此文件夹为空。"
+    "empty": "此文件夹为空。",
+    "permissions": "权限",
+    "applyChmod": "改权限",
+    "compress": "压缩(zip)",
+    "extract": "解压到此"
   },
   "account": {
     "title": "账户",
@@ -408,5 +416,44 @@
     "saving": "重部署中…",
     "redeployed": "重新部署成功。",
     "editCompose": "编辑 Compose"
+  },
+  "hostTerminal": {
+    "title": "宿主机终端",
+    "warning": "⚠ 这将打开一个具有宿主机完全访问权限的特权 shell,仅限管理员使用。",
+    "hint": "会启动一个特权 helper 容器(宿主机根挂载在 /host)。要进入完整宿主机 shell,请运行:",
+    "open": "打开宿主机终端"
+  },
+  "logs": {
+    "title": "日志搜索",
+    "hint": "跨所有运行中容器搜索近期日志(内置聚合,无需外部 Loki)。",
+    "searchPlaceholder": "过滤文本(留空=全部近期日志)",
+    "search": "搜索",
+    "loading": "加载中…",
+    "count": "{n} 行",
+    "empty": "无匹配日志。"
+  },
+  "firewall": {
+    "title": "防火墙",
+    "warning": "⚠ 通过特权 helper 管理宿主机防火墙(ufw)。注意别把自己锁在外面。",
+    "port": "端口",
+    "protocol": "协议",
+    "action": "动作",
+    "addRule": "添加规则",
+    "ruleNum": "规则序号",
+    "deleteRule": "删除",
+    "backend": "后端",
+    "loading": "加载中…",
+    "empty": "暂无规则 / 不可用。"
+  },
+  "websites": {
+    "title": "网站",
+    "hint": "把某个目录(文件管理白名单内)作为静态或 PHP 站点部署,自动分配端口。绑定域名请到「域名」页。",
+    "name": "名称",
+    "rootDir": "根目录",
+    "deploy": "部署",
+    "status": "状态",
+    "ports": "端口",
+    "remove": "删除",
+    "removeConfirm": "删除网站「{name}」？"
   }
 }

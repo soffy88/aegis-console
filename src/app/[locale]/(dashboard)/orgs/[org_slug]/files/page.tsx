@@ -193,6 +193,7 @@ export default function FilesPage() {
     content: string | null;
     loading: boolean;
   } | null>(null);
+  const [modeInput, setModeInput] = useState("");
   const uploadRef = useRef<HTMLInputElement>(null);
 
   const rootsQ = useQuery<{ roots: string[] }>({
@@ -252,11 +253,34 @@ export default function FilesPage() {
     },
     onError: (e: Error) => setError(e.message),
   });
+  const chmodM = useMutation({
+    mutationFn: (v: { path: string; mode: string }) =>
+      aegisFetch(paths.fileChmod(orgId!), { method: "POST", body: JSON.stringify(v) }),
+    onSuccess: () => {
+      setError(null);
+      invalidate();
+    },
+    onError: (e: Error) => setError(e.message),
+  });
+  const archiveM = useMutation({
+    mutationFn: (v: { kind: "compress" | "extract"; body: unknown }) =>
+      aegisFetch(v.kind === "compress" ? paths.fileCompress(orgId!) : paths.fileExtract(orgId!), {
+        method: "POST",
+        body: JSON.stringify(v.body),
+      }),
+    onSuccess: () => {
+      setError(null);
+      setDetail(null);
+      invalidate();
+    },
+    onError: (e: Error) => setError(e.message),
+  });
 
   // Open the detail panel for an entry. For a file, fetch its text; a directory
   // (or an unreadable/too-large file) opens with content=null.
   async function openDetail(e: Entry) {
     setError(null);
+    setModeInput((e.mode || "").replace("0o", ""));
     setDetail({ entry: e, content: null, loading: !e.is_dir });
     if (e.is_dir) return;
     try {
@@ -480,6 +504,50 @@ export default function FilesPage() {
             {detail.entry.is_dir && (
               <p className="text-sm text-[var(--muted-foreground)]">{t("directoryHint")}</p>
             )}
+
+            {/* Advanced: permissions + archive */}
+            <div className="flex flex-wrap items-center gap-2 border-t border-[var(--border)] pt-3">
+              <span className="text-xs text-[var(--muted-foreground)]">{t("permissions")}</span>
+              <input
+                value={modeInput}
+                onChange={(e) => setModeInput(e.target.value)}
+                className="w-20 rounded-md border border-[var(--border)] bg-[var(--muted)] px-2 py-1 font-mono text-xs"
+                placeholder="755"
+              />
+              <button
+                className="fm-btn"
+                onClick={() => chmodM.mutate({ path: detail.entry.path, mode: modeInput })}
+              >
+                {t("applyChmod")}
+              </button>
+              <button
+                className="fm-btn"
+                onClick={() =>
+                  archiveM.mutate({
+                    kind: "compress",
+                    body: { paths: [detail.entry.path], dest: `${detail.entry.path}.zip` },
+                  })
+                }
+              >
+                {t("compress")}
+              </button>
+              {/(\.zip|\.tar\.gz|\.tgz|\.tar)$/.test(detail.entry.name) && (
+                <button
+                  className="fm-btn"
+                  onClick={() =>
+                    archiveM.mutate({
+                      kind: "extract",
+                      body: {
+                        path: detail.entry.path,
+                        dest_dir: detail.entry.path.replace(/\.(zip|tar\.gz|tgz|tar)$/, ""),
+                      },
+                    })
+                  }
+                >
+                  {t("extract")}
+                </button>
+              )}
+            </div>
 
             {/* Footer: safe actions on the left, destructive on the right */}
             <div className="flex items-center justify-between gap-2 border-t border-[var(--border)] pt-3">

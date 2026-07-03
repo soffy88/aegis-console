@@ -22,10 +22,11 @@ export default function AppDetailPage() {
 
   const [backupMsg, setBackupMsg] = useState<string | null>(null);
   const backup = useMutation({
-    mutationFn: () =>
-      aegisFetch<{ target: string; size_bytes: number }>(paths.appBackup(orgId!, id), {
-        method: "POST",
-      }),
+    mutationFn: (target: "s3" | "webdav") =>
+      aegisFetch<{ target: string; size_bytes: number }>(
+        `${paths.appBackup(orgId!, id)}?target=${target}`,
+        { method: "POST" },
+      ),
     onSuccess: (r) => setBackupMsg(`✓ ${r.target} (${(r.size_bytes / 1024).toFixed(1)} KB)`),
     onError: (e: Error) => setBackupMsg(`✗ ${e.message}`),
   });
@@ -42,12 +43,22 @@ export default function AppDetailPage() {
         <button
           onClick={() => {
             setBackupMsg(null);
-            backup.mutate();
+            backup.mutate("s3");
           }}
           disabled={backup.isPending}
           className="ml-auto rounded-md border border-[var(--border)] px-3 py-1 text-sm hover:bg-[var(--muted)] disabled:opacity-50"
         >
-          {backup.isPending ? "Backing up…" : "Backup to S3"}
+          {backup.isPending ? "Backing up…" : "Backup → S3"}
+        </button>
+        <button
+          onClick={() => {
+            setBackupMsg(null);
+            backup.mutate("webdav");
+          }}
+          disabled={backup.isPending}
+          className="rounded-md border border-[var(--border)] px-3 py-1 text-sm hover:bg-[var(--muted)] disabled:opacity-50"
+        >
+          {"Backup → WebDAV"}
         </button>
         <Link
           href={`/orgs/${org_slug}/apps/${id}/compose`}
