@@ -223,6 +223,7 @@ export const paths = {
   autohealRetry: (orgId: string, eventId: string) =>
     `/api/v1/orgs/${orgId}/autoheal/events/${eventId}/retry`,
   autohealStats: (orgId: string) => `/api/v1/orgs/${orgId}/autoheal/stats`,
+  autohealKillSwitch: (orgId: string) => `/api/v1/orgs/${orgId}/autoheal/kill-switch`,
   uptimeTargets: (orgId: string) => `/api/v1/orgs/${orgId}/uptime-targets`,
   uptimeTarget: (orgId: string, id: string) => `/api/v1/orgs/${orgId}/uptime-targets/${id}`,
   autohealPolicies: (orgId: string) => `/api/v1/orgs/${orgId}/autoheal-policies`,

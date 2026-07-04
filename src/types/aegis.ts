@@ -310,6 +310,12 @@ export interface AutoHealStats {
   pending_total: number;
 }
 
+export interface KillSwitchState {
+  enabled: boolean;
+  reason: string | null;
+  updated_at: string | null;
+}
+
 export interface Backup {
   id: string;
   app_slug: string;

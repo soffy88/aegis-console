@@ -9,7 +9,8 @@ import type { ODataTableData } from "@helios/blocks";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
 import { useOrgIdBySlug } from "@/hooks/use-org-id";
-import type { AutoHealEvent, AutoHealStats } from "@/types/aegis";
+import { usePermission } from "@/lib/auth/use-permission";
+import type { AutoHealEvent, AutoHealStats, KillSwitchState } from "@/types/aegis";
 
 type ColDef<T> = ODataTableData<T>["columns"][number];
 
@@ -24,8 +25,29 @@ export default function AutoHealPage() {
   const tc = useTranslations("common");
   const { org_slug } = useParams<{ org_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
+  const { canAdmin } = usePermission();
   const qc = useQueryClient();
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
+  const [killReason, setKillReason] = useState("");
+
+  const killSwitch = useQuery<KillSwitchState>({
+    queryKey: ["autoheal-kill-switch", orgId],
+    queryFn: () => aegisFetch<KillSwitchState>(paths.autohealKillSwitch(orgId!)),
+    enabled: !!orgId,
+    refetchInterval: 10000,
+  });
+
+  const killSwitchMutation = useMutation({
+    mutationFn: (next: boolean) =>
+      aegisFetch<KillSwitchState>(paths.autohealKillSwitch(orgId!), {
+        method: "PUT",
+        body: JSON.stringify({ enabled: next, reason: killReason || null }),
+      }),
+    onSuccess: (data) => {
+      qc.setQueryData(["autoheal-kill-switch", orgId], data);
+      setKillReason("");
+    },
+  });
 
   const stats = useQuery<AutoHealStats>({
     queryKey: ["autoheal-stats", orgId],
@@ -121,6 +143,59 @@ export default function AutoHealPage() {
         <p className="text-sm text-gray-500">
           Last refreshed: {lastRefreshed.toLocaleTimeString()}
         </p>
+      </div>
+
+      <div
+        className={`rounded-xl border p-4 shadow-sm ${
+          killSwitch.data?.enabled
+            ? "border-red-500/40 bg-red-500/10"
+            : "border-[var(--border)] bg-card"
+        }`}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="font-semibold">{t("killSwitch")}</p>
+            <p className="text-sm text-muted-foreground">{t("killSwitchHint")}</p>
+            <p
+              className={`mt-1 text-sm font-medium ${
+                killSwitch.data?.enabled ? "text-red-400" : "text-emerald-400"
+              }`}
+            >
+              {killSwitch.data?.enabled ? t("killSwitchActive") : t("killSwitchInactive")}
+            </p>
+            {killSwitch.data?.reason && (
+              <p className="text-xs text-muted-foreground">{killSwitch.data.reason}</p>
+            )}
+            {killSwitch.data?.updated_at && (
+              <p className="text-xs text-muted-foreground">
+                {t("killSwitchUpdatedAt")}: {new Date(killSwitch.data.updated_at).toLocaleString()}
+              </p>
+            )}
+          </div>
+          {canAdmin && (
+            <div className="flex flex-wrap items-center gap-2">
+              {!killSwitch.data?.enabled && (
+                <input
+                  value={killReason}
+                  onChange={(e) => setKillReason(e.target.value)}
+                  placeholder={t("killSwitchReasonPlaceholder")}
+                  className="w-56 rounded border bg-background px-2 py-1.5 text-sm"
+                />
+              )}
+              <button
+                onClick={() => killSwitchMutation.mutate(!killSwitch.data?.enabled)}
+                disabled={killSwitchMutation.isPending || killSwitch.isLoading}
+                className={`rounded px-3 py-1.5 text-sm font-medium disabled:opacity-50 ${
+                  killSwitch.data?.enabled
+                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                    : "bg-red-600 text-white hover:bg-red-700"
+                }`}
+              >
+                {killSwitch.data?.enabled ? t("killSwitchDisengage") : t("killSwitchEngage")}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

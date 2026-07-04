@@ -275,7 +275,15 @@
     "handled": "Handled",
     "pending": "Pending",
     "retry": "Retry",
-    "handledRate": "Handled rate"
+    "handledRate": "Handled rate",
+    "killSwitch": "Global kill switch",
+    "killSwitchHint": "When engaged, all automatic autoheal actions are halted platform-wide until disengaged.",
+    "killSwitchActive": "AutoHeal is halted",
+    "killSwitchInactive": "AutoHeal is active",
+    "killSwitchEngage": "Engage kill switch",
+    "killSwitchDisengage": "Disengage",
+    "killSwitchReasonPlaceholder": "Reason (optional)",
+    "killSwitchUpdatedAt": "Last changed"
   },
   "backups": {
     "title": "Backup & Restore",

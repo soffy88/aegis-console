@@ -275,7 +275,15 @@
     "handled": "已处理",
     "pending": "待处理",
     "retry": "重试",
-    "handledRate": "处理率"
+    "handledRate": "处理率",
+    "killSwitch": "全局急停开关",
+    "killSwitchHint": "置位后,全平台自动自愈动作全部停止,直到解除。",
+    "killSwitchActive": "自愈已急停",
+    "killSwitchInactive": "自愈运行中",
+    "killSwitchEngage": "急停",
+    "killSwitchDisengage": "解除急停",
+    "killSwitchReasonPlaceholder": "原因(可选)",
+    "killSwitchUpdatedAt": "最近变更"
   },
   "backups": {
     "title": "备份与恢复",

@@ -18,6 +18,7 @@ interface UptimeTarget {
   last_latency_ms: number | null;
   last_checked_at: string | null;
   last_error: string | null;
+  last_tls_days_remaining: number | null;
 }
 
 export default function UptimePage() {
@@ -126,6 +127,7 @@ export default function UptimePage() {
             <tr>
               <th className="p-2 text-left">名称</th><th className="p-2 text-left">URL</th>
               <th className="p-2 text-left">状态</th><th className="p-2 text-left">延迟</th>
+              <th className="p-2 text-left">TLS 证书</th>
               <th className="p-2 text-left">间隔</th><th className="p-2 text-left">启用</th><th className="p-2"></th>
             </tr>
           </thead>
@@ -140,6 +142,15 @@ export default function UptimePage() {
                     : <span className="text-red-400" title={t.last_error ?? ""}>掉线</span>}
                 </td>
                 <td className="p-2">{t.last_latency_ms != null ? `${t.last_latency_ms} ms` : "—"}</td>
+                <td className="p-2">
+                  {t.last_tls_days_remaining == null ? (
+                    <span className="text-muted-foreground">—</span>
+                  ) : t.last_tls_days_remaining <= 14 ? (
+                    <span className="text-red-400">{Math.round(t.last_tls_days_remaining)} 天</span>
+                  ) : (
+                    <span className="text-muted-foreground">{Math.round(t.last_tls_days_remaining)} 天</span>
+                  )}
+                </td>
                 <td className="p-2">{t.interval_seconds}s</td>
                 <td className="p-2">
                   <button onClick={() => toggle.mutate(t)}
@@ -153,7 +164,7 @@ export default function UptimePage() {
               </tr>
             ))}
             {list.length === 0 && (
-              <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">还没有探测目标</td></tr>
+              <tr><td colSpan={8} className="p-6 text-center text-muted-foreground">还没有探测目标</td></tr>
             )}
           </tbody>
         </table>
