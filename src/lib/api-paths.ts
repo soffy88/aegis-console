@@ -257,4 +257,10 @@ export const paths = {
     if (params.agg) q.set("agg", params.agg);
     return `/api/v1/metrics/query?${q.toString()}`;
   },
+  metricsTopSeries: (params: { metric_name: string; hours?: number; limit?: number }) => {
+    const q = new URLSearchParams({ metric_name: params.metric_name });
+    if (params.hours) q.set("hours", String(params.hours));
+    if (params.limit) q.set("limit", String(params.limit));
+    return `/api/v1/metrics/top-series?${q.toString()}`;
+  },
 } as const;

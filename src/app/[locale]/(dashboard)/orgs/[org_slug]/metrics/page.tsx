@@ -26,6 +26,13 @@ interface QueryResult {
   points: QueryPoint[];
 }
 
+interface TopSeriesEntry {
+  name: string;
+  image: string | null;
+  value: number;
+  ts: string;
+}
+
 const RANGES = [
   { hours: 1, bucket: 60 },
   { hours: 6, bucket: 300 },
@@ -171,7 +178,17 @@ type Tile = {
   fmt: (v: number) => string;
   level: (v: number) => Level;
   meter?: boolean; // value is a bounded 0–100 percentage → show a meter bar
+  showTopSeries?: boolean; // also resolve + show *which* container holds this value
 };
+
+// Human-readable container label from a cAdvisor image ref, e.g.
+// "docker.io/library/quant-qlib-v2:latest" → "quant-qlib-v2".
+function friendlyImageName(image: string | null): string | null {
+  if (!image) return null;
+  const noRegistry = image.split("/").pop() ?? image;
+  const noTag = noRegistry.split("@")[0]!.replace(/:[^:]+$/, "");
+  return noTag || noRegistry;
+}
 
 const fmtGB = (v: number) => `${(v / 1e9).toFixed(1)} GB`;
 const KEY_METRICS: Tile[] = [
@@ -181,9 +198,9 @@ const KEY_METRICS: Tile[] = [
     fmt: (v) => `${v.toFixed(0)}%`, level: (v) => (v >= 85 ? "crit" : v >= 60 ? "warn" : "info") },
   { metric: "node_memory_used_percent", label: "整机内存", agg: "avg", meter: true,
     fmt: (v) => `${v.toFixed(0)}%`, level: (v) => (v >= 90 ? "crit" : v >= 75 ? "warn" : "info") },
-  { metric: "container_cpu_percent", label: "最忙容器 CPU", agg: "max",
+  { metric: "container_cpu_percent", label: "最忙容器 CPU", agg: "max", showTopSeries: true,
     fmt: (v) => `${v.toFixed(0)}%`, level: (v) => (v >= 1000 ? "crit" : v >= 700 ? "warn" : "info") },
-  { metric: "container_memory_working_set_bytes", label: "最大容器内存", agg: "max",
+  { metric: "container_memory_working_set_bytes", label: "最大容器内存", agg: "max", showTopSeries: true,
     fmt: fmtGB, level: (v) => (v >= 28e9 ? "crit" : v >= 20e9 ? "warn" : "info") },
   { metric: "container_fs_usage_bytes", label: "磁盘使用", agg: "max",
     fmt: (v) => `${(v / 1e9).toFixed(0)} GB`, level: () => "info" },
@@ -229,6 +246,15 @@ function MetricTile({ tile, onSelect }: { tile: Tile; onSelect: (metric: string)
   const level: Level = last !== null ? tile.level(last) : "info";
   const color = last !== null ? LEVEL_COLOR[level] : "var(--muted-foreground)";
 
+  const { data: topSeries } = useQuery<TopSeriesEntry[]>({
+    queryKey: ["mtile-top", tile.metric],
+    queryFn: () =>
+      aegisFetch<TopSeriesEntry[]>(paths.metricsTopSeries({ metric_name: tile.metric, hours: 0.25 })),
+    enabled: !!tile.showTopSeries,
+    refetchInterval: 30000,
+  });
+  const topLabel = tile.showTopSeries ? friendlyImageName(topSeries?.[0]?.image ?? null) : null;
+
   return (
     <button
       type="button"
@@ -252,6 +278,12 @@ function MetricTile({ tile, onSelect }: { tile: Tile; onSelect: (metric: string)
           </span>
         )}
       </div>
+
+      {topLabel && (
+        <p className="-mt-2 truncate text-xs text-muted-foreground" title={topLabel}>
+          {topLabel}
+        </p>
+      )}
 
       {tile.meter && (
         <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
