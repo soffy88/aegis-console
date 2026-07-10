@@ -263,4 +263,7 @@ export const paths = {
     if (params.limit) q.set("limit", String(params.limit));
     return `/api/v1/metrics/top-series?${q.toString()}`;
   },
+
+  // GPU lock (§5.2 单卡多项目共享) — 谁正在持有互斥闸门
+  gpuLockStatus: () => `/api/v1/gpu/lock/status`,
 } as const;

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { OStatusBadge } from "@helios/blocks";
 import { useState, useEffect } from "react";
@@ -36,12 +36,31 @@ function MiniSparkline({ points }: { points: number[] }) {
 
 function AppCard({ app, orgId, orgSlug }: { app: App; orgId: string; orgSlug: string }) {
   const [cpuHistory, setCpuHistory] = useState<number[]>([]);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const qc = useQueryClient();
 
   const { data: stats } = useQuery<ContainerStats>({
     queryKey: ["container-stats", orgId, app.app_name],
     queryFn: () => aegisFetch<ContainerStats>(`${paths.container(orgId, app.app_name)}/stats`),
     refetchInterval: 3000,
     enabled: app.status === "running" || app.status === "completed",
+  });
+
+  const actionMutation = useMutation({
+    mutationFn: (action: "start" | "stop" | "restart") => {
+      const path =
+        action === "start"
+          ? paths.containerStart(orgId, app.app_name)
+          : action === "stop"
+            ? paths.containerStop(orgId, app.app_name)
+            : paths.containerRestart(orgId, app.app_name);
+      return aegisFetch(path, { method: "POST" });
+    },
+    onSuccess: () => {
+      setActionError(null);
+      void qc.invalidateQueries({ queryKey: ["apps", orgId] });
+    },
+    onError: (e: Error) => setActionError(e.message),
   });
 
   useEffect(() => {
@@ -72,21 +91,25 @@ function AppCard({ app, orgId, orgSlug }: { app: App; orgId: string; orgSlug: st
 
       <div className="flex gap-2 text-xs">
         <button
-          onClick={() => void aegisFetch(paths.containerStart(orgId, app.app_name), { method: "POST" })}
-          className="rounded-md border border-[var(--border)] px-2 py-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)]"
+          onClick={() => actionMutation.mutate("start")}
+          disabled={actionMutation.isPending}
+          className="rounded-md border border-[var(--border)] px-2 py-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)] disabled:opacity-50"
         >start</button>
         <button
-          onClick={() => void aegisFetch(paths.containerStop(orgId, app.app_name), { method: "POST" })}
-          className="rounded-md border border-[var(--border)] px-2 py-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)]"
+          onClick={() => actionMutation.mutate("stop")}
+          disabled={actionMutation.isPending}
+          className="rounded-md border border-[var(--border)] px-2 py-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)] disabled:opacity-50"
         >stop</button>
         <button
-          onClick={() => void aegisFetch(paths.containerRestart(orgId, app.app_name), { method: "POST" })}
-          className="rounded-md border border-[var(--border)] px-2 py-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)]"
+          onClick={() => actionMutation.mutate("restart")}
+          disabled={actionMutation.isPending}
+          className="rounded-md border border-[var(--border)] px-2 py-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)] disabled:opacity-50"
         >restart</button>
         <Link href={`/orgs/${orgSlug}/apps/${app.id}`} className="rounded-md border border-[var(--border)] px-2 py-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)] ml-auto">
           details
         </Link>
       </div>
+      {actionError && <p className="text-xs text-red-600">{actionError}</p>}
     </div>
   );
 }

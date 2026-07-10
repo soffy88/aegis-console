@@ -24,10 +24,13 @@ export interface OrgState {
   activeOrgSlug: string | null;
   /** Role of the user in the active org (derived). */
   activeOrgRole: string | null;
+  /** True once loadUserOrgs() has resolved at least once (success or empty). */
+  orgsLoaded: boolean;
 
   setOrgs(orgs: OrgMembership[]): void;
   setActiveOrg(slug: string | null): void;
   clearOrgs(): void;
+  setOrgsLoaded(loaded: boolean): void;
 }
 
 export const useOrgStore = create<OrgState>()(
@@ -36,11 +39,12 @@ export const useOrgStore = create<OrgState>()(
       orgs: [],
       activeOrgSlug: null,
       activeOrgRole: null,
+      orgsLoaded: false,
 
       setOrgs(orgs) {
         const { activeOrgSlug } = get();
         const activeOrg = orgs.find((o) => o.slug === activeOrgSlug);
-        set({ orgs, activeOrgRole: activeOrg?.role ?? null });
+        set({ orgs, activeOrgRole: activeOrg?.role ?? null, orgsLoaded: true });
       },
 
       setActiveOrg(slug) {
@@ -51,6 +55,10 @@ export const useOrgStore = create<OrgState>()(
 
       clearOrgs() {
         set({ orgs: [], activeOrgSlug: null, activeOrgRole: null });
+      },
+
+      setOrgsLoaded(loaded) {
+        set({ orgsLoaded: loaded });
       },
     }),
     {
