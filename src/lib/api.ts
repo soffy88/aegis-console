@@ -40,6 +40,17 @@ export class ApiError extends Error {
   }
 }
 
+/** Extract FastAPI's `{"detail": "..."}` message from an error response, falling back to raw text. */
+async function extractErrorDetail(res: Response): Promise<string> {
+  const text = await res.text().catch(() => res.statusText);
+  try {
+    const parsed = JSON.parse(text) as { detail?: string };
+    return parsed.detail ?? text;
+  } catch {
+    return text;
+  }
+}
+
 export async function aegisFetch<T>(
   path: string,
   init?: RequestInit,
@@ -63,8 +74,7 @@ export async function aegisFetch<T>(
   });
 
   if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    throw new ApiError(res.status, text);
+    throw new ApiError(res.status, await extractErrorDetail(res));
   }
   return res.json() as Promise<T>;
 }
@@ -87,8 +97,7 @@ export async function aegisBlob(path: string): Promise<Blob> {
     credentials: "include",
   });
   if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    throw new ApiError(res.status, text);
+    throw new ApiError(res.status, await extractErrorDetail(res));
   }
   return res.blob();
 }
@@ -102,8 +111,7 @@ export async function aegisUpload<T>(path: string, form: FormData): Promise<T> {
     body: form,
   });
   if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    throw new ApiError(res.status, text);
+    throw new ApiError(res.status, await extractErrorDetail(res));
   }
   return res.json() as Promise<T>;
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { OKPICard, OAISummaryCard, OEventTimeline } from "@helios/blocks";
@@ -12,15 +11,152 @@ import type { Container, Event } from "@/types/aegis";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
 import { useOrgIdBySlug } from "@/hooks/use-org-id";
+import { KEY_METRICS, MetricCard, useTileTitleInfo, type Tile } from "@/components/metrics/key-metric-tiles";
+import { GpuLockCard } from "@/components/metrics/gpu-lock-card";
 
-const INITIAL: WidgetLayout[] = [
-  { id: "total",    col: 1,  row: 1, colSpan: 3, rowSpan: 2, zoom: 1, visible: true, locked: true },
-  { id: "running",  col: 4,  row: 1, colSpan: 3, rowSpan: 2, zoom: 1, visible: true, locked: true },
-  { id: "abnormal", col: 7,  row: 1, colSpan: 3, rowSpan: 2, zoom: 1, visible: true, locked: true },
-  { id: "events",   col: 10, row: 1, colSpan: 3, rowSpan: 2, zoom: 1, visible: true, locked: true },
-  { id: "heal",     col: 1,  row: 3, colSpan: 6, rowSpan: 3, zoom: 1, visible: true, locked: true },
-  { id: "timeline", col: 7,  row: 3, colSpan: 6, rowSpan: 3, zoom: 1, visible: true, locked: true },
+// metric name -> its tile, for the generic `metric-${metric}` item case below.
+const METRIC_BY_ID = new Map(KEY_METRICS.map((t) => [t.metric, t]));
+const metricIdsForGroup = (group: string) =>
+  KEY_METRICS.filter((t) => t.group === group).map((t) => `metric-${t.metric}`);
+
+// A separate component (not inlined in renderItem) so useTileTitleInfo's hook call is
+// legal — puts the tile's live value + (for showTopSeries tiles) which container holds
+// it in the OWidgetFrame's own title bar ("最大容器内存 · 22.9G · timescaledb") instead
+// of MetricCard's bare-mode content, since the frame already owns that title row.
+function MetricFrameItem({
+  id,
+  tile,
+  layout,
+  updateWidget,
+  toggleLock,
+  onSelect,
+}: {
+  id: string;
+  tile: Tile;
+  layout: WidgetLayout;
+  updateWidget: (id: string, patch: Partial<WidgetLayout>) => void;
+  toggleLock: (id: string) => void;
+  onSelect: (metric: string) => void;
+}) {
+  const { value, topLabel } = useTileTitleInfo(tile);
+  const title = [tile.label, value, topLabel].filter(Boolean).join(" · ");
+  return (
+    <OWidgetFrame
+      id={id}
+      title={title}
+      locked={layout.locked}
+      onLockToggle={toggleLock}
+      zoom={layout.zoom}
+      colSpan={layout.colSpan}
+      rowSpan={layout.rowSpan}
+      onZoomChange={(wid, zoom) => updateWidget(wid, { zoom })}
+      onClose={(wid) => updateWidget(wid, { visible: false })}
+      // oui 2.1.3+: --oui-widget-title-font-size lets us bump this frame's title up
+      // from oui.css's default ~11px without an !important hack — these tiles cram
+      // more text into the title bar than a plain label, so the default "tag"-sized
+      // font reads too small. Applied to every dashboard tile (see other renderItem
+      // cases below) for a consistent title size across the whole page, not just
+      // metric- tiles.
+      className="dash-tile-frame"
+    >
+      <MetricCard tile={tile} bare onSelect={onSelect} />
+    </OWidgetFrame>
+  );
+}
+
+// Two-level widget nesting: an outer OWidgetGrid holds one category frame per row
+// (itself draggable/resizable/lockable — the category title bar is just "主机" etc,
+// border/background/shadow stripped via .dash-category-frame so it reads as a plain
+// label, not a boxed panel — but it keeps the frame's move/resize so the category
+// row order and height stay adjustable), and each category frame contains its own
+// inner OWidgetGrid where every card inside is *also* independently
+// lockable/draggable/resizable (its own separate useWidgetStorage/localStorage key).
+interface CategoryDef {
+  id: string;
+  title: string;
+  itemIds: string[];
+  outerRowSpan: number;
+  // Custom item layout for categories whose items aren't uniform small KPI cards
+  // (autoheal summary / event timeline need much more room than a metric tile).
+  customLayout?: (id: string, i: number) => Pick<WidgetLayout, "col" | "row" | "colSpan" | "rowSpan">;
+}
+
+const CATEGORIES: CategoryDef[] = [
+  {
+    id: "cat-container",
+    title: "容器",
+    itemIds: ["total", "running", "abnormal", "events", ...metricIdsForGroup("容器")],
+    outerRowSpan: 6,
+  },
+  {
+    id: "cat-host",
+    title: "主机",
+    itemIds: metricIdsForGroup("主机"),
+    outerRowSpan: 4,
+  },
+  {
+    id: "cat-gpu",
+    title: "GPU",
+    itemIds: ["gpu-lock", ...metricIdsForGroup("GPU")],
+    outerRowSpan: 4,
+  },
+  {
+    id: "cat-gateway",
+    title: "网关",
+    itemIds: metricIdsForGroup("网关"),
+    outerRowSpan: 4,
+  },
+  {
+    id: "cat-heal",
+    title: "自愈与事件",
+    itemIds: ["autoheal", "heal", "timeline"],
+    outerRowSpan: 11,
+    customLayout: (id) => {
+      if (id === "autoheal") return { col: 1, row: 1, colSpan: 12, rowSpan: 2 };
+      if (id === "heal") return { col: 1, row: 3, colSpan: 12, rowSpan: 2 };
+      return { col: 1, row: 5, colSpan: 12, rowSpan: 5 }; // timeline
+    },
+  },
 ];
+
+// Default 4-per-row wrap for uniform small KPI/metric cards (colSpan 3 of 12).
+function autoLayout(ids: string[]): WidgetLayout[] {
+  return ids.map((id, i) => ({
+    id,
+    col: (i % 4) * 3 + 1,
+    row: 1 + Math.floor(i / 4) * 2,
+    colSpan: 3,
+    rowSpan: 2,
+    zoom: 1,
+    visible: true,
+    locked: true,
+  }));
+}
+
+function categoryInitial(cat: CategoryDef): WidgetLayout[] {
+  if (cat.customLayout) {
+    return cat.itemIds.map((id, i) => ({
+      ...cat.customLayout!(id, i),
+      id,
+      zoom: 1,
+      visible: true,
+      locked: true,
+    }));
+  }
+  return autoLayout(cat.itemIds);
+}
+
+const OUTER_INITIAL: WidgetLayout[] = (() => {
+  let row = 1;
+  return CATEGORIES.map((cat) => {
+    const layout: WidgetLayout = {
+      id: cat.id, col: 1, row, colSpan: 12, rowSpan: cat.outerRowSpan,
+      zoom: 1, visible: true, locked: true,
+    };
+    row += cat.outerRowSpan;
+    return layout;
+  });
+})();
 
 interface AutohealStats {
   today_total: number;
@@ -29,45 +165,10 @@ interface AutohealStats {
   pending_total: number;
 }
 
-interface MetricQueryResult {
-  points: { ts: string; value: number }[];
-}
-
-function TileSpark({ points, className }: { points: { value: number }[]; className?: string }) {
-  const w = 260;
-  const h = 40;
-  if (points.length === 0) return <div className="h-[40px]" />;
-  const vals = points.map((p) => p.value);
-  const min = Math.min(...vals);
-  const span = Math.max(...vals) - min || 1;
-  const step = points.length > 1 ? w / (points.length - 1) : 0;
-  const c = points.map((p, i) => `${(i * step).toFixed(1)},${(h - ((p.value - min) / span) * h).toFixed(1)}`);
-  return (
-    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className={className}>
-      <polyline points={c.join(" ")} fill="none" stroke="currentColor" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
-    </svg>
-  );
-}
-
-function StatTile({ label, value, accent, points, href }: { label: string; value: string; accent: string; points?: { value: number }[]; href?: string }) {
-  const inner = (
-    <>
-      <p className="text-muted-foreground text-sm">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${accent}`}>{value}</p>
-      {points && <div className={`mt-2 ${accent}`}><TileSpark points={points} /></div>}
-    </>
-  );
-  const cls = "block rounded-xl border bg-card p-4 shadow-sm";
-  return href ? (
-    <Link href={href} className={`${cls} transition hover:border-[var(--primary)] hover:shadow-md`}>{inner}</Link>
-  ) : (
-    <div className={cls}>{inner}</div>
-  );
-}
-
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
   const { org_slug } = useParams<{ org_slug: string }>();
+  const router = useRouter();
   const orgId = useOrgIdBySlug(org_slug);
 
   // Real-time container view (all host containers) for the headline cards.
@@ -91,20 +192,6 @@ export default function DashboardPage() {
     enabled: !!orgId,
     refetchInterval: 30000,
   });
-
-  // Monitoring tiles (global metrics — not org-scoped).
-  const mq = (metric_name: string, agg: string) => ({
-    queryKey: ["dash-metric", metric_name, agg],
-    queryFn: () =>
-      aegisFetch<MetricQueryResult>(
-        paths.metricsQuery({ metric_name, hours: 6, bucket_seconds: 300, agg }),
-      ),
-    refetchInterval: 30000,
-  });
-  const online = useQuery<MetricQueryResult>(mq("probe_up", "min"));
-  const cpu = useQuery<MetricQueryResult>(mq("container_cpu_percent", "max"));
-  const mem = useQuery<MetricQueryResult>(mq("container_memory_working_set_bytes", "max"));
-  const lastOf = (q?: MetricQueryResult) => (q && q.points.length > 0 ? q.points[q.points.length - 1]!.value : null);
 
   // Headline cards now reflect real containers (more live than registered apps).
   const cstate = (c: Container) => c.state ?? c.status;
@@ -131,189 +218,143 @@ export default function DashboardPage() {
     ? "加载中..."
     : `待处理严重告警 ${pendingCritical} 条${pendingCritical > 0 ? "，请及时处理。" : "，系统运行正常。"}`;
 
-  const { widgets, updateWidget, toggleLock } = useWidgetStorage({
-    storageKey: "aegis-dashboard",
-    initialLayouts: INITIAL,
-  });
+  const outer = useWidgetStorage({ storageKey: "aegis-dashboard", initialLayouts: OUTER_INITIAL });
+  // One inner useWidgetStorage per category — fixed, known set, so calling each by name
+  // (not in a loop) keeps hook order stable across renders.
+  const innerByCategory: Record<string, ReturnType<typeof useWidgetStorage>> = {
+    "cat-container": useWidgetStorage({ storageKey: "aegis-dashboard-container", initialLayouts: categoryInitial(CATEGORIES[0]!) }),
+    "cat-host": useWidgetStorage({ storageKey: "aegis-dashboard-host", initialLayouts: categoryInitial(CATEGORIES[1]!) }),
+    "cat-gpu": useWidgetStorage({ storageKey: "aegis-dashboard-gpu", initialLayouts: categoryInitial(CATEGORIES[2]!) }),
+    "cat-gateway": useWidgetStorage({ storageKey: "aegis-dashboard-gateway", initialLayouts: categoryInitial(CATEGORIES[3]!) }),
+    "cat-heal": useWidgetStorage({ storageKey: "aegis-dashboard-heal", initialLayouts: categoryInitial(CATEGORIES[4]!) }),
+  };
 
-  const onlineV = lastOf(online.data);
-  const cpuV = lastOf(cpu.data);
-  const memV = lastOf(mem.data);
+  // Renders one leaf item (KPI card / metric tile / heal summary / timeline) inside
+  // whichever inner grid owns it — takes that grid's own updateWidget/toggleLock so the
+  // lock/drag/resize/close controls affect only that item within its own category.
+  function renderItem(id: string, layout: WidgetLayout, updateWidget: (id: string, patch: Partial<WidgetLayout>) => void, toggleLock: (id: string) => void) {
+    const onZoomChange = (wid: string, zoom: number) => updateWidget(wid, { zoom });
+    const onClose = (wid: string) => updateWidget(wid, { visible: false });
+
+    if (id.startsWith("metric-")) {
+      const tile = METRIC_BY_ID.get(id.slice("metric-".length));
+      if (!tile) return null;
+      return (
+        <MetricFrameItem
+          id={id}
+          tile={tile}
+          layout={layout}
+          updateWidget={updateWidget}
+          toggleLock={toggleLock}
+          onSelect={(m) => router.push(`/orgs/${org_slug}/metrics?metric=${m}`)}
+        />
+      );
+    }
+
+    switch (id) {
+      case "gpu-lock":
+        return (
+          <OWidgetFrame id={id} title="GPU 占用" locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
+            <GpuLockCard bare />
+          </OWidgetFrame>
+        );
+      case "total":
+        return (
+          <OWidgetFrame id={id} title={t("totalApps")} locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
+            <OKPICard data={{ label: "", primary: totalApps }} loading={containers.isLoading} variant="compact" className="!border-0 !shadow-none !bg-transparent" />
+          </OWidgetFrame>
+        );
+      case "running":
+        return (
+          <OWidgetFrame id={id} title={t("running")} locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
+            <OKPICard data={{ label: "", primary: runningCount, indicator: "up" }} loading={containers.isLoading} variant="compact" className="!border-0 !shadow-none !bg-transparent" />
+          </OWidgetFrame>
+        );
+      case "abnormal":
+        return (
+          <OWidgetFrame id={id} title={t("failed")} locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
+            <OKPICard
+              data={{ label: "", primary: failedCount, indicator: failedCount > 0 ? "down" : "neutral" }}
+              loading={containers.isLoading}
+              variant="compact"
+              className="!border-0 !shadow-none !bg-transparent"
+            />
+          </OWidgetFrame>
+        );
+      case "events":
+        return (
+          <OWidgetFrame id={id} title={t("events1h")} locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
+            <OKPICard data={{ label: "", primary: eventCount }} loading={events.isLoading} variant="compact" className="!border-0 !shadow-none !bg-transparent" />
+          </OWidgetFrame>
+        );
+      case "autoheal":
+        return (
+          <OWidgetFrame id={id} title="自愈待处理" locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
+            <OKPICard
+              data={{ label: "", primary: autohealStats.isLoading ? "…" : pendingCritical, indicator: pendingCritical > 0 ? "down" : "neutral" }}
+              loading={autohealStats.isLoading}
+              variant="compact"
+              className="!border-0 !shadow-none !bg-transparent"
+            />
+          </OWidgetFrame>
+        );
+      case "heal":
+        return (
+          <OWidgetFrame id={id} title="自愈状态" locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
+            <OAISummaryCard summary={healSummary} newSubstrates={pendingCritical} className="!border-0 !shadow-none !bg-transparent" />
+          </OWidgetFrame>
+        );
+      case "timeline":
+        return (
+          <OWidgetFrame id={id} title={t("eventStream")} locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
+            <OEventTimeline events={timelineEvents} emptyMessage="暂无事件" className="!border-0 !shadow-none !bg-transparent" />
+          </OWidgetFrame>
+        );
+      default:
+        return null;
+    }
+  }
 
   return (
     <div className="space-y-4">
-      {/* At-a-glance operational health — tiled */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatTile
-          label="服务在线"
-          value={onlineV === null ? "—" : onlineV >= 1 ? "全部在线" : "有掉线"}
-          accent={onlineV === null ? "text-muted-foreground" : onlineV >= 1 ? "text-emerald-400" : "text-red-400"}
-          points={online.data?.points}
-          href={`/orgs/${org_slug}/containers`}
-        />
-        <StatTile
-          label="最忙容器 CPU"
-          value={cpuV === null ? "—" : `${cpuV.toFixed(0)}%`}
-          accent={cpuV === null ? "text-muted-foreground" : cpuV >= 1000 ? "text-red-400" : cpuV >= 700 ? "text-amber-400" : "text-blue-400"}
-          points={cpu.data?.points}
-          href={`/orgs/${org_slug}/metrics`}
-        />
-        <StatTile
-          label="最大容器内存"
-          value={memV === null ? "—" : `${(memV / 1e9).toFixed(1)} GB`}
-          accent={memV === null ? "text-muted-foreground" : memV >= 28e9 ? "text-red-400" : memV >= 20e9 ? "text-amber-400" : "text-blue-400"}
-          points={mem.data?.points}
-          href={`/orgs/${org_slug}/metrics`}
-        />
-        <StatTile
-          label="自愈待处理(严重)"
-          value={autohealStats.isLoading ? "…" : String(pendingCritical)}
-          accent={pendingCritical > 0 ? "text-red-400" : "text-emerald-400"}
-          href={`/orgs/${org_slug}/autoheal`}
-        />
-      </div>
+      {/* colWidth=72 matches rowHeight so drag/resize snaps to ~72px in both axes —
+          without it, horizontal snap falls back to the responsive 12-col default
+          (~80-100px/col), a coarser step than the vertical one. */}
+      <OWidgetGrid widgets={outer.widgets} onWidgetChange={outer.updateWidget} gridCols={12} colWidth={72} rowHeight={72} gap={12}>
+        {({ id: categoryId, layout: catLayout }) => {
+          if (!catLayout.visible) return null;
+          const cat = CATEGORIES.find((c) => c.id === categoryId);
+          if (!cat) return null;
+          const inner = innerByCategory[cat.id]!;
 
-      <OWidgetGrid
-        widgets={widgets}
-        onWidgetChange={updateWidget}
-        gridCols={12}
-        rowHeight={72}
-        gap={12}
-      >
-      {({ id, layout }) => {
-        if (!layout.visible) return null;
-        const onZoomChange = (wid: string, zoom: number) => updateWidget(wid, { zoom });
-        const onClose = (wid: string) => updateWidget(wid, { visible: false });
-
-        switch (id) {
-          case "total":
-            return (
-              <OWidgetFrame
-                id={id}
-                title={t("totalApps")}
-                locked={layout.locked}
-                onLockToggle={toggleLock}
-                zoom={layout.zoom}
-                colSpan={layout.colSpan}
-                rowSpan={layout.rowSpan}
-                onZoomChange={onZoomChange}
-                onClose={onClose}
-              >
-                <OKPICard
-                  data={{ label: "", primary: totalApps }}
-                  loading={containers.isLoading}
-                  variant="compact"
-                />
-              </OWidgetFrame>
-            );
-          case "running":
-            return (
-              <OWidgetFrame
-                id={id}
-                title={t("running")}
-                locked={layout.locked}
-                onLockToggle={toggleLock}
-                zoom={layout.zoom}
-                colSpan={layout.colSpan}
-                rowSpan={layout.rowSpan}
-                onZoomChange={onZoomChange}
-                onClose={onClose}
-              >
-                <OKPICard
-                  data={{ label: "", primary: runningCount, indicator: "up" }}
-                  loading={containers.isLoading}
-                  variant="compact"
-                />
-              </OWidgetFrame>
-            );
-          case "abnormal":
-            return (
-              <OWidgetFrame
-                id={id}
-                title={t("failed")}
-                locked={layout.locked}
-                onLockToggle={toggleLock}
-                zoom={layout.zoom}
-                colSpan={layout.colSpan}
-                rowSpan={layout.rowSpan}
-                onZoomChange={onZoomChange}
-                onClose={onClose}
-              >
-                <OKPICard
-                  data={{
-                    label: "",
-                    primary: failedCount,
-                    indicator: failedCount > 0 ? "down" : "neutral",
+          return (
+            <OWidgetFrame
+              id={categoryId}
+              title={cat.title}
+              locked={catLayout.locked}
+              onLockToggle={outer.toggleLock}
+              zoom={catLayout.zoom}
+              colSpan={catLayout.colSpan}
+              rowSpan={catLayout.rowSpan}
+              onZoomChange={(wid, zoom) => outer.updateWidget(wid, { zoom })}
+              onClose={(wid) => outer.updateWidget(wid, { visible: false })}
+              // See .dash-category-frame in globals.css: strips border/background/shadow
+              // so this reads as a plain "主机" label, not a boxed panel — but keeps the
+              // frame itself (title bar drag handle, resize handle, lock toggle) so the
+              // category row is still movable/resizable, just invisible until you touch it.
+              className="dash-category-frame"
+            >
+              <div className="p-2">
+                <OWidgetGrid widgets={inner.widgets} onWidgetChange={inner.updateWidget} gridCols={12} colWidth={72} rowHeight={72} gap={8}>
+                  {({ id: itemId, layout: itemLayout }) => {
+                    if (!itemLayout.visible) return null;
+                    return renderItem(itemId, itemLayout, inner.updateWidget, inner.toggleLock);
                   }}
-                  loading={containers.isLoading}
-                  variant="compact"
-                />
-              </OWidgetFrame>
-            );
-          case "events":
-            return (
-              <OWidgetFrame
-                id={id}
-                title={t("events1h")}
-                locked={layout.locked}
-                onLockToggle={toggleLock}
-                zoom={layout.zoom}
-                colSpan={layout.colSpan}
-                rowSpan={layout.rowSpan}
-                onZoomChange={onZoomChange}
-                onClose={onClose}
-              >
-                <OKPICard
-                  data={{ label: "", primary: eventCount }}
-                  loading={events.isLoading}
-                  variant="compact"
-                />
-              </OWidgetFrame>
-            );
-          case "heal":
-            return (
-              <OWidgetFrame
-                id={id}
-                title="自愈状态"
-                locked={layout.locked}
-                onLockToggle={toggleLock}
-                zoom={layout.zoom}
-                colSpan={layout.colSpan}
-                rowSpan={layout.rowSpan}
-                onZoomChange={onZoomChange}
-                onClose={onClose}
-              >
-                <OAISummaryCard
-                  summary={healSummary}
-                  newSubstrates={pendingCritical}
-                  className="!border-0 !shadow-none !bg-transparent"
-                />
-              </OWidgetFrame>
-            );
-          case "timeline":
-            return (
-              <OWidgetFrame
-                id={id}
-                title={t("eventStream")}
-                locked={layout.locked}
-                onLockToggle={toggleLock}
-                zoom={layout.zoom}
-                colSpan={layout.colSpan}
-                rowSpan={layout.rowSpan}
-                onZoomChange={onZoomChange}
-                onClose={onClose}
-              >
-                <OEventTimeline
-                  events={timelineEvents}
-                  emptyMessage="暂无事件"
-                  className="!border-0 !shadow-none !bg-transparent"
-                />
-              </OWidgetFrame>
-            );
-          default:
-            return null;
-        }
-      }}
+                </OWidgetGrid>
+              </div>
+            </OWidgetFrame>
+          );
+        }}
       </OWidgetGrid>
     </div>
   );

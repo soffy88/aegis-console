@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -11,7 +12,12 @@ export default function RumPage() {
   const { org_slug } = useParams<{ org_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
   const q = useQuery<P[]>({ queryKey: ["rum", orgId], queryFn: () => aegisFetch(paths.rumMetrics(orgId!, 1440)), enabled: !!orgId, refetchInterval: 30000 });
-  const snippet = `<script>addEventListener('load',()=>{const t=performance.getEntriesByType('navigation')[0];navigator.sendBeacon('${typeof window!=='undefined'?window.location.origin:''}/api/v1/telemetry/rum',JSON.stringify({app:'myapp',page:location.pathname,load_ms:t.loadEventEnd,ttfb_ms:t.responseStart,fcp_ms:t.domContentLoadedEventEnd}))})</script>`;
+  const [origin, setOrigin] = useState("");
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setOrigin(window.location.origin);
+  }, []);
+  const snippet = `<script>addEventListener('load',()=>{const t=performance.getEntriesByType('navigation')[0];navigator.sendBeacon('${origin}/api/v1/telemetry/${orgId}/rum',JSON.stringify({app:'myapp',page:location.pathname,load_ms:t.loadEventEnd,ttfb_ms:t.responseStart,fcp_ms:t.domContentLoadedEventEnd}))})</script>`;
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">{t("title")}</h1>

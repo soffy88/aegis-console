@@ -45,6 +45,11 @@ function fmtTime(epoch: number): string {
 
 const ROW_H = 40; // fixed row height — required for windowed virtualization
 
+// Mirrors MAX_TEXT_BYTES in aegis/server/services/files.py — skip the text-read
+// request entirely for files the backend would reject, instead of round-tripping
+// a 400 for every video/binary/large file the user clicks.
+const MAX_TEXT_BYTES = 2 * 1024 * 1024;
+
 /**
  * Virtualized file list. Only the rows visible in the scroll viewport (plus a
  * small overscan) are mounted, so a directory with tens of thousands of entries
@@ -282,7 +287,7 @@ export default function FilesPage() {
     setError(null);
     setModeInput((e.mode || "").replace("0o", ""));
     setDetail({ entry: e, content: null, loading: !e.is_dir });
-    if (e.is_dir) return;
+    if (e.is_dir || e.size > MAX_TEXT_BYTES) return;
     try {
       const res = await aegisFetch<{ content: string }>(paths.fileRead(orgId!, e.path));
       setDetail((d) =>

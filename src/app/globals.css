@@ -102,3 +102,46 @@ h2,
 h3 {
   letter-spacing: -0.018em;
 }
+
+/* Org dashboard's category frame (the outer OWidgetFrame wrapping each category's own
+   inner OWidgetGrid of cards) — kept as a real OWidgetFrame so it's still draggable/
+   resizable/lockable (that's the point: category rows must stay reorderable), but
+   stripped of border/background/shadow so it just reads as a plain "主机" text label,
+   not a boxed panel. oui.css's own rules load after Tailwind's utilities in the cascade
+   above, so overriding needs !important regardless of specificity — and Tailwind v4's
+   arbitrary-variant descendant selectors ([&_.foo]:...) were not being picked up by the
+   content scanner here, so this is a plain hand-written rule.
+
+   overflow: visible (oui.css's own .oui-widget-frame sets `overflow: hidden`) — cards
+   no longer scroll or get clipped when they exceed the category's stored rowSpan; the
+   box just lets content spill past its own (invisible, since border/bg are stripped
+   above) bounds instead. Trade-off: if content is taller than the persisted rowSpan,
+   it visually overlaps whatever's below it in the outer grid until you drag-resize the
+   category taller — accepted in exchange for dropping the scrollbar.
+
+   --oui-widget-title-font-size (oui 2.1.3+) matches .dash-tile-frame below so category
+   headers ("主机"/"容器"/"GPU"/"网关"/"自愈与事件") read at the same size as the tiles
+   nested inside them, not the library's smaller ~11px default. */
+.dash-category-frame {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  --oui-widget-title-font-size: 0.875rem;
+}
+.dash-category-frame .oui-widget-draghandle,
+.dash-category-frame .oui-widget-titlebar--locked {
+  border-bottom: 0 !important;
+}
+
+/* Every leaf tile on the org dashboard (metric tiles + the KPI/heal/timeline cards in
+   renderItem, page.tsx) — oui 2.1.3's --oui-widget-title-font-size var lets us bump the
+   title bar up from the library's ~11px default (sized for a plain tag-like label)
+   without an !important hack. Applied uniformly so every tile's title reads at the same
+   size, not just the metric- tiles that first needed it (label · value · container is
+   longer than a plain KPI label, but a consistent size across the whole page matters
+   more than tailoring it per tile). */
+.dash-tile-frame {
+  --oui-widget-title-font-size: 0.875rem;
+}
+
