@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { ODataTable, OStatusBadge } from "@helios/blocks";
+import { ODataTable, OStatusBadge, OConfirmDialog } from "@helios/blocks";
 import type { ODataTableData } from "@helios/blocks";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
@@ -27,6 +27,7 @@ export default function NetworksPage() {
   const orgId = useOrgIdBySlug(org_slug);
   const qc = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<DockerNetwork | null>(null);
 
   const networks = useQuery<DockerNetwork[]>({
     queryKey: ["networks", orgId],
@@ -40,6 +41,7 @@ export default function NetworksPage() {
       aegisFetch(paths.dockerNetwork(orgId!, encodeURIComponent(id)), { method: "DELETE" }),
     onSuccess: () => {
       setError(null);
+      setDeleteTarget(null);
       void qc.invalidateQueries({ queryKey: ["networks", orgId] });
     },
     onError: (e: Error) => setError(e.message),
@@ -61,7 +63,7 @@ export default function NetworksPage() {
         <button
           onClick={(e) => {
             e.stopPropagation();
-            deleteMutation.mutate(row.original.id);
+            setDeleteTarget(row.original);
           }}
           disabled={deleteMutation.isPending}
           className="rounded-md border border-red-500/30 px-2 py-1 text-xs text-red-400 hover:bg-red-500/10 disabled:opacity-50"
@@ -87,6 +89,16 @@ export default function NetworksPage() {
           sortable
         />
       </div>
+
+      <OConfirmDialog
+        open={deleteTarget !== null}
+        title={t("deleteTitle")}
+        description={t("deleteConfirm", { name: deleteTarget?.name ?? "" })}
+        danger
+        confirmLabel={tc("delete")}
+        onConfirm={() => { if (deleteTarget) deleteMutation.mutate(deleteTarget.id); }}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }
