@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -22,6 +22,15 @@ export default function HostTerminalPage() {
   const [token, setToken] = useState("");
   const [err, setErr] = useState<string | null>(null);
 
+  // Reset the open terminal when the active org changes (adjusting state during
+  // render on a prop change — the React-recommended alternative to an effect,
+  // tracking the previous org in state).
+  const [prevOrgId, setPrevOrgId] = useState(orgId);
+  if (prevOrgId !== orgId) {
+    setPrevOrgId(orgId);
+    if (ready) setReady(false);
+  }
+
   async function start() {
     if (!orgId) return;
     setErr(null);
@@ -33,10 +42,6 @@ export default function HostTerminalPage() {
       setErr((e as Error).message);
     }
   }
-
-  useEffect(() => {
-    setReady(false);
-  }, [orgId]);
 
   return (
     <div className="space-y-4">

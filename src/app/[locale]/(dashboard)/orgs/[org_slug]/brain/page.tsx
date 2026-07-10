@@ -11,18 +11,46 @@ import { useOrgIdBySlug } from "@/hooks/use-org-id";
 
 type Tab = "triage" | "rca" | "plan";
 
+// Loosely-typed shapes for the Brain agent's dynamic JSON responses — only the
+// fields this page reads are declared; the rest is passed straight to OJsonViewer.
+interface TriageResult {
+  priority_score: number;
+  should_escalate: boolean;
+  classified_category: string;
+  reason: string;
+}
+interface RcaHistoryStep {
+  tool_name?: string;
+  thought?: string;
+  observation?: string;
+}
+interface RcaResult {
+  final_answer?: string;
+  status?: string;
+  history?: RcaHistoryStep[];
+}
+interface PlanStep {
+  plugin_id: string;
+  description: string;
+  params: unknown;
+}
+interface AgentStatus {
+  status?: string;
+  last_error?: string;
+}
+type BrainStatus = Record<string, AgentStatus | undefined>;
+
 export default function BrainPage() {
   const t = useTranslations("brain");
-  const tc = useTranslations("common");
   const { org_slug } = useParams<{ org_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
 
   const [activeTab, setActiveTab] = useState<Tab>("triage");
 
   // Agent Status
-  const statusQuery = useQuery<any>({
+  const statusQuery = useQuery<BrainStatus>({
     queryKey: ["brain-status", orgId],
-    queryFn: () => aegisFetch<any>(paths.brainStatus(orgId!)),
+    queryFn: () => aegisFetch<BrainStatus>(paths.brainStatus(orgId!)),
     enabled: !!orgId,
     refetchInterval: 10000,
   });
@@ -40,8 +68,8 @@ export default function BrainPage() {
       2,
     ),
   );
-  const triageMutation = useMutation<any, Error, any>({
-    mutationFn: (signal: any) =>
+  const triageMutation = useMutation<TriageResult, Error, unknown>({
+    mutationFn: (signal: unknown) =>
       aegisFetch(paths.brainTriage(orgId!), {
         method: "POST",
         body: JSON.stringify({ signal }),
@@ -52,8 +80,8 @@ export default function BrainPage() {
   const [rcaSignal, setRcaSignal] = useState(triageInput);
   const [rcaSeverity, setRcaSeverity] = useState("critical");
   const [rcaDeep, setRcaDeep] = useState(true);
-  const investigateMutation = useMutation<any, Error, any>({
-    mutationFn: (diagnose_result: any) =>
+  const investigateMutation = useMutation<RcaResult, Error, unknown>({
+    mutationFn: (diagnose_result: unknown) =>
       aegisFetch(paths.brainInvestigate(orgId!), {
         method: "POST",
         body: JSON.stringify({ diagnose_result }),
@@ -62,8 +90,8 @@ export default function BrainPage() {
 
   // Plan state
   const [planInput, setPlanInput] = useState("");
-  const planMutation = useMutation<any, Error, any>({
-    mutationFn: (investigation_result: any) =>
+  const planMutation = useMutation<PlanStep[], Error, unknown>({
+    mutationFn: (investigation_result: unknown) =>
       aegisFetch(paths.brainPlan(orgId!), {
         method: "POST",
         body: JSON.stringify({ investigation_result }),
@@ -134,24 +162,24 @@ export default function BrainPage() {
                         <p className="text-[10px] uppercase text-blue-600">Priority</p>
                         <p
                           className={`text-3xl font-bold ${
-                            (triageMutation.data as any).priority_score > 70
+                            triageMutation.data.priority_score > 70
                               ? "text-red-600"
-                              : (triageMutation.data as any).priority_score > 40
+                              : triageMutation.data.priority_score > 40
                                 ? "text-yellow-600"
                                 : "text-green-600"
                           }`}
                         >
-                          {(triageMutation.data as any).priority_score}
+                          {triageMutation.data.priority_score}
                         </p>
                       </div>
                       <div className="flex-1 rounded-md border border-[var(--border)] bg-[var(--muted)] p-3 text-center">
                         <p className="text-[10px] uppercase text-gray-500">Escalate</p>
-                        <OStatusBadge label={String((triageMutation.data as any).should_escalate)} />
+                        <OStatusBadge label={String(triageMutation.data.should_escalate)} />
                       </div>
                     </div>
                     <div className="rounded-md border border-[var(--border)] bg-[var(--muted)] p-4">
-                      <p className="text-sm font-semibold">{(triageMutation.data as any).classified_category}</p>
-                      <p className="mt-1 text-sm text-gray-600">{(triageMutation.data as any).reason}</p>
+                      <p className="text-sm font-semibold">{triageMutation.data.classified_category}</p>
+                      <p className="mt-1 text-sm text-gray-600">{triageMutation.data.reason}</p>
                     </div>
                     <OJsonViewer data={triageMutation.data} defaultExpandDepth={1} />
                   </div>
@@ -217,20 +245,20 @@ export default function BrainPage() {
                   <div className="space-y-4">
                     <div className="rounded-md border border-blue-500/30 bg-blue-500/10 p-4">
                       <p className="text-lg font-bold text-blue-900">
-                        {(investigateMutation.data as any).final_answer || "Investigation Skipped"}
+                        {investigateMutation.data.final_answer || "Investigation Skipped"}
                       </p>
-                      {(investigateMutation.data as any).status && (
+                      {investigateMutation.data.status && (
                         <div className="mt-2 flex items-center gap-2 text-xs">
                           <span className="font-semibold uppercase text-gray-500">Status:</span>
-                          <OStatusBadge label={(investigateMutation.data as any).status} />
+                          <OStatusBadge label={investigateMutation.data.status} />
                         </div>
                       )}
                     </div>
-                    {(investigateMutation.data as any).history && (
+                    {investigateMutation.data.history && (
                       <div className="space-y-2">
-                        <p className="text-sm font-semibold">Steps History ({(investigateMutation.data as any).history.length})</p>
+                        <p className="text-sm font-semibold">Steps History ({investigateMutation.data.history.length})</p>
                         <div className="max-h-[400px] overflow-auto space-y-2">
-                          {(investigateMutation.data as any).history.map((step: any, idx: number) => (
+                          {investigateMutation.data.history.map((step: RcaHistoryStep, idx: number) => (
                             <details key={idx} className="rounded border bg-white p-2">
                               <summary className="cursor-pointer text-xs font-mono">
                                 Step {idx + 1}: {step.tool_name || "thought"}
@@ -288,7 +316,7 @@ export default function BrainPage() {
                 {planMutation.data ? (
                   <div className="space-y-3">
                     {Array.isArray(planMutation.data) && planMutation.data.length > 0 ? (
-                      planMutation.data.map((step: any, idx: number) => (
+                      planMutation.data.map((step: PlanStep, idx: number) => (
                         <div key={idx} className="rounded border p-3 bg-white shadow-sm space-y-2">
                           <div className="flex items-center gap-2">
                             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
