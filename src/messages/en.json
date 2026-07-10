@@ -43,7 +43,8 @@
     "security": "Security",
     "statusComponents": "Status Page",
     "channels": "Channels",
-    "memory": "Memory"
+    "memory": "Memory",
+    "members": "Members"
   },
   "common": {
     "create": "Create",
@@ -71,13 +72,21 @@
     "start": "Start",
     "stop": "Stop",
     "restart": "Restart",
-    "details": "Details"
+    "details": "Details",
+    "app": "App",
+    "actionFailed": "Action failed"
   },
   "login": {
     "title": "Sign in to Aegis",
     "subtitle": "Self-hosted PaaS management console",
     "noAccount": "Don't have an account?",
-    "register": "Register"
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "loading": "Loading…",
+    "failed": "Login failed"
   },
   "register": {
     "title": "Create your Aegis account",
@@ -129,7 +138,8 @@
     "search": "Search apps…",
     "install": "Install",
     "category": "Category",
-    "noResults": "No apps found"
+    "noResults": "No apps found",
+    "details": "Details"
   },
   "containers": {
     "title": "Containers",
@@ -157,7 +167,11 @@
     "restartAll": "Restart all",
     "collapseAll": "Collapse all",
     "expandAll": "Expand all",
-    "empty": "No containers"
+    "empty": "No containers",
+    "bulkStopTitle": "Stop containers",
+    "bulkStopConfirm": "Stop all {count} running container(s) in {group}?",
+    "bulkRestartTitle": "Restart containers",
+    "bulkRestartConfirm": "Restart all {count} running container(s) in {group}?"
   },
   "events": {
     "title": "Events",
@@ -171,7 +185,9 @@
     "payload": "Payload",
     "statRecent": "Recent",
     "statCritical": "Critical",
-    "statWarning": "Warning"
+    "statWarning": "Warning",
+    "prev": "Previous",
+    "next": "Next"
   },
   "webhooks": {
     "title": "Webhook Subscriptions",
@@ -212,7 +228,8 @@
     "saving": "Saving…",
     "statTotal": "Rules",
     "statEnabled": "Enabled",
-    "statDisabled": "Disabled"
+    "statDisabled": "Disabled",
+    "thresholdRequired": "Set at least one threshold (warn or critical)."
   },
   "releaseGates": {
     "title": "Release Gates",
@@ -322,7 +339,12 @@
     "role": "Role",
     "sendInvite": "Send invite",
     "sending": "Sending…",
-    "inviteSent": "Invite sent"
+    "inviteSent": "Invite sent",
+    "removeTitle": "Remove member",
+    "removeConfirm": "Remove \"{name}\" from this organization? They will immediately lose access.",
+    "roleChangeTitle": "Change member role",
+    "roleChangeConfirm": "Change \"{name}\" to the \"{role}\" role?",
+    "roleChangeSelfConfirm": "Change your own role to \"{role}\"? You may lose administrative access and be unable to change it back."
   },
   "metrics": {
     "title": "Metrics",
@@ -345,20 +367,28 @@
     "image": "Image",
     "tag": "Tag",
     "pull": "Pull",
-    "prune": "Prune unused"
+    "prune": "Prune unused",
+    "deleteTitle": "Delete image",
+    "deleteConfirm": "Delete image \"{name}\"? This cannot be undone.",
+    "pruneTitle": "Prune unused resources",
+    "pruneConfirm": "Remove all unused images, containers, networks and build cache? This cannot be undone."
   },
   "networks": {
     "title": "Networks",
     "name": "Name",
     "driver": "Driver",
     "scope": "Scope",
-    "internal": "Internal"
+    "internal": "Internal",
+    "deleteTitle": "Delete network",
+    "deleteConfirm": "Delete network \"{name}\"? Containers attached to it may lose connectivity. This cannot be undone."
   },
   "volumes": {
     "title": "Volumes",
     "name": "Name",
     "driver": "Driver",
-    "mountpoint": "Mount point"
+    "mountpoint": "Mount point",
+    "deleteTitle": "Delete volume",
+    "deleteConfirm": "Delete volume \"{name}\"? Any data it holds will be lost. This cannot be undone."
   },
   "files": {
     "title": "Files",
@@ -566,13 +596,25 @@
     "hint": "Outbound alert integrations: Slack / Discord / Telegram / webhook.",
     "name": "Name",
     "create": "Create",
-    "test": "Test"
+    "test": "Test",
+    "delete": "Delete",
+    "deleteTitle": "Delete channel",
+    "deleteConfirm": "Delete channel \"{name}\"? Alerts will no longer be delivered to it.",
+    "botToken": "Bot token",
+    "chatId": "Chat ID",
+    "webhookUrl": "Webhook URL",
+    "invalidUrl": "Enter a valid http(s) URL.",
+    "urlRequired": "A webhook URL is required.",
+    "botTokenRequired": "A bot token is required.",
+    "chatIdRequired": "A chat ID is required."
   },
   "statusComponents": {
     "title": "Status Page Components",
     "overall": "Overall",
     "name": "Component name",
-    "save": "Save"
+    "save": "Save",
+    "deleteTitle": "Delete component",
+    "deleteConfirm": "Delete status component \"{name}\"? This cannot be undone."
   },
   "kubernetes": {
     "title": "Kubernetes",
@@ -604,5 +646,37 @@
     "clear": "Clear",
     "cancel": "Cancel",
     "caveat": "Limits apply to the live container and reset if it is recreated (e.g. compose up) — for a permanent cap also set it in the container's compose/run definition. Docker cannot remove a limit from a running container; recreate it without one to go unlimited."
+  },
+  "invite": {
+    "title": "Accept your invitation",
+    "subtitle": "You've been invited to join {orgName}.",
+    "displayName": "Display name",
+    "displayNamePlaceholder": "Your name",
+    "password": "Password",
+    "passwordHelp": "At least 8 characters.",
+    "confirmPassword": "Confirm password",
+    "accept": "Accept invitation",
+    "accepting": "Accepting…",
+    "loading": "Loading invitation…",
+    "expired": "Invitation expired",
+    "expiredDesc": "This invitation link is no longer valid. Ask an org admin to send a new one.",
+    "invalid": "Invalid invitation",
+    "invalidDesc": "This invitation link could not be verified. It may have already been used."
+  },
+  "gitDeploy": {
+    "title": "Deploy from Git",
+    "subtitle": "Clone a public repository containing a Dockerfile → build the image → run it as a managed container.",
+    "repoUrl": "Git repository URL",
+    "appName": "App name",
+    "branch": "Branch",
+    "subdir": "Subdirectory (Dockerfile location)",
+    "subdirPlaceholder": "(repository root)",
+    "ports": "Ports (comma-separated)",
+    "project": "Project",
+    "selectProject": "Select a project…",
+    "deploy": "Build & deploy",
+    "deploying": "Building…",
+    "portsHint": "Ports are auto-mapped to free host ports (to avoid conflicts); check the actual ports on the Containers page after deploy.",
+    "started": "Build & deploy started (install_id {id}). Check the Apps / Containers page once the build finishes."
   }
 }
