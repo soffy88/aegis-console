@@ -42,7 +42,7 @@ export default function RunbooksPage() {
     )},
   ];
 
-  const { data, isLoading } = useQuery<Runbook[]>({
+  const { data, isLoading, error } = useQuery<Runbook[]>({
     queryKey: ["runbooks", orgId],
     queryFn: () => aegisFetch<Runbook[]>(paths.runbooks(orgId!)),
     enabled: !!orgId,
@@ -68,6 +68,7 @@ export default function RunbooksPage() {
       <ODataTable<Runbook>
         data={data ? { columns, rows: data } : null}
         loading={isLoading}
+        error={error as Error | null}
         empty={data?.length === 0}
       />
       {data?.map((rb) => (

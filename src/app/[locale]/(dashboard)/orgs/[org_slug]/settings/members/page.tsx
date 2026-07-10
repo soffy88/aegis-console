@@ -48,7 +48,7 @@ export default function MembersPage() {
   const [removeTarget, setRemoveTarget] = useState<Member | null>(null);
   const [roleChange, setRoleChange] = useState<{ member: Member; role: string } | null>(null);
 
-  const { data: members, isLoading } = useQuery<Member[]>({
+  const { data: members, isLoading, error: membersError } = useQuery<Member[]>({
     queryKey: ["members", orgId],
     queryFn: () => aegisFetch<Member[]>(paths.members(orgId!)),
     enabled: !!orgId,
@@ -167,6 +167,7 @@ export default function MembersPage() {
       <ODataTable<Member>
         data={members ? { columns, rows: members } : null}
         loading={isLoading}
+        error={membersError as Error | null}
         empty={members?.length === 0}
       />
       {actionError && (
