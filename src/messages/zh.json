@@ -344,7 +344,7 @@
     "removeConfirm": "确定将「{name}」移出该组织？其访问权限将立即被撤销。",
     "roleChangeTitle": "变更成员角色",
     "roleChangeConfirm": "确定将「{name}」的角色变更为「{role}」？",
-    "roleChangeSelfConfirm": "确定将您自己的角色变更为「{role}」？您可能会失去管理权限且无法自行改回。"
+    "roleChangeSelfConfirm": "确定将该成员变更为「{role}」？降级管理员/所有者可能导致组织没有任何管理员。"
   },
   "metrics": {
     "title": "监控指标",

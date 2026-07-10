@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { ODataTable, OStatusBadge } from "@helios/blocks";
+import { ODataTable, OStatusBadge, OConfirmDialog } from "@helios/blocks";
 import type { ODataTableData } from "@helios/blocks";
 import type { Container } from "@/types/aegis";
 import { aegisFetch } from "@/lib/api";
@@ -79,6 +79,8 @@ export default function ContainersPage() {
   const [showAll, setShowAll] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  // Pending bulk stop/restart awaiting confirmation (destructive on a whole stack).
+  const [bulkConfirm, setBulkConfirm] = useState<{ label: string; names: string[]; action: Action } | null>(null);
 
   const invalidate = () => {
     setActionError(null);
@@ -110,11 +112,18 @@ export default function ContainersPage() {
   function act(name: string, action: Action) {
     actionMutation.mutate({ name, action });
   }
-  function bulkAct(items: Container[], action: Action) {
+  function bulkAct(items: Container[], action: Action, label: string) {
     const targets =
       action === "start" ? items.filter((c) => !isRunning(c)) : items.filter(isRunning);
     if (targets.length === 0) return;
-    bulkMutation.mutate({ names: targets.map((c) => c.name), action });
+    const names = targets.map((c) => c.name);
+    // start-all is non-destructive → fire immediately; stop/restart-all needs
+    // confirmation since it can take down a whole stack at once.
+    if (action === "start") {
+      bulkMutation.mutate({ names, action });
+      return;
+    }
+    setBulkConfirm({ label, names, action });
   }
 
   const busy = actionMutation.isPending || bulkMutation.isPending;
@@ -315,13 +324,13 @@ export default function ContainersPage() {
                     </span>
                   </button>
                   <div className="flex items-center gap-1">
-                    <button title={t("startAll")} aria-label={t("startAll")} onClick={() => bulkAct(g.items, "start")} disabled={busy} className={gib}>
+                    <button title={t("startAll")} aria-label={t("startAll")} onClick={() => bulkAct(g.items, "start", g.label)} disabled={busy} className={gib}>
                       <ActIcon d={ICON.play} />
                     </button>
-                    <button title={t("stopAll")} aria-label={t("stopAll")} onClick={() => bulkAct(g.items, "stop")} disabled={busy} className={gib}>
+                    <button title={t("stopAll")} aria-label={t("stopAll")} onClick={() => bulkAct(g.items, "stop", g.label)} disabled={busy} className={gib}>
                       <ActIcon d={ICON.stop} />
                     </button>
-                    <button title={t("restartAll")} aria-label={t("restartAll")} onClick={() => bulkAct(g.items, "restart")} disabled={busy} className={gib}>
+                    <button title={t("restartAll")} aria-label={t("restartAll")} onClick={() => bulkAct(g.items, "restart", g.label)} disabled={busy} className={gib}>
                       <ActIcon d={ICON.restart} />
                     </button>
                   </div>
@@ -336,6 +345,28 @@ export default function ContainersPage() {
           })}
         </div>
       )}
+
+      <OConfirmDialog
+        open={bulkConfirm !== null}
+        title={bulkConfirm?.action === "stop" ? t("bulkStopTitle") : t("bulkRestartTitle")}
+        description={
+          bulkConfirm
+            ? t(bulkConfirm.action === "stop" ? "bulkStopConfirm" : "bulkRestartConfirm", {
+                count: bulkConfirm.names.length,
+                group: bulkConfirm.label,
+              })
+            : ""
+        }
+        danger
+        confirmLabel={bulkConfirm?.action === "stop" ? t("stopAll") : t("restartAll")}
+        onConfirm={() => {
+          if (bulkConfirm) {
+            bulkMutation.mutate({ names: bulkConfirm.names, action: bulkConfirm.action });
+            setBulkConfirm(null);
+          }
+        }}
+        onCancel={() => setBulkConfirm(null)}
+      />
     </div>
   );
 }

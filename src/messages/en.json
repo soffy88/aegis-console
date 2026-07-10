@@ -344,7 +344,7 @@
     "removeConfirm": "Remove \"{name}\" from this organization? They will immediately lose access.",
     "roleChangeTitle": "Change member role",
     "roleChangeConfirm": "Change \"{name}\" to the \"{role}\" role?",
-    "roleChangeSelfConfirm": "Change your own role to \"{role}\"? You may lose administrative access and be unable to change it back."
+    "roleChangeSelfConfirm": "Change this member to \"{role}\"? Demoting an admin/owner risks leaving the organization without administrators."
   },
   "metrics": {
     "title": "Metrics",

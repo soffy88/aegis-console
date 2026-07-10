@@ -229,7 +229,14 @@ export default function AlertRulesListPage() {
           )}
           <div className="flex gap-2">
             <button
-              onClick={() => createMutation.mutate(form)}
+              onClick={() => {
+                if (form.threshold_warn == null && form.threshold_critical == null) {
+                  setMutateError(t("thresholdRequired"));
+                  return;
+                }
+                setMutateError(null);
+                createMutation.mutate(form);
+              }}
               disabled={!form.name.trim() || !form.metric.trim() || createMutation.isPending}
               className="rounded bg-primary px-4 py-2 text-sm text-primary-foreground disabled:opacity-50"
             >
