@@ -304,14 +304,14 @@ export default function BrainPage() {
                       ))
                     ) : (
                       <p className="text-sm text-gray-500 italic">
-                        LLM 未生成可执行步骤，建议人工处理。
+                        {t("noSteps")}
                       </p>
                     )}
                     <OJsonViewer data={planMutation.data} defaultExpandDepth={0} />
                   </div>
                 ) : (
                   <div className="flex h-64 items-center justify-center rounded border border-dashed text-gray-400">
-                    Plan steps will appear here
+                    {t("stepsPlaceholder")}
                   </div>
                 )}
               </div>

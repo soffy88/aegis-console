@@ -125,13 +125,17 @@ function buildNav(base: string): NavSection[] {
       items: [
         { key: "databases", href: `${base}/databases`, icon: "database" },
         { key: "channels", href: `${base}/channels`, icon: "alertIngest" },
+        { key: "webhooks", href: `${base}/webhooks`, icon: "alertIngest" },
         { key: "backups", href: `${base}/backups`, icon: "backups" },
         { key: "alertIngest", href: `${base}/alerts/ingest`, icon: "alertIngest" },
       ],
     },
     {
       label: "Settings",
-      items: [{ key: "account", href: `${base}/settings/account`, icon: "account" }],
+      items: [
+        { key: "account", href: `${base}/settings/account`, icon: "account" },
+        { key: "members", href: `${base}/settings/members`, icon: "account" },
+      ],
     },
   ];
 }

@@ -328,7 +328,9 @@
     "nodeContainers": "Containers on this Node"
   },
   "brain": {
-    "title": "Brain"
+    "title": "Brain",
+    "noSteps": "The LLM produced no executable steps; manual handling is recommended.",
+    "stepsPlaceholder": "Plan steps will appear here"
   },
   "members": {
     "title": "Members",

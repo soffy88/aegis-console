@@ -328,7 +328,9 @@
     "nodeContainers": "该节点上的容器"
   },
   "brain": {
-    "title": "Brain 调试"
+    "title": "Brain 调试",
+    "noSteps": "LLM 未生成可执行步骤，建议人工处理。",
+    "stepsPlaceholder": "规划步骤将显示在此处"
   },
   "members": {
     "title": "成员",
