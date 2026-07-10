@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { aegisFetch } from "@/lib/api";
@@ -25,7 +25,6 @@ export default function AppDetailPage() {
   const t = useTranslations("store");
   const { org_slug, app_slug } = useParams<{ org_slug: string; app_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
-  const router = useRouter();
 
   const { data: app, isLoading, error } = useQuery<AppDetail>({
     queryKey: ["store-app", orgId, app_slug],

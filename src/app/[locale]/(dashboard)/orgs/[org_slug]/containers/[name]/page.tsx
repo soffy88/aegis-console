@@ -19,6 +19,14 @@ const ContainerTerminal = dynamic(
 
 type Action = "start" | "stop" | "restart" | null;
 
+interface ContainerStats {
+  cpu_pct?: number;
+  mem_mb?: number;
+  mem_limit_mb?: number;
+  net_rx_kb?: number;
+  net_tx_kb?: number;
+}
+
 export default function ContainerPage() {
   const t = useTranslations("containers");
   const tc = useTranslations("common");
@@ -36,9 +44,9 @@ export default function ContainerPage() {
     enabled: !!orgId,
   });
 
-  const stats = useQuery<any>({
+  const stats = useQuery<ContainerStats>({
     queryKey: ["container", orgId, name, "stats"],
-    queryFn: () => aegisFetch<any>(paths.containerStats(orgId!, name)),
+    queryFn: () => aegisFetch<ContainerStats>(paths.containerStats(orgId!, name)),
     enabled: !!orgId,
     refetchInterval: 3000,
   });
@@ -87,6 +95,12 @@ export default function ContainerPage() {
           ))}
         </div>
       </div>
+
+      {actionMutation.isError && (
+        <div className="rounded-md border border-red-500/30 bg-red-500/10 p-2 text-sm text-red-400">
+          {(actionMutation.error as Error).message}
+        </div>
+      )}
 
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">Inspect</h2>
@@ -140,9 +154,9 @@ export default function ContainerPage() {
           <OLogsViewer
             lines={
               logs.data
-                ? Array.isArray((logs.data as any).lines)
-                  ? (logs.data as any).lines.map((l: any) =>
-                      typeof l === "object" ? l.message : String(l),
+                ? Array.isArray(logs.data["lines"])
+                  ? (logs.data["lines"] as unknown[]).map((l) =>
+                      l && typeof l === "object" ? String((l as { message?: unknown }).message) : String(l),
                     )
                   : Object.values(logs.data).map(String)
                 : []

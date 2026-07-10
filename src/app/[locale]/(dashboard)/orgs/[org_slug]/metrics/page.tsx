@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { aegisFetch } from "@/lib/api";
@@ -26,13 +27,6 @@ interface QueryResult {
   points: QueryPoint[];
 }
 
-interface TopSeriesEntry {
-  name: string;
-  image: string | null;
-  value: number;
-  ts: string;
-}
-
 const RANGES = [
   { hours: 1, bucket: 60 },
   { hours: 6, bucket: 300 },
@@ -41,18 +35,6 @@ const RANGES = [
 ];
 const AGGS = ["avg", "max", "min", "sum"];
 
-// Status levels drive dot + meter + spark color, never color-alone (the dot pairs
-// with the tile label, the meter/spark reinforce). Colors come from design tokens
-// where they exist; emerald ("ok") follows the codebase's existing convention.
-type Level = "info" | "ok" | "warn" | "crit";
-const LEVEL_COLOR: Record<Level, string> = {
-  info: "var(--primary)",
-  ok: "#34d399",
-  warn: "var(--warning)",
-  crit: "var(--destructive)",
-};
-const sanitize = (s: string) => s.replace(/[^a-z0-9]/gi, "");
-
 function niceTs(ts: string, span: boolean) {
   const d = new Date(ts);
   return span
@@ -60,7 +42,7 @@ function niceTs(ts: string, span: boolean) {
     : d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
 }
 
-function LineChart({ points, unit }: { points: QueryPoint[]; unit: string }) {
+function LineChart({ points, unit, bucketSeconds }: { points: QueryPoint[]; unit: string; bucketSeconds: number }) {
   const t = useTranslations("metrics");
   const [hover, setHover] = useState<number | null>(null);
 
@@ -81,11 +63,23 @@ function LineChart({ points, unit }: { points: QueryPoint[]; unit: string }) {
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = max - min || 1;
-  const xAt = (i: number) => padL + (points.length > 1 ? (i * plotW) / (points.length - 1) : plotW / 2);
+  const times = points.map((p) => new Date(p.ts).getTime());
+  const tMin = times[0]!;
+  const tSpan = times.at(-1)! - tMin || 1;
+  const xAt = (i: number) => padL + (points.length > 1 ? ((times[i]! - tMin) / tSpan) * plotW : plotW / 2);
   const yAt = (v: number) => padT + plotH - ((v - min) / span) * plotH;
 
-  const linePts = points.map((p, i) => `${xAt(i).toFixed(1)},${yAt(p.value).toFixed(1)}`).join(" ");
-  const areaPts = `${xAt(0).toFixed(1)},${(padT + plotH).toFixed(1)} ${linePts} ${xAt(points.length - 1).toFixed(1)},${(padT + plotH).toFixed(1)}`;
+  // Query buckets with no row (scrape gap: exporter down, host rebooted, ...) are
+  // simply absent, not zero — so a plain x ∝ time axis would draw one continuous line
+  // straight across the gap as if it were densely sampled the whole way through. Split
+  // into segments at any gap much wider than the bucket interval so the empty stretch
+  // reads as a visible break instead of a fabricated trend.
+  const gapMs = bucketSeconds * 3 * 1000;
+  const segments: number[][] = [[0]];
+  for (let i = 1; i < points.length; i++) {
+    if (times[i]! - times[i - 1]! > gapMs) segments.push([]);
+    segments.at(-1)!.push(i);
+  }
 
   const ticks = 4;
   const gridVals = Array.from({ length: ticks + 1 }, (_, i) => min + (span * i) / ticks);
@@ -94,10 +88,16 @@ function LineChart({ points, unit }: { points: QueryPoint[]; unit: string }) {
   const onMove = (e: React.MouseEvent<SVGSVGElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * w;
-    if (points.length < 2) return setHover(0);
-    const step = plotW / (points.length - 1);
-    const i = Math.round((x - padL) / step);
-    setHover(Math.max(0, Math.min(points.length - 1, i)));
+    let best = 0;
+    let bestDist = Infinity;
+    for (let i = 0; i < points.length; i++) {
+      const dist = Math.abs(xAt(i) - x);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = i;
+      }
+    }
+    setHover(best);
   };
 
   const hp = hover !== null ? points[hover]! : null;
@@ -135,9 +135,25 @@ function LineChart({ points, unit }: { points: QueryPoint[]; unit: string }) {
           );
         })}
 
-        {/* area + line */}
-        <polygon points={areaPts} fill="url(#area-detail)" />
-        <polyline points={linePts} fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        {/* area + line, drawn per contiguous segment so scrape gaps show as a break
+            instead of a straight line bridging hours of missing data */}
+        {segments.map((seg, si) => {
+          if (seg.length === 0) return null;
+          const segLine = seg.map((i) => `${xAt(i).toFixed(1)},${yAt(points[i]!.value).toFixed(1)}`).join(" ");
+          if (seg.length < 2) {
+            const i = seg[0]!;
+            return <circle key={si} cx={xAt(i)} cy={yAt(points[i]!.value)} r="2" fill="var(--primary)" />;
+          }
+          const first = seg[0]!;
+          const last = seg.at(-1)!;
+          const segArea = `${xAt(first).toFixed(1)},${(padT + plotH).toFixed(1)} ${segLine} ${xAt(last).toFixed(1)},${(padT + plotH).toFixed(1)}`;
+          return (
+            <g key={si}>
+              <polygon points={segArea} fill="url(#area-detail)" />
+              <polyline points={segLine} fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            </g>
+          );
+        })}
 
         {/* x endpoints */}
         <text x={padL} y={h - 10} textAnchor="start" className="fill-[color:var(--muted-foreground)]" fontSize="10">{niceTs(points[0]!.ts, spansDays)}</text>
@@ -170,137 +186,6 @@ function LineChart({ points, unit }: { points: QueryPoint[]; unit: string }) {
   );
 }
 
-// ── Tiled overview of the main monitoring metrics (shown without any selection) ──
-type Tile = {
-  metric: string;
-  label: string;
-  agg: string;
-  fmt: (v: number) => string;
-  level: (v: number) => Level;
-  meter?: boolean; // value is a bounded 0–100 percentage → show a meter bar
-  showTopSeries?: boolean; // also resolve + show *which* container holds this value
-};
-
-// Human-readable container label from a cAdvisor image ref, e.g.
-// "docker.io/library/quant-qlib-v2:latest" → "quant-qlib-v2".
-function friendlyImageName(image: string | null): string | null {
-  if (!image) return null;
-  const noRegistry = image.split("/").pop() ?? image;
-  const noTag = noRegistry.split("@")[0]!.replace(/:[^:]+$/, "");
-  return noTag || noRegistry;
-}
-
-const fmtGB = (v: number) => `${(v / 1e9).toFixed(1)} GB`;
-const KEY_METRICS: Tile[] = [
-  // Whole-host totals (node_exporter). "整机" = the whole machine incl. non-container
-  // processes — vs the per-container "最忙/最大" tiles below which flag a single hot container.
-  { metric: "node_cpu_percent", label: "整机 CPU", agg: "avg", meter: true,
-    fmt: (v) => `${v.toFixed(0)}%`, level: (v) => (v >= 85 ? "crit" : v >= 60 ? "warn" : "info") },
-  { metric: "node_memory_used_percent", label: "整机内存", agg: "avg", meter: true,
-    fmt: (v) => `${v.toFixed(0)}%`, level: (v) => (v >= 90 ? "crit" : v >= 75 ? "warn" : "info") },
-  { metric: "container_cpu_percent", label: "最忙容器 CPU", agg: "max", showTopSeries: true,
-    fmt: (v) => `${v.toFixed(0)}%`, level: (v) => (v >= 1000 ? "crit" : v >= 700 ? "warn" : "info") },
-  { metric: "container_memory_working_set_bytes", label: "最大容器内存", agg: "max", showTopSeries: true,
-    fmt: fmtGB, level: (v) => (v >= 28e9 ? "crit" : v >= 20e9 ? "warn" : "info") },
-  { metric: "container_fs_usage_bytes", label: "磁盘使用", agg: "max",
-    fmt: (v) => `${(v / 1e9).toFixed(0)} GB`, level: () => "info" },
-  { metric: "probe_up", label: "服务在线", agg: "min",
-    fmt: (v) => (v >= 1 ? "全部在线" : "有掉线"), level: (v) => (v >= 1 ? "ok" : "crit") },
-];
-
-function Sparkline({ points, color, id }: { points: QueryPoint[]; color: string; id: string }) {
-  const w = 280;
-  const h = 44;
-  if (points.length === 0) return <div style={{ height: h }} />;
-  const vals = points.map((p) => p.value);
-  const min = Math.min(...vals);
-  const max = Math.max(...vals);
-  const span = max - min || 1;
-  const step = points.length > 1 ? w / (points.length - 1) : 0;
-  const pts = points.map((p, i) => `${(i * step).toFixed(1)},${(h - 2 - ((p.value - min) / span) * (h - 4)).toFixed(1)}`).join(" ");
-  return (
-    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden>
-      <defs>
-        <linearGradient id={`spark-${id}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <polygon points={`0,${h} ${pts} ${w},${h}`} fill={`url(#spark-${id})`} />
-      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-    </svg>
-  );
-}
-
-function MetricTile({ tile, onSelect }: { tile: Tile; onSelect: (metric: string) => void }) {
-  const { data, isLoading } = useQuery<QueryResult>({
-    queryKey: ["mtile", tile.metric, tile.agg],
-    queryFn: () =>
-      aegisFetch<QueryResult>(
-        paths.metricsQuery({ metric_name: tile.metric, hours: 6, bucket_seconds: 300, agg: tile.agg }),
-      ),
-    refetchInterval: 30000,
-  });
-  const points = data?.points ?? [];
-  const last = points.length > 0 ? points[points.length - 1]!.value : null;
-  const level: Level = last !== null ? tile.level(last) : "info";
-  const color = last !== null ? LEVEL_COLOR[level] : "var(--muted-foreground)";
-
-  const { data: topSeries } = useQuery<TopSeriesEntry[]>({
-    queryKey: ["mtile-top", tile.metric],
-    queryFn: () =>
-      aegisFetch<TopSeriesEntry[]>(paths.metricsTopSeries({ metric_name: tile.metric, hours: 0.25 })),
-    enabled: !!tile.showTopSeries,
-    refetchInterval: 30000,
-  });
-  const topLabel = tile.showTopSeries ? friendlyImageName(topSeries?.[0]?.image ?? null) : null;
-
-  return (
-    <button
-      type="button"
-      onClick={() => onSelect(tile.metric)}
-      className="group flex flex-col gap-3 rounded-xl border bg-card p-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--ring)] hover:shadow-md"
-    >
-      <div className="flex items-center justify-between">
-        <span className="text-muted-foreground text-sm font-medium">{tile.label}</span>
-        <span
-          className="h-2 w-2 shrink-0 rounded-full"
-          style={{ background: color, boxShadow: `0 0 0 3px color-mix(in oklch, ${color} 20%, transparent)` }}
-        />
-      </div>
-
-      <div className="flex items-baseline">
-        {isLoading && last === null ? (
-          <span className="bg-muted inline-block h-8 w-20 animate-pulse rounded" />
-        ) : (
-          <span className="text-foreground text-3xl font-semibold tracking-tight tabular-nums">
-            {last !== null ? tile.fmt(last) : "—"}
-          </span>
-        )}
-      </div>
-
-      {topLabel && (
-        <p className="-mt-2 truncate text-xs text-muted-foreground" title={topLabel}>
-          {topLabel}
-        </p>
-      )}
-
-      {tile.meter && (
-        <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
-          <div
-            className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${last !== null ? Math.min(100, Math.max(0, last)) : 0}%`, background: color }}
-          />
-        </div>
-      )}
-
-      <div style={{ color }}>
-        <Sparkline points={points} color={color} id={sanitize(tile.metric)} />
-      </div>
-    </button>
-  );
-}
-
 function RangeToggle({ idx, onChange }: { idx: number; onChange: (i: number) => void }) {
   return (
     <div className="bg-card inline-flex rounded-lg border p-0.5">
@@ -325,7 +210,8 @@ function RangeToggle({ idx, onChange }: { idx: number; onChange: (i: number) => 
 
 export default function MetricsPage() {
   const t = useTranslations("metrics");
-  const [metric, setMetric] = useState<string>("");
+  const searchParams = useSearchParams();
+  const [metric, setMetric] = useState<string>(searchParams.get("metric") ?? "");
   const [host, setHost] = useState<string>("");
   const [rangeIdx, setRangeIdx] = useState(1);
   const [agg, setAgg] = useState("avg");
@@ -349,18 +235,19 @@ export default function MetricsPage() {
     [series, metric],
   );
 
-  // Default to a useful key metric (cAdvisor / uptime) if present, else the first.
-  useEffect(() => {
-    if (!metric && metricNames.length > 0) {
-      const preferred = [
-        "container_cpu_percent",
-        "container_memory_working_set_bytes",
-        "probe_up",
-        "container_memory_usage_bytes",
-      ];
-      setMetric(preferred.find((p) => metricNames.includes(p)) ?? metricNames[0]!);
-    }
-  }, [metric, metricNames]);
+  // Default to a useful key metric (cAdvisor / uptime) if present, else the first —
+  // unless the caller already deep-linked via ?metric= (e.g. from a dashboard tile).
+  // Derived during render (guarded so it runs once when names first load), which
+  // React recommends over a setState-in-effect.
+  if (!metric && metricNames.length > 0) {
+    const preferred = [
+      "container_cpu_percent",
+      "container_memory_working_set_bytes",
+      "probe_up",
+      "container_memory_usage_bytes",
+    ];
+    setMetric(preferred.find((p) => metricNames.includes(p)) ?? metricNames[0]!);
+  }
 
   const unit = useMemo(
     () => (series ?? []).find((s) => s.metric_name === metric)?.unit ?? "",
@@ -389,20 +276,6 @@ export default function MetricsPage() {
         <p className="text-muted-foreground">{t("subtitle")}</p>
       </div>
 
-      {/* Tiled overview — main monitoring metrics, shown without any selection */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {KEY_METRICS.map((tile) => (
-          <MetricTile
-            key={tile.metric}
-            tile={tile}
-            onSelect={(m) => {
-              setMetric(m);
-              document.getElementById("metric-detail")?.scrollIntoView({ behavior: "smooth" });
-            }}
-          />
-        ))}
-      </div>
-
       {!seriesLoading && metricNames.length === 0 && (
         <p className="text-muted-foreground rounded-lg border border-dashed p-8 text-center">
           {t("noSeries")}
@@ -411,7 +284,6 @@ export default function MetricsPage() {
 
       {metricNames.length > 0 && (
         <>
-          <h2 id="metric-detail" className="scroll-mt-4 border-t pt-6 text-lg font-semibold tracking-tight">{t("detail")}</h2>
           <div className="flex flex-wrap items-end gap-4">
             <label className="flex flex-col gap-1 text-sm">
               <span className="text-muted-foreground">{t("metric")}</span>
@@ -465,7 +337,7 @@ export default function MetricsPage() {
                 <span className="bg-muted h-full w-full animate-pulse rounded-lg" />
               </div>
             ) : (
-              <LineChart points={result?.points ?? []} unit={unit} />
+              <LineChart points={result?.points ?? []} unit={unit} bucketSeconds={result?.bucket_seconds ?? range.bucket} />
             )}
           </div>
         </>

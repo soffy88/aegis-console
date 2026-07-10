@@ -43,7 +43,8 @@
     "security": "安全",
     "statusComponents": "状态页",
     "channels": "通知渠道",
-    "memory": "内存管理"
+    "memory": "内存管理",
+    "members": "成员"
   },
   "common": {
     "create": "创建",
@@ -71,13 +72,21 @@
     "start": "启动",
     "stop": "停止",
     "restart": "重启",
-    "details": "详情"
+    "details": "详情",
+    "app": "应用",
+    "actionFailed": "操作失败"
   },
   "login": {
     "title": "登录 Aegis",
     "subtitle": "自托管 PaaS 管理平台",
     "noAccount": "没有账号？",
-    "register": "注册"
+    "register": "注册",
+    "email": "邮箱",
+    "password": "密码",
+    "signIn": "登录",
+    "signingIn": "登录中…",
+    "loading": "加载中…",
+    "failed": "登录失败"
   },
   "register": {
     "title": "创建 Aegis 账号",
@@ -129,7 +138,8 @@
     "search": "搜索应用…",
     "install": "安装",
     "category": "分类",
-    "noResults": "未找到匹配应用"
+    "noResults": "未找到匹配应用",
+    "details": "详情"
   },
   "containers": {
     "title": "容器",
@@ -157,7 +167,11 @@
     "restartAll": "全部重启",
     "collapseAll": "全部折叠",
     "expandAll": "全部展开",
-    "empty": "暂无容器"
+    "empty": "暂无容器",
+    "bulkStopTitle": "停止容器",
+    "bulkStopConfirm": "确定停止 {group} 中全部 {count} 个运行中的容器?",
+    "bulkRestartTitle": "重启容器",
+    "bulkRestartConfirm": "确定重启 {group} 中全部 {count} 个运行中的容器?"
   },
   "events": {
     "title": "事件",
@@ -171,7 +185,9 @@
     "payload": "载荷",
     "statRecent": "最近",
     "statCritical": "严重",
-    "statWarning": "警告"
+    "statWarning": "警告",
+    "prev": "上一页",
+    "next": "下一页"
   },
   "webhooks": {
     "title": "Webhook 订阅",
@@ -212,7 +228,8 @@
     "saving": "保存中…",
     "statTotal": "规则数",
     "statEnabled": "启用",
-    "statDisabled": "停用"
+    "statDisabled": "停用",
+    "thresholdRequired": "请至少填写一个阈值(警告或严重)。"
   },
   "releaseGates": {
     "title": "发布门控",
@@ -311,7 +328,9 @@
     "nodeContainers": "该节点上的容器"
   },
   "brain": {
-    "title": "Brain 调试"
+    "title": "Brain 调试",
+    "noSteps": "LLM 未生成可执行步骤，建议人工处理。",
+    "stepsPlaceholder": "规划步骤将显示在此处"
   },
   "members": {
     "title": "成员",
@@ -322,7 +341,12 @@
     "role": "角色",
     "sendInvite": "发送邀请",
     "sending": "发送中…",
-    "inviteSent": "邀请已发送"
+    "inviteSent": "邀请已发送",
+    "removeTitle": "移除成员",
+    "removeConfirm": "确定将「{name}」移出该组织？其访问权限将立即被撤销。",
+    "roleChangeTitle": "变更成员角色",
+    "roleChangeConfirm": "确定将「{name}」的角色变更为「{role}」？",
+    "roleChangeSelfConfirm": "确定将该成员变更为「{role}」？降级管理员/所有者可能导致组织没有任何管理员。"
   },
   "metrics": {
     "title": "监控指标",
@@ -345,20 +369,28 @@
     "image": "镜像",
     "tag": "标签",
     "pull": "拉取",
-    "prune": "清理未用"
+    "prune": "清理未用",
+    "deleteTitle": "删除镜像",
+    "deleteConfirm": "确定删除镜像「{name}」？此操作无法撤销。",
+    "pruneTitle": "清理未使用资源",
+    "pruneConfirm": "确定清理所有未使用的镜像、容器、网络及构建缓存？此操作无法撤销。"
   },
   "networks": {
     "title": "网络",
     "name": "名称",
     "driver": "驱动",
     "scope": "范围",
-    "internal": "内部"
+    "internal": "内部",
+    "deleteTitle": "删除网络",
+    "deleteConfirm": "确定删除网络「{name}」？连接到该网络的容器可能失去连通性，且无法撤销。"
   },
   "volumes": {
     "title": "数据卷",
     "name": "名称",
     "driver": "驱动",
-    "mountpoint": "挂载点"
+    "mountpoint": "挂载点",
+    "deleteTitle": "删除数据卷",
+    "deleteConfirm": "确定删除数据卷「{name}」？其中的数据将全部丢失，且无法恢复。"
   },
   "files": {
     "title": "文件",
@@ -566,13 +598,25 @@
     "hint": "外发告警集成:Slack / Discord / Telegram / Webhook。",
     "name": "名称",
     "create": "创建",
-    "test": "测试"
+    "test": "测试",
+    "delete": "删除",
+    "deleteTitle": "删除渠道",
+    "deleteConfirm": "确定删除渠道「{name}」？将不再向其推送告警。",
+    "botToken": "Bot Token",
+    "chatId": "Chat ID",
+    "webhookUrl": "Webhook URL",
+    "invalidUrl": "请输入有效的 http(s) URL。",
+    "urlRequired": "请填写 Webhook URL。",
+    "botTokenRequired": "请填写 Bot Token。",
+    "chatIdRequired": "请填写 Chat ID。"
   },
   "statusComponents": {
     "title": "状态页组件",
     "overall": "整体",
     "name": "组件名",
-    "save": "保存"
+    "save": "保存",
+    "deleteTitle": "删除组件",
+    "deleteConfirm": "确定删除状态组件「{name}」？此操作无法撤销。"
   },
   "kubernetes": {
     "title": "Kubernetes",
@@ -604,5 +648,37 @@
     "clear": "清除",
     "cancel": "取消",
     "caveat": "上限作用于运行中的容器,容器被重建(如 compose up)后会重置——要永久生效请同时写进 compose/run 定义。Docker 无法从运行中的容器移除已设上限,要恢复无限制需重建容器。"
+  },
+  "invite": {
+    "title": "接受邀请",
+    "subtitle": "您已被邀请加入 {orgName}。",
+    "displayName": "显示名称",
+    "displayNamePlaceholder": "您的姓名",
+    "password": "密码",
+    "passwordHelp": "至少 8 个字符。",
+    "confirmPassword": "确认密码",
+    "accept": "接受邀请",
+    "accepting": "接受中…",
+    "loading": "正在加载邀请…",
+    "expired": "邀请已过期",
+    "expiredDesc": "该邀请链接已失效，请联系组织管理员重新发送。",
+    "invalid": "邀请无效",
+    "invalidDesc": "无法验证该邀请链接，它可能已被使用。"
+  },
+  "gitDeploy": {
+    "title": "从 Git 部署",
+    "subtitle": "克隆一个包含 Dockerfile 的公开仓库 → 构建镜像 → 作为受管容器运行。",
+    "repoUrl": "Git 仓库 URL",
+    "appName": "应用名",
+    "branch": "分支",
+    "subdir": "子目录(Dockerfile 位置)",
+    "subdirPlaceholder": "(仓库根目录)",
+    "ports": "端口(逗号分隔)",
+    "project": "项目",
+    "selectProject": "选择项目…",
+    "deploy": "构建并部署",
+    "deploying": "构建中…",
+    "portsHint": "端口会自动映射到空闲主机端口(避免冲突);部署后在「容器」页查看实际端口。",
+    "started": "已开始构建部署(install_id {id})。构建完成后可在「应用/容器」查看。"
   }
 }

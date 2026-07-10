@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -24,9 +24,15 @@ export default function ComposeEditorPage() {
     enabled: !!orgId,
   });
 
-  useEffect(() => {
-    if (q.data?.compose != null) setText(q.data.compose);
-  }, [q.data]);
+  // Seed the editable textarea from the loaded compose. Sync during render
+  // (React-recommended over an effect) whenever a newly-fetched value arrives,
+  // tracking the last-seen server value in state per the "adjusting state on a
+  // prop change" pattern.
+  const [lastLoaded, setLastLoaded] = useState<string | null>(null);
+  if (q.data?.compose != null && q.data.compose !== lastLoaded) {
+    setLastLoaded(q.data.compose);
+    setText(q.data.compose);
+  }
 
   async function save() {
     setSaving(true);

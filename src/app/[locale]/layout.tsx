@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { Providers } from "@/app/providers";
-import { AppFrame } from "@/components/AppFrame";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 import "@helios/blocks/themes/professional.css";

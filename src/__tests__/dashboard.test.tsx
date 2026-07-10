@@ -19,10 +19,12 @@ function wrapper({ children }: { children: React.ReactNode }) {
 describe("DashboardPage (widget grid)", () => {
   beforeEach(() => {
     vi.mocked(api.aegisFetch).mockImplementation((path: string) => {
-      if ((path as string).includes("/apps"))
+      // Headline KPI cards derive from the live containers query (?all=true),
+      // not the apps query — 2 containers, 1 running, 1 stopped.
+      if ((path as string).includes("/containers"))
         return Promise.resolve([
-          { id: "1", app_name: "redis", status: "running", installed_at: "" },
-          { id: "2", app_name: "broken", status: "failed", installed_at: "" },
+          { id: "c1", name: "redis", image: "redis", status: "running", state: "running" },
+          { id: "c2", name: "broken", image: "broken", status: "exited", state: "exited" },
         ]);
       if ((path as string).includes("/events"))
         return Promise.resolve([
@@ -35,17 +37,17 @@ describe("DashboardPage (widget grid)", () => {
   it("renders the widget grid with the KPI titles", async () => {
     render(<DashboardPage />, { wrapper });
     await waitFor(() => {
-      expect(screen.getByText("Total Apps")).toBeInTheDocument();
+      expect(screen.getByText("Containers")).toBeInTheDocument();
     });
     expect(screen.getByText("Running")).toBeInTheDocument();
-    expect(screen.getByText("Failed")).toBeInTheDocument();
+    expect(screen.getByText("Stopped")).toBeInTheDocument();
     expect(screen.getByText("Events (1h)")).toBeInTheDocument();
     expect(document.querySelector(".oui-widget-grid")).toBeTruthy();
   });
 
-  it("renders app counts derived from the apps query", async () => {
+  it("renders container counts derived from the containers query", async () => {
     render(<DashboardPage />, { wrapper });
-    // 2 apps total, 1 running, 1 failed → "2" and at least one "1" rendered.
+    // 2 containers total, 1 running, 1 stopped → "2" and at least one "1" rendered.
     await waitFor(() => {
       expect(screen.getByText("2")).toBeInTheDocument();
     });

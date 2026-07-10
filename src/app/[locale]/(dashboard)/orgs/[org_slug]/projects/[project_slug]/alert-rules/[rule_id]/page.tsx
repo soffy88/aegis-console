@@ -38,7 +38,6 @@ export default function AlertRuleDetailPage() {
   const projectId = useProjectIdBySlug(orgId, project_slug);
   const { canWrite } = usePermission();
   const t = useTranslations("alertRules");
-  const tc = useTranslations("common");
 
   const [editForm, setEditForm] = useState<AlertRuleUpdate>({});
   const [saveError, setSaveError] = useState<string | null>(null);

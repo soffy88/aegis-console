@@ -31,7 +31,7 @@ describe("Org Dashboard (smoke)", () => {
   it("renders the KPI widget titles", async () => {
     render(<DashboardPage />, { wrapper });
     await waitFor(() => {
-      expect(screen.getByText("Total Apps")).toBeInTheDocument();
+      expect(screen.getByText("Containers")).toBeInTheDocument();
     });
   });
 

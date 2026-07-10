@@ -7,12 +7,14 @@
 
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/navigation";
 import { login } from "@/lib/auth/client";
 import { scheduleRefresh } from "@/lib/auth/auto-refresh";
 import { loadUserOrgs, useOrgStore } from "@/lib/org-context";
 
 function LoginForm() {
+  const t = useTranslations("login");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -60,7 +62,7 @@ function LoginForm() {
         router.replace("/");
       }
     } catch (err) {
-      setError((err as Error).message ?? "Login failed");
+      setError((err as Error).message ?? t("failed"));
     } finally {
       setLoading(false);
     }
@@ -68,12 +70,12 @@ function LoginForm() {
 
   return (
     <div className="w-full max-w-sm rounded-lg border border-gray-700 bg-gray-900 p-8 shadow-lg">
-      <h1 className="mb-1 text-center text-2xl font-semibold text-white">Sign in to Aegis</h1>
-      <p className="mb-6 text-center text-sm text-gray-400">Self-hosted PaaS management console</p>
+      <h1 className="mb-1 text-center text-2xl font-semibold text-white">{t("title")}</h1>
+      <p className="mb-6 text-center text-sm text-gray-400">{t("subtitle")}</p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1 text-sm text-gray-300">
-          Email
+          {t("email")}
           <input
             type="email"
             required
@@ -86,7 +88,7 @@ function LoginForm() {
         </label>
 
         <label className="flex flex-col gap-1 text-sm text-gray-300">
-          Password
+          {t("password")}
           <input
             type="password"
             required
@@ -104,14 +106,14 @@ function LoginForm() {
           disabled={loading}
           className="mt-2 rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? "Signing in…" : "Sign in"}
+          {loading ? t("signingIn") : t("signIn")}
         </button>
       </form>
 
       <div className="mt-4 text-center text-sm text-gray-500">
-        No account?{" "}
+        {t("noAccount")}{" "}
         <Link href="/register" className="text-blue-500 hover:underline">
-          Register
+          {t("register")}
         </Link>
       </div>
     </div>
@@ -120,7 +122,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="w-full max-w-sm p-8">Loading…</div>}>
+    <Suspense fallback={<div className="w-full max-w-sm p-8">…</div>}>
       <LoginForm />
     </Suspense>
   );

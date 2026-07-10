@@ -165,7 +165,10 @@ export default function NodesPage() {
                   className="w-full rounded border p-2"
                   value={formData.docker_connection_mode}
                   onChange={(e) =>
-                    setFormData({ ...formData, docker_connection_mode: e.target.value as any })
+                    setFormData({
+                      ...formData,
+                      docker_connection_mode: e.target.value as NodeRegisterPayload["docker_connection_mode"],
+                    })
                   }
                 >
                   <option value="auto">Auto</option>

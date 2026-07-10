@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { OKPICard, OSparkline } from "@helios/blocks";
@@ -30,11 +30,14 @@ export default function ProjectDetailPage() {
   });
 
   // Build a real rolling history from observed probes (no backend history endpoint yet).
+  // Append one sample per fresh probe, detected by a change in dataUpdatedAt and
+  // synced during render (React-recommended over a setState-in-effect).
   const [healthHistory, setHealthHistory] = useState<number[]>([]);
-  useEffect(() => {
-    if (!dataUpdatedAt || !health) return;
+  const [lastProbeAt, setLastProbeAt] = useState<number | null>(null);
+  if (dataUpdatedAt && health && dataUpdatedAt !== lastProbeAt) {
+    setLastProbeAt(dataUpdatedAt);
     setHealthHistory((h) => [...h, health.healthy ? 1 : 0].slice(-30));
-  }, [dataUpdatedAt]); // eslint-disable-line react-hooks/exhaustive-deps
+  }
 
   if (isLoading) return <p>Loading…</p>;
   if (!project) return <p className="text-muted-foreground">Project not found.</p>;
