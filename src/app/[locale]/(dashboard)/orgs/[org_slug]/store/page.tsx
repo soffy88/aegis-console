@@ -27,15 +27,15 @@ interface StoreResponse {
 
 export default function StorePage() {
   const t = useTranslations("store");
+  const tc = useTranslations("common");
   const { org_slug } = useParams<{ org_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
 
-  const { data, isLoading } = useQuery<StoreResponse>({
+  const { data, isLoading, error } = useQuery<StoreResponse>({
     queryKey: ["store-apps", orgId, search, category],
     queryFn: () => {
-      console.log("Fetching store apps with filter:", { search, category });
       const params = new URLSearchParams();
       if (search) params.set("q", search);
       if (category) params.set("category", category);
@@ -86,8 +86,16 @@ export default function StorePage() {
           <option value="Web">Web</option>
         </select>
       </div>
-      {isLoading && <p>Loading…</p>}
-      <p className="text-sm text-muted-foreground">{data?.total ?? 0} apps available</p>
+      {isLoading && <p className="text-sm text-muted-foreground">{tc("loading")}</p>}
+      {error && (
+        <p className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+          {tc("error")}: {(error as Error).message}
+        </p>
+      )}
+      {!isLoading && !error && <p className="text-sm text-muted-foreground">{t("available", { count: data?.total ?? 0 })}</p>}
+      {!isLoading && !error && data?.items.length === 0 && (
+        <p className="py-8 text-center text-sm text-muted-foreground">{t("noResults")}</p>
+      )}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {data?.items.map((app) => (
           <Link
@@ -104,7 +112,7 @@ export default function StorePage() {
             </div>
             <p className="text-xs text-muted-foreground line-clamp-2">{app.description}</p>
             <span className="inline-block rounded bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
-              {t("details") || "Details"}
+              {t("details")}
             </span>
           </Link>
         ))}

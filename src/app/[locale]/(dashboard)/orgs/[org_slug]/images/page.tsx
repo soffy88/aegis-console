@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { ODataTable } from "@helios/blocks";
+import { ODataTable, OConfirmDialog } from "@helios/blocks";
 import type { ODataTableData } from "@helios/blocks";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
@@ -38,6 +38,7 @@ export default function ImagesPage() {
   const [error, setError] = useState<string | null>(null);
   const [pullImage, setPullImage] = useState("");
   const [pullTag, setPullTag] = useState("latest");
+  const [confirm, setConfirm] = useState<{ kind: "delete"; ref: string } | { kind: "prune" } | null>(null);
 
   const images = useQuery<DockerImage[]>({
     queryKey: ["images", orgId],
@@ -69,6 +70,7 @@ export default function ImagesPage() {
       }),
     onSuccess: () => {
       setError(null);
+      setConfirm(null);
       invalidate();
     },
     onError: (e: Error) => setError(e.message),
@@ -78,6 +80,7 @@ export default function ImagesPage() {
     mutationFn: () => aegisFetch(paths.dockerSystemPrune(orgId!), { method: "POST" }),
     onSuccess: () => {
       setError(null);
+      setConfirm(null);
       invalidate();
     },
     onError: (e: Error) => setError(e.message),
@@ -116,7 +119,7 @@ export default function ImagesPage() {
         <button
           onClick={(e) => {
             e.stopPropagation();
-            deleteMutation.mutate(imageRef(row.original));
+            setConfirm({ kind: "delete", ref: imageRef(row.original) });
           }}
           disabled={busy}
           className="rounded-md border border-red-500/30 px-2 py-1 text-xs text-red-400 hover:bg-red-500/10 disabled:opacity-50"
@@ -132,7 +135,7 @@ export default function ImagesPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
         <button
-          onClick={() => pruneMutation.mutate()}
+          onClick={() => setConfirm({ kind: "prune" })}
           disabled={busy}
           className="rounded-md border border-[var(--border)] px-3 py-1.5 text-sm hover:bg-[var(--muted)] disabled:opacity-50"
         >
@@ -181,6 +184,23 @@ export default function ImagesPage() {
           sortable
         />
       </div>
+
+      <OConfirmDialog
+        open={confirm !== null}
+        title={confirm?.kind === "prune" ? t("pruneTitle") : t("deleteTitle")}
+        description={
+          confirm?.kind === "prune"
+            ? t("pruneConfirm")
+            : t("deleteConfirm", { ref: confirm?.kind === "delete" ? confirm.ref : "" })
+        }
+        danger
+        confirmLabel={confirm?.kind === "prune" ? t("prune") : tc("delete")}
+        onConfirm={() => {
+          if (confirm?.kind === "prune") pruneMutation.mutate();
+          else if (confirm?.kind === "delete") deleteMutation.mutate(confirm.ref);
+        }}
+        onCancel={() => setConfirm(null)}
+      />
     </div>
   );
 }

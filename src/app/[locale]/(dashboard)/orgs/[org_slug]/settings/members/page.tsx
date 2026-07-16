@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { ODataTable, OFormField, OTextInput } from "@helios/blocks";
+import { ODataTable, OFormField, OTextInput, OConfirmDialog } from "@helios/blocks";
 import type { ODataTableData } from "@helios/blocks";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
@@ -38,6 +38,8 @@ export default function MembersPage() {
   const [inviteRole, setInviteRole] = useState<AssignableRole>("member");
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState(false);
+  const [memberError, setMemberError] = useState<string | null>(null);
+  const [confirmRemove, setConfirmRemove] = useState<Member | null>(null);
 
   const { data: members, isLoading } = useQuery<Member[]>({
     queryKey: ["members", orgId],
@@ -66,13 +68,22 @@ export default function MembersPage() {
         method: "PATCH",
         body: JSON.stringify({ role }),
       }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["members", orgId] }),
+    onSuccess: () => {
+      setMemberError(null);
+      return qc.invalidateQueries({ queryKey: ["members", orgId] });
+    },
+    onError: (e: Error) => setMemberError(e.message),
   });
 
   const removeMutation = useMutation({
     mutationFn: (userId: string) =>
       aegisFetch(paths.member(orgId!, userId), { method: "DELETE" }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["members", orgId] }),
+    onSuccess: () => {
+      setMemberError(null);
+      setConfirmRemove(null);
+      return qc.invalidateQueries({ queryKey: ["members", orgId] });
+    },
+    onError: (e: Error) => setMemberError(e.message),
   });
 
   const columns: ColDef<Member>[] = [
@@ -114,7 +125,7 @@ export default function MembersPage() {
       cell: ({ row }) =>
         row.original.role === "owner" ? null : (
           <button
-            onClick={() => removeMutation.mutate(row.original.user_id)}
+            onClick={() => setConfirmRemove(row.original)}
             className="rounded-md border border-red-500/30 px-2 py-0.5 text-xs text-red-400 transition-colors hover:bg-red-500/10"
           >
             {tc("remove")}
@@ -136,6 +147,10 @@ export default function MembersPage() {
         <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-sm text-muted-foreground mt-1">{t("subtitle")}</p>
       </div>
+
+      {memberError && (
+        <p className="rounded-md border border-red-500/30 bg-red-500/10 p-2 text-sm text-red-400">{memberError}</p>
+      )}
 
       <ODataTable<Member>
         data={members ? { columns, rows: members } : null}
@@ -192,6 +207,16 @@ export default function MembersPage() {
           <p className="text-sm text-green-600">{t("inviteSent")}</p>
         )}
       </section>
+
+      <OConfirmDialog
+        open={confirmRemove !== null}
+        title={t("removeTitle")}
+        description={t("removeConfirm", { email: confirmRemove?.email ?? "" })}
+        danger
+        confirmLabel={tc("remove")}
+        onConfirm={() => { if (confirmRemove) removeMutation.mutate(confirmRemove.user_id); }}
+        onCancel={() => setConfirmRemove(null)}
+      />
     </div>
   );
 }

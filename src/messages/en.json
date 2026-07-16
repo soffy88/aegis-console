@@ -94,7 +94,7 @@
   },
   "apps": {
     "title": "Apps",
-    "noApps": "No apps installed",
+    "noApps": "No apps installed yet.",
     "install": "Install App",
     "appName": "App Name",
     "image": "Image",
@@ -102,14 +102,19 @@
     "uninstallConfirm": "Are you sure you want to uninstall this app?",
     "installTitle": "Install App",
     "selectApp": "Select App",
-    "installing": "Installing…"
+    "installing": "Installing…",
+    "transitionalHint": "This may take a few minutes (pulling image, starting container)…",
+    "noProjectHint": "This org has no project yet — create one before installing an app.",
+    "goCreateProject": "Create a project →"
   },
   "store": {
     "title": "App Store",
     "search": "Search apps…",
     "install": "Install",
     "category": "Category",
-    "noResults": "No apps found"
+    "noResults": "No apps match your search.",
+    "available": "{count} apps available",
+    "details": "Details"
   },
   "containers": {
     "title": "Containers",
@@ -290,7 +295,9 @@
     "role": "Role",
     "sendInvite": "Send invite",
     "sending": "Sending…",
-    "inviteSent": "Invite sent"
+    "inviteSent": "Invite sent",
+    "removeTitle": "Remove member",
+    "removeConfirm": "Remove {email} from this org? They will lose all access."
   },
   "metrics": {
     "title": "Metrics",
@@ -313,7 +320,11 @@
     "image": "Image",
     "tag": "Tag",
     "pull": "Pull",
-    "prune": "Prune unused"
+    "prune": "Prune unused",
+    "deleteTitle": "Delete image",
+    "deleteConfirm": "Delete image \"{ref}\"? This cannot be undone.",
+    "pruneTitle": "Prune unused data",
+    "pruneConfirm": "Remove all dangling images and build cache? This frees disk but cannot be undone."
   },
   "networks": {
     "title": "Networks",
@@ -326,6 +337,8 @@
     "title": "Volumes",
     "name": "Name",
     "driver": "Driver",
-    "mountpoint": "Mount point"
+    "mountpoint": "Mount point",
+    "deleteTitle": "Delete volume",
+    "deleteConfirm": "Delete volume \"{name}\"? This permanently removes its data and cannot be undone."
   }
 }

@@ -154,7 +154,7 @@ export default function BackupsPage() {
       {/* Create Backup Modal */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl text-gray-900">
+          <div className="w-full max-w-md rounded-lg bg-[var(--card)] p-6 shadow-xl text-[var(--card-foreground)]">
             <h2 className="mb-4 text-xl font-bold">{t("newBackup")}</h2>
             <form
               onSubmit={(e) => {
@@ -187,6 +187,9 @@ export default function BackupsPage() {
                   required
                 />
               </OFormField>
+              {createMutation.isError && (
+                <p className="text-sm text-destructive">{(createMutation.error as Error).message}</p>
+              )}
               <div className="flex justify-end gap-2 pt-4">
                 <button
                   type="button"
@@ -200,7 +203,7 @@ export default function BackupsPage() {
                   disabled={createMutation.isPending}
                   className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {createMutation.isPending ? "..." : tc("save")}
+                  {createMutation.isPending ? tc("loading") : tc("save")}
                 </button>
               </div>
             </form>
@@ -211,9 +214,9 @@ export default function BackupsPage() {
       {/* Restore Modal */}
       {isRestoreModalOpen && selectedBackup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl text-gray-900">
+          <div className="w-full max-w-md rounded-lg bg-[var(--card)] p-6 shadow-xl text-[var(--card-foreground)]">
             <h2 className="mb-2 text-xl font-bold">{t("restore")}</h2>
-            <p className="mb-4 text-sm text-gray-500">
+            <p className="mb-4 text-sm text-[var(--muted-foreground)]">
               Restoring from <span className="font-mono font-bold">{selectedBackup.backup_key}</span>
             </p>
             <div className="mb-4 rounded-md border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-400 font-medium">
@@ -241,6 +244,9 @@ export default function BackupsPage() {
                   placeholder="Optional"
                 />
               </OFormField>
+              {restoreMutation.isError && (
+                <p className="text-sm text-destructive">{(restoreMutation.error as Error).message}</p>
+              )}
               <div className="flex justify-end gap-2 pt-4">
                 <button
                   type="button"
@@ -254,7 +260,7 @@ export default function BackupsPage() {
                   disabled={restoreMutation.isPending}
                   className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-50"
                 >
-                  {restoreMutation.isPending ? "..." : t("confirmRestore")}
+                  {restoreMutation.isPending ? tc("loading") : t("confirmRestore")}
                 </button>
               </div>
             </form>

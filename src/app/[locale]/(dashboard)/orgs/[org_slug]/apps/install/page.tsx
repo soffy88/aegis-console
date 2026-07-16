@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { OFormField, OTextInput } from "@helios/blocks";
@@ -41,13 +42,15 @@ export default function InstallPage() {
   });
   const [errors, setErrors] = useState<FieldErrors>({});
 
-  const { data: projects } = useQuery<Project[]>({
+  const { data: projects, isLoading: projectsLoading } = useQuery<Project[]>({
     queryKey: ["projects", orgId],
     queryFn: () => aegisFetch<Project[]>(paths.projects(orgId!)),
     enabled: !!orgId,
     staleTime: 60_000,
   });
   const defaultProjectId = projects?.[0]?.id ?? null;
+  // Projects loaded but the org has none → install is impossible until one exists.
+  const noProject = !!orgId && !projectsLoading && projects?.length === 0;
 
   const mutation = useMutation({
     mutationFn: (payload: AppInstallPayload) =>
@@ -102,6 +105,14 @@ export default function InstallPage() {
         <OFormField label="Domain" htmlFor="domain" error={errors.domain}>
           <OTextInput id="domain" value={fields.domain} onChange={set("domain")} placeholder="app.example.com" />
         </OFormField>
+        {noProject && (
+          <p className="rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-600 dark:text-amber-400">
+            {t("noProjectHint")}{" "}
+            <Link href={`/orgs/${org_slug}/projects`} className="font-medium underline">
+              {t("goCreateProject")}
+            </Link>
+          </p>
+        )}
         {mutation.isError && (
           <p className="text-sm text-destructive">{(mutation.error as Error).message}</p>
         )}
