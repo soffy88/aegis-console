@@ -248,7 +248,11 @@
     "releaseGates": "Release Gates",
     "statTotal": "Total",
     "statProd": "Production",
-    "statOther": "Other"
+    "statOther": "Other",
+    "add": "New Project",
+    "creating": "Creating…",
+    "slug": "Slug",
+    "slugHint": "Lowercase letters, digits and hyphens only"
   },
   "alertIngest": {
     "title": "Alert Ingest Debug",
