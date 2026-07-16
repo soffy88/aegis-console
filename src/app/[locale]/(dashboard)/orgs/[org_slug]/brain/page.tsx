@@ -46,6 +46,9 @@ export default function BrainPage() {
   const orgId = useOrgIdBySlug(org_slug);
 
   const [activeTab, setActiveTab] = useState<Tab>("triage");
+  const [triageErr, setTriageErr] = useState<string | null>(null);
+  const [rcaErr, setRcaErr] = useState<string | null>(null);
+  const [planErr, setPlanErr] = useState<string | null>(null);
 
   // Agent Status
   const statusQuery = useQuery<BrainStatus>({
@@ -74,6 +77,7 @@ export default function BrainPage() {
         method: "POST",
         body: JSON.stringify({ signal }),
       }),
+    onError: (e) => setTriageErr(e.message),
   });
 
   // RCA state
@@ -86,6 +90,7 @@ export default function BrainPage() {
         method: "POST",
         body: JSON.stringify({ diagnose_result }),
       }),
+    onError: (e) => setRcaErr(e.message),
   });
 
   // Plan state
@@ -96,6 +101,7 @@ export default function BrainPage() {
         method: "POST",
         body: JSON.stringify({ investigation_result }),
       }),
+    onError: (e) => setPlanErr(e.message),
   });
 
   return (
@@ -108,26 +114,26 @@ export default function BrainPage() {
           const s = statusQuery.data?.[key];
           const status = s?.status || "not_initialized";
           return (
-            <div key={key} className="rounded-lg border bg-white p-4 shadow-sm">
+            <div key={key} className="rounded-lg border bg-[var(--card)] p-4 shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold uppercase text-gray-500">{key}</span>
+                <span className="text-sm font-semibold uppercase text-[var(--muted-foreground)]">{key}</span>
                 <OStatusBadge label={status} />
               </div>
-              {s?.last_error && <p className="mt-2 text-xs text-red-600">{s.last_error}</p>}
+              {s?.last_error && <p className="mt-2 text-xs text-destructive">{s.last_error}</p>}
             </div>
           );
         })}
       </div>
 
       {/* Debug Tabs */}
-      <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-lg border bg-[var(--card)] shadow-sm overflow-hidden">
         <div className="flex border-b border-[var(--border)] bg-[var(--muted)]">
           {(["triage", "rca", "plan"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-6 py-3 text-sm font-medium border-r last:border-r-0 ${
-                activeTab === tab ? "bg-white text-blue-600" : "text-gray-500 hover:text-gray-700"
+                activeTab === tab ? "bg-[var(--card)] text-[var(--primary)]" : "text-[var(--muted-foreground)] hover:text-[var(--card-foreground)]"
               }`}
             >
               {tab.toUpperCase()}
@@ -139,53 +145,67 @@ export default function BrainPage() {
           {activeTab === "triage" && (
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <div className="space-y-4">
-                <h3 className="font-semibold text-gray-900">Signal Input (JSON)</h3>
+                <h3 className="font-semibold text-[var(--card-foreground)]">{t("signalInput")}</h3>
                 <textarea
-                  className="w-full h-64 rounded border p-4 font-mono text-xs focus:ring-1 focus:ring-blue-500 outline-none"
+                  className="w-full h-64 rounded border p-4 font-mono text-xs focus:ring-1 focus:ring-[var(--primary)] outline-none"
                   value={triageInput}
                   onChange={(e) => setTriageInput(e.target.value)}
                 />
                 <button
-                  onClick={() => triageMutation.mutate(JSON.parse(triageInput))}
+                  onClick={() => {
+                    let signal: unknown;
+                    try {
+                      signal = JSON.parse(triageInput);
+                    } catch {
+                      setTriageErr(t("invalidJson"));
+                      return;
+                    }
+                    setTriageErr(null);
+                    triageMutation.mutate(signal);
+                  }}
                   disabled={triageMutation.isPending}
-                  className="w-full rounded bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="w-full rounded bg-[var(--primary)] py-2 text-[var(--primary-foreground)] hover:opacity-90 disabled:opacity-50"
                 >
-                  {triageMutation.isPending ? "Processing..." : "Run Triage"}
+                  {triageMutation.isPending ? t("processing") : t("runTriage")}
                 </button>
               </div>
               <div className="space-y-4">
-                <h3 className="font-semibold text-gray-900">Result</h3>
+                <h3 className="font-semibold text-[var(--card-foreground)]">{t("result")}</h3>
                 {triageMutation.data ? (
                   <div className="space-y-4">
                     <div className="flex gap-4">
                       <div className="flex-1 rounded-md border border-blue-500/30 bg-blue-500/10 p-3 text-center">
-                        <p className="text-[10px] uppercase text-blue-600">Priority</p>
+                        <p className="text-[10px] uppercase text-[var(--primary)]">{t("priority")}</p>
                         <p
                           className={`text-3xl font-bold ${
                             triageMutation.data.priority_score > 70
-                              ? "text-red-600"
+                              ? "text-destructive"
                               : triageMutation.data.priority_score > 40
-                                ? "text-yellow-600"
-                                : "text-green-600"
+                                ? "text-yellow-500"
+                                : "text-green-400"
                           }`}
                         >
                           {triageMutation.data.priority_score}
                         </p>
                       </div>
                       <div className="flex-1 rounded-md border border-[var(--border)] bg-[var(--muted)] p-3 text-center">
-                        <p className="text-[10px] uppercase text-gray-500">Escalate</p>
+                        <p className="text-[10px] uppercase text-[var(--muted-foreground)]">{t("escalate")}</p>
                         <OStatusBadge label={String(triageMutation.data.should_escalate)} />
                       </div>
                     </div>
                     <div className="rounded-md border border-[var(--border)] bg-[var(--muted)] p-4">
                       <p className="text-sm font-semibold">{triageMutation.data.classified_category}</p>
-                      <p className="mt-1 text-sm text-gray-600">{triageMutation.data.reason}</p>
+                      <p className="mt-1 text-sm text-[var(--muted-foreground)]">{triageMutation.data.reason}</p>
                     </div>
                     <OJsonViewer data={triageMutation.data} defaultExpandDepth={1} />
                   </div>
+                ) : triageErr ? (
+                  <div className="flex h-64 items-center justify-center rounded border border-dashed text-destructive text-sm">
+                    {triageErr}
+                  </div>
                 ) : (
-                  <div className="flex h-64 items-center justify-center rounded border border-dashed text-gray-400">
-                    No results yet
+                  <div className="flex h-64 items-center justify-center rounded border border-dashed text-[var(--muted-foreground)]">
+                    {t("noResults")}
                   </div>
                 )}
               </div>
@@ -195,7 +215,7 @@ export default function BrainPage() {
           {activeTab === "rca" && (
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <div className="space-y-4">
-                <h3 className="font-semibold text-gray-900">Input Data</h3>
+                <h3 className="font-semibold text-[var(--card-foreground)]">{t("inputData")}</h3>
                 <div className="flex items-center gap-4 text-sm">
                   <label className="flex items-center gap-2">
                     <input
@@ -203,68 +223,76 @@ export default function BrainPage() {
                       checked={rcaDeep}
                       onChange={(e) => setRcaDeep(e.target.checked)}
                     />
-                    Deep Investigation
+                    {t("deepInvestigation")}
                   </label>
                   <select
                     className="rounded border p-1"
                     value={rcaSeverity}
                     onChange={(e) => setRcaSeverity(e.target.value)}
                   >
-                    <option value="critical">Critical</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
+                    <option value="critical">{t("severityCritical")}</option>
+                    <option value="high">{t("severityHigh")}</option>
+                    <option value="medium">{t("severityMedium")}</option>
                   </select>
                 </div>
                 <textarea
-                  className="w-full h-64 rounded border p-4 font-mono text-xs focus:ring-1 focus:ring-blue-500 outline-none"
+                  className="w-full h-64 rounded border p-4 font-mono text-xs focus:ring-1 focus:ring-[var(--primary)] outline-none"
                   value={rcaSignal}
                   onChange={(e) => setRcaSignal(e.target.value)}
                 />
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    let parsed: Record<string, unknown>;
+                    try {
+                      parsed = JSON.parse(rcaSignal);
+                    } catch {
+                      setRcaErr(t("invalidJson"));
+                      return;
+                    }
+                    setRcaErr(null);
                     investigateMutation.mutate({
-                      ...JSON.parse(rcaSignal),
+                      ...parsed,
                       needs_deep_investigation: rcaDeep,
                       severity: rcaSeverity,
-                    })
-                  }
+                    });
+                  }}
                   disabled={investigateMutation.isPending}
-                  className="w-full rounded bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="w-full rounded bg-[var(--primary)] py-2 text-[var(--primary-foreground)] hover:opacity-90 disabled:opacity-50"
                 >
-                  {investigateMutation.isPending ? "Investigating..." : "Launch RCA Agent"}
+                  {investigateMutation.isPending ? t("investigating") : t("launchRca")}
                 </button>
                 {investigateMutation.isPending && (
-                  <p className="text-center text-xs text-gray-500 animate-pulse">
-                    Agent is working... (Up to 30s)
+                  <p className="text-center text-xs text-[var(--muted-foreground)] animate-pulse">
+                    {t("agentWorking")}
                   </p>
                 )}
               </div>
               <div className="space-y-4">
-                <h3 className="font-semibold text-gray-900">Investigation Result</h3>
+                <h3 className="font-semibold text-[var(--card-foreground)]">{t("investigationResult")}</h3>
                 {investigateMutation.data ? (
                   <div className="space-y-4">
                     <div className="rounded-md border border-blue-500/30 bg-blue-500/10 p-4">
-                      <p className="text-lg font-bold text-blue-900">
-                        {investigateMutation.data.final_answer || "Investigation Skipped"}
+                      <p className="text-lg font-bold text-[var(--card-foreground)]">
+                        {investigateMutation.data.final_answer || t("investigationSkipped")}
                       </p>
                       {investigateMutation.data.status && (
                         <div className="mt-2 flex items-center gap-2 text-xs">
-                          <span className="font-semibold uppercase text-gray-500">Status:</span>
+                          <span className="font-semibold uppercase text-[var(--muted-foreground)]">{t("statusLabel")}</span>
                           <OStatusBadge label={investigateMutation.data.status} />
                         </div>
                       )}
                     </div>
                     {investigateMutation.data.history && (
                       <div className="space-y-2">
-                        <p className="text-sm font-semibold">Steps History ({investigateMutation.data.history.length})</p>
+                        <p className="text-sm font-semibold">{t("stepsHistory", { n: investigateMutation.data.history.length })}</p>
                         <div className="max-h-[400px] overflow-auto space-y-2">
                           {investigateMutation.data.history.map((step: RcaHistoryStep, idx: number) => (
-                            <details key={idx} className="rounded border bg-white p-2">
+                            <details key={idx} className="rounded border bg-[var(--card)] p-2">
                               <summary className="cursor-pointer text-xs font-mono">
-                                Step {idx + 1}: {step.tool_name || "thought"}
+                                {t("step", { n: idx + 1, name: step.tool_name || "thought" })}
                               </summary>
                               <div className="mt-2 space-y-2 pl-4 text-[10px]">
-                                <p className="text-gray-500 italic">{step.thought}</p>
+                                <p className="text-[var(--muted-foreground)] italic">{step.thought}</p>
                                 <pre className="bg-[var(--muted)] p-2 rounded max-h-20 overflow-hidden text-[var(--muted-foreground)]">
                                   {step.observation?.slice(0, 200)}...
                                 </pre>
@@ -276,9 +304,13 @@ export default function BrainPage() {
                     )}
                     <OJsonViewer data={investigateMutation.data} defaultExpandDepth={0} />
                   </div>
+                ) : rcaErr ? (
+                  <div className="flex h-64 items-center justify-center rounded border border-dashed text-destructive text-sm">
+                    {rcaErr}
+                  </div>
                 ) : (
-                  <div className="flex h-64 items-center justify-center rounded border border-dashed text-gray-400">
-                    Agent results will appear here
+                  <div className="flex h-64 items-center justify-center rounded border border-dashed text-[var(--muted-foreground)]">
+                    {t("agentResultsPlaceholder")}
                   </div>
                 )}
               </div>
@@ -288,10 +320,10 @@ export default function BrainPage() {
           {activeTab === "plan" && (
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <div className="space-y-4">
-                <h3 className="font-semibold text-gray-900">Paste Investigation Result</h3>
+                <h3 className="font-semibold text-[var(--card-foreground)]">{t("pasteInvestigation")}</h3>
                 <textarea
-                  className="w-full h-64 rounded border p-4 font-mono text-xs focus:ring-1 focus:ring-blue-500 outline-none"
-                  placeholder="Paste final answer or full RCA JSON..."
+                  className="w-full h-64 rounded border p-4 font-mono text-xs focus:ring-1 focus:ring-[var(--primary)] outline-none"
+                  placeholder={t("pastePlaceholder")}
                   value={planInput}
                   onChange={(e) => setPlanInput(e.target.value)}
                 />
@@ -303,23 +335,24 @@ export default function BrainPage() {
                     } catch {
                       body = { final_answer: planInput };
                     }
+                    setPlanErr(null);
                     planMutation.mutate(body);
                   }}
                   disabled={planMutation.isPending}
-                  className="w-full rounded bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="w-full rounded bg-[var(--primary)] py-2 text-[var(--primary-foreground)] hover:opacity-90 disabled:opacity-50"
                 >
-                  {planMutation.isPending ? "Planning..." : "Generate Action Plan"}
+                  {planMutation.isPending ? t("planning") : t("generatePlan")}
                 </button>
               </div>
               <div className="space-y-4">
-                <h3 className="font-semibold text-gray-900">Remediation Steps</h3>
+                <h3 className="font-semibold text-[var(--card-foreground)]">{t("remediationSteps")}</h3>
                 {planMutation.data ? (
                   <div className="space-y-3">
                     {Array.isArray(planMutation.data) && planMutation.data.length > 0 ? (
                       planMutation.data.map((step: PlanStep, idx: number) => (
-                        <div key={idx} className="rounded border p-3 bg-white shadow-sm space-y-2">
+                        <div key={idx} className="rounded border p-3 bg-[var(--card)] shadow-sm space-y-2">
                           <div className="flex items-center gap-2">
-                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--primary)] text-[10px] font-bold text-[var(--primary-foreground)]">
                               {idx + 1}
                             </span>
                             <span className="rounded bg-[var(--primary-subtle)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--primary)]">
@@ -331,14 +364,18 @@ export default function BrainPage() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-gray-500 italic">
+                      <p className="text-sm text-[var(--muted-foreground)] italic">
                         {t("noSteps")}
                       </p>
                     )}
                     <OJsonViewer data={planMutation.data} defaultExpandDepth={0} />
                   </div>
+                ) : planErr ? (
+                  <div className="flex h-64 items-center justify-center rounded border border-dashed text-destructive text-sm">
+                    {planErr}
+                  </div>
                 ) : (
-                  <div className="flex h-64 items-center justify-center rounded border border-dashed text-gray-400">
+                  <div className="flex h-64 items-center justify-center rounded border border-dashed text-[var(--muted-foreground)]">
                     {t("stepsPlaceholder")}
                   </div>
                 )}

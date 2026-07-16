@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { aegisFetch } from "@/lib/api";
@@ -211,12 +211,27 @@ function RangeToggle({ idx, onChange }: { idx: number; onChange: (i: number) => 
 export default function MetricsPage() {
   const t = useTranslations("metrics");
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const [metric, setMetric] = useState<string>(searchParams.get("metric") ?? "");
-  const [host, setHost] = useState<string>("");
-  const [rangeIdx, setRangeIdx] = useState(1);
-  const [agg, setAgg] = useState("avg");
+  const [host, setHost] = useState<string>(searchParams.get("host") ?? "");
+  const [rangeIdx, setRangeIdx] = useState(() => {
+    const r = Number(searchParams.get("range"));
+    return Number.isInteger(r) && r >= 0 && r < RANGES.length ? r : 1;
+  });
+  const [agg, setAgg] = useState(searchParams.get("agg") ?? "avg");
 
   const range = RANGES[rangeIdx] ?? RANGES[1]!;
+
+  // Keep the four filters in the URL query so a refresh / deep-link restores them.
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (metric) params.set("metric", metric);
+    if (host) params.set("host", host);
+    params.set("agg", agg);
+    params.set("range", String(rangeIdx));
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [metric, host, agg, rangeIdx, pathname, router]);
 
   const { data: series, isLoading: seriesLoading } = useQuery<SeriesEntry[]>({
     queryKey: ["metrics-series"],
@@ -254,7 +269,7 @@ export default function MetricsPage() {
     [series, metric],
   );
 
-  const { data: result, isLoading: dataLoading } = useQuery<QueryResult>({
+  const { data: result, isLoading: dataLoading, isError: dataIsError, error: dataError } = useQuery<QueryResult>({
     queryKey: ["metrics-query", metric, host, range.hours, range.bucket, agg],
     queryFn: () =>
       aegisFetch<QueryResult>(
@@ -336,6 +351,10 @@ export default function MetricsPage() {
               <div className="flex h-[264px] items-center justify-center">
                 <span className="bg-muted h-full w-full animate-pulse rounded-lg" />
               </div>
+            ) : dataIsError ? (
+              <p className="text-destructive py-16 text-center text-sm">
+                {t("loadError")}: {(dataError as Error).message}
+              </p>
             ) : (
               <LineChart points={result?.points ?? []} unit={unit} bucketSeconds={result?.bucket_seconds ?? range.bucket} />
             )}

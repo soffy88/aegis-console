@@ -12,6 +12,7 @@ type Line = { stream: string; ts_ns: string; message: string };
 
 export default function LokiPage() {
   const t = useTranslations("loki");
+  const tc = useTranslations("common");
   const { org_slug } = useParams<{ org_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
   const [q, setQ] = useState('{container="aegis-backend"}');
@@ -64,8 +65,12 @@ export default function LokiPage() {
         </button>
       </form>
 
-      {res.error && <p className="text-sm text-red-400">{(res.error as Error).message}</p>}
+      {res.isLoading && <p className="text-sm text-[var(--muted-foreground)]">{tc("loading")}</p>}
+      {res.error && <p className="text-sm text-destructive">{(res.error as Error).message}</p>}
       {res.data && <p className="text-xs text-[var(--muted-foreground)]">{t("count", { n: res.data.total })}</p>}
+      {submitted && res.data && res.data.total === 0 && (
+        <p className="rounded-md border border-[var(--border)] p-4 text-sm text-[var(--muted-foreground)]">{t("empty")}</p>
+      )}
       <div className="max-h-[62vh] overflow-auto rounded-md border border-[var(--border)] bg-[var(--card)] p-2 font-mono text-xs">
         {(res.data?.lines ?? []).map((l, i) => (
           <div key={i} className="flex gap-2 border-b border-[var(--border)]/30 py-0.5">

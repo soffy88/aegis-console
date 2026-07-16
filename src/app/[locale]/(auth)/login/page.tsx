@@ -69,12 +69,12 @@ function LoginForm() {
   }
 
   return (
-    <div className="w-full max-w-sm rounded-lg border border-gray-700 bg-gray-900 p-8 shadow-lg">
-      <h1 className="mb-1 text-center text-2xl font-semibold text-white">{t("title")}</h1>
-      <p className="mb-6 text-center text-sm text-gray-400">{t("subtitle")}</p>
+    <div className="w-full max-w-sm rounded-lg border border-[var(--border)] bg-[var(--card)] p-8 shadow-lg">
+      <h1 className="mb-1 text-center text-2xl font-semibold text-[var(--card-foreground)]">{t("title")}</h1>
+      <p className="mb-6 text-center text-sm text-[var(--muted-foreground)]">{t("subtitle")}</p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm text-gray-300">
+        <label className="flex flex-col gap-1 text-sm text-[var(--muted-foreground)]">
           {t("email")}
           <input
             type="email"
@@ -83,11 +83,11 @@ function LoginForm() {
             autoComplete="username"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-md border border-gray-600 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
+            className="rounded-md border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-[var(--card-foreground)] outline-none focus:border-[var(--primary)]"
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm text-gray-300">
+        <label className="flex flex-col gap-1 text-sm text-[var(--muted-foreground)]">
           {t("password")}
           <input
             type="password"
@@ -95,7 +95,7 @@ function LoginForm() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded-md border border-gray-600 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
+            className="rounded-md border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-[var(--card-foreground)] outline-none focus:border-[var(--primary)]"
           />
         </label>
 
@@ -104,15 +104,15 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="mt-2 rounded-md bg-[var(--primary)] px-4 py-2 font-medium text-[var(--primary-foreground)] hover:opacity-90 disabled:opacity-50"
         >
           {loading ? t("signingIn") : t("signIn")}
         </button>
       </form>
 
-      <div className="mt-4 text-center text-sm text-gray-500">
+      <div className="mt-4 text-center text-sm text-[var(--muted-foreground)]">
         {t("noAccount")}{" "}
-        <Link href="/register" className="text-blue-500 hover:underline">
+        <Link href="/register" className="text-[var(--primary)] hover:underline">
           {t("register")}
         </Link>
       </div>

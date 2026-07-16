@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import { OConfirmDialog } from "@helios/blocks";
 import { aegisBlob, aegisFetch, aegisUpload } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
 import { useOrgIdBySlug } from "@/hooks/use-org-id";
@@ -199,6 +200,7 @@ export default function FilesPage() {
     loading: boolean;
   } | null>(null);
   const [modeInput, setModeInput] = useState("");
+  const [confirmChmod, setConfirmChmod] = useState<{ path: string; mode: string; isDir: boolean } | null>(null);
   const uploadRef = useRef<HTMLInputElement>(null);
 
   const rootsQ = useQuery<{ roots: string[] }>({
@@ -521,7 +523,9 @@ export default function FilesPage() {
               />
               <button
                 className="fm-btn"
-                onClick={() => chmodM.mutate({ path: detail.entry.path, mode: modeInput })}
+                onClick={() =>
+                  setConfirmChmod({ path: detail.entry.path, mode: modeInput, isDir: detail.entry.is_dir })
+                }
               >
                 {t("applyChmod")}
               </button>
@@ -586,6 +590,25 @@ export default function FilesPage() {
           </div>
         </div>
       )}
+
+      <OConfirmDialog
+        open={confirmChmod !== null}
+        title={t("chmodTitle")}
+        description={
+          confirmChmod
+            ? confirmChmod.isDir
+              ? t("chmodConfirmDir", { path: confirmChmod.path, mode: confirmChmod.mode })
+              : t("chmodConfirm", { path: confirmChmod.path, mode: confirmChmod.mode })
+            : ""
+        }
+        danger
+        confirmLabel={t("applyChmod")}
+        onConfirm={() => {
+          if (confirmChmod) chmodM.mutate({ path: confirmChmod.path, mode: confirmChmod.mode });
+          setConfirmChmod(null);
+        }}
+        onCancel={() => setConfirmChmod(null)}
+      />
     </div>
   );
 }

@@ -22,6 +22,7 @@ export default function NodesPage() {
   const qc = useQueryClient();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [registerError, setRegisterError] = useState<string | null>(null);
   const [formData, setFormData] = useState<NodeRegisterPayload>({
     host: "",
     node_label: "",
@@ -44,9 +45,11 @@ export default function NodesPage() {
         body: JSON.stringify(payload),
       }),
     onSuccess: () => {
+      setRegisterError(null);
       setIsModalOpen(false);
       void qc.invalidateQueries({ queryKey: ["nodes", orgId] });
     },
+    onError: (e: Error) => setRegisterError(e.message),
   });
 
   const columns: ColDef<Node>[] = [
@@ -56,7 +59,7 @@ export default function NodesPage() {
       cell: ({ row }) => (
         <Link
           href={`/orgs/${org_slug}/nodes/${row.original.node_id}`}
-          className="text-blue-600 hover:underline"
+          className="text-[var(--primary)] hover:underline"
         >
           {row.original.node_label}
         </Link>
@@ -118,8 +121,11 @@ export default function NodesPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
         <button
-          onClick={() => setIsModalOpen(true)}
-          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          onClick={() => {
+            setRegisterError(null);
+            setIsModalOpen(true);
+          }}
+          className="rounded bg-[var(--primary)] px-4 py-2 text-[var(--primary-foreground)] hover:opacity-90"
         >
           {t("register")}
         </button>
@@ -135,8 +141,13 @@ export default function NodesPage() {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl text-gray-900">
+          <div className="w-full max-w-md rounded-lg bg-[var(--card)] p-6 shadow-xl text-[var(--card-foreground)]">
             <h2 className="mb-4 text-xl font-bold">{t("register")}</h2>
+            {registerError && (
+              <p className="mb-4 rounded-md border border-red-500/30 bg-red-500/10 p-2 text-sm text-red-400">
+                {registerError}
+              </p>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <OFormField label={t("host")}>
                 <OTextInput
@@ -187,9 +198,9 @@ export default function NodesPage() {
                 <button
                   type="submit"
                   disabled={registerMutation.isPending}
-                  className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="rounded bg-[var(--primary)] px-4 py-2 text-[var(--primary-foreground)] hover:opacity-90 disabled:opacity-50"
                 >
-                  {registerMutation.isPending ? "..." : tc("save")}
+                  {registerMutation.isPending ? tc("saving") : tc("save")}
                 </button>
               </div>
             </form>

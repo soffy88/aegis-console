@@ -8,6 +8,7 @@ import { paths } from "@/lib/api-paths";
 import { useOrgIdBySlug } from "@/hooks/use-org-id";
 export default function KubernetesPage() {
   const t = useTranslations("kubernetes");
+  const tc = useTranslations("common");
   const { org_slug } = useParams<{ org_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
   const [ns, setNs] = useState("default");
@@ -22,9 +23,14 @@ export default function KubernetesPage() {
       <h1 className="text-2xl font-bold">{t("title")} {status.data?.version && <span className="text-sm text-[var(--muted-foreground)]">{status.data.version}</span>}</h1>
       <div>
         <h2 className="mb-1 text-sm font-semibold">{t("nodes")}</h2>
+        {nodes.isLoading && <p className="text-sm text-[var(--muted-foreground)]">{tc("loading")}</p>}
+        {nodes.isError && <p className="text-sm text-destructive">{(nodes.error as Error).message}</p>}
+        {nodes.data && nodes.data.length === 0 && (
+          <p className="text-sm text-[var(--muted-foreground)]">{t("noNodes")}</p>
+        )}
         <table className="w-full text-sm"><tbody>{(nodes.data ?? []).map((n) => (
           <tr key={n.name} className="border-b border-[var(--border)]/40"><td className="p-2 font-medium">{n.name}</td>
-          <td className="p-2"><span className={n.ready ? "text-green-400" : "text-red-400"}>{n.ready ? "Ready" : "NotReady"}</span></td>
+          <td className="p-2"><span className={n.ready ? "text-green-400" : "text-red-400"}>{n.ready ? t("ready") : t("notReady")}</span></td>
           <td className="p-2 text-xs text-[var(--muted-foreground)]">{n.kubelet} · {n.os}</td></tr>))}</tbody></table>
       </div>
       <div>
@@ -34,6 +40,11 @@ export default function KubernetesPage() {
             {(namespaces.data ?? [ns]).map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
         </div>
+        {pods.isLoading && <p className="text-sm text-[var(--muted-foreground)]">{tc("loading")}</p>}
+        {pods.isError && <p className="text-sm text-destructive">{(pods.error as Error).message}</p>}
+        {pods.data && pods.data.length === 0 && (
+          <p className="text-sm text-[var(--muted-foreground)]">{t("noPods")}</p>
+        )}
         <table className="w-full text-sm">
           <thead><tr className="border-b border-[var(--border)] text-left text-xs text-[var(--muted-foreground)]"><th className="p-2">{t("pod")}</th><th className="p-2">{t("phase")}</th><th className="p-2">{t("ready")}</th><th className="p-2 text-right">{t("restarts")}</th><th className="p-2">{t("node")}</th></tr></thead>
           <tbody>{(pods.data ?? []).map((p) => (

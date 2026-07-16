@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { ODataTable } from "@helios/blocks";
 import type { ODataTableData } from "@helios/blocks";
 import { aegisFetch } from "@/lib/api";
@@ -32,15 +33,16 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function IncidentsPage() {
+  const t = useTranslations("incidents");
   const { org_slug } = useParams<{ org_slug: string }>();
   const router = useRouter();
   const orgId = useOrgIdBySlug(org_slug);
 
   const columns: ColDef<Incident>[] = [
-    { accessorKey: "title", header: "Title" },
+    { accessorKey: "title", header: t("colTitle") },
     {
       accessorKey: "severity",
-      header: "Severity",
+      header: t("colSeverity"),
       cell: ({ row }) => (
         <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${SEVERITY_COLORS[row.original.severity] ?? "bg-[var(--muted)] text-[var(--card-foreground)]"}`}>
           {row.original.severity}
@@ -49,7 +51,7 @@ export default function IncidentsPage() {
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: t("colStatus"),
       cell: ({ row }) => (
         <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${STATUS_COLORS[row.original.status] ?? "bg-[var(--muted)] text-[var(--card-foreground)]"}`}>
           {row.original.status}
@@ -58,12 +60,12 @@ export default function IncidentsPage() {
     },
     {
       accessorKey: "started_at",
-      header: "Started",
+      header: t("colStarted"),
       cell: ({ row }) => new Date(row.original.started_at).toLocaleString(),
     },
     {
       accessorKey: "resolved_at",
-      header: "Resolved",
+      header: t("colResolved"),
       cell: ({ row }) =>
         row.original.resolved_at
           ? new Date(row.original.resolved_at).toLocaleString()
@@ -71,10 +73,10 @@ export default function IncidentsPage() {
     },
     {
       accessorKey: "postmortem_md",
-      header: "Postmortem",
+      header: t("colPostmortem"),
       cell: ({ row }) =>
         row.original.postmortem_md ? (
-          <span className="text-xs text-green-600">✓ Generated</span>
+          <span className="text-xs text-green-400">{t("postmortemGenerated")}</span>
         ) : (
           <span className="text-xs text-muted-foreground">—</span>
         ),
@@ -85,11 +87,12 @@ export default function IncidentsPage() {
     queryKey: ["incidents", orgId],
     queryFn: () => aegisFetch<Incident[]>(paths.incidents(orgId!)),
     enabled: !!orgId,
+    refetchInterval: 15000,
   });
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Incidents</h1>
+      <h1 className="text-2xl font-bold">{t("title")}</h1>
       <ODataTable<Incident>
         data={data ? { columns, rows: data } : null}
         loading={isLoading}

@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@helios/blocks':
-        specifier: file:../../platform/OUI/helios-blocks-4.4.0.tgz
-        version: file:../../platform/OUI/helios-blocks-4.4.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(@types/three@0.185.0)(immer@11.1.9)(react-dom@19.2.7(react@19.2.7))(react-is@17.0.2)(react@19.2.7)(redux@5.0.1)
+        specifier: file:../platform/OUI/helios-blocks-4.6.0.tgz
+        version: file:../platform/OUI/helios-blocks-4.6.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(@types/three@0.185.0)(immer@11.1.9)(react-dom@19.2.7(react@19.2.7))(react-is@17.0.2)(react@19.2.7)(redux@5.0.1)
       '@helios/oui':
-        specifier: file:../../platform/OUI/helios-oui-2.1.5.tgz
-        version: file:../../platform/OUI/helios-oui-2.1.5.tgz(@helios/blocks@file:../../platform/OUI/helios-blocks-4.4.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(@types/three@0.185.0)(immer@11.1.9)(react-dom@19.2.7(react@19.2.7))(react-is@17.0.2)(react@19.2.7)(redux@5.0.1))(@types/three@0.185.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.170.0)
+        specifier: file:../platform/OUI/helios-oui-2.3.0.tgz
+        version: file:../platform/OUI/helios-oui-2.3.0.tgz(@helios/blocks@file:../platform/OUI/helios-blocks-4.6.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(@types/three@0.185.0)(immer@11.1.9)(react-dom@19.2.7(react@19.2.7))(react-is@17.0.2)(react@19.2.7)(redux@5.0.1))(@types/three@0.185.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.170.0)
       '@tanstack/react-query':
         specifier: ^5.100.11
         version: 5.101.2(react@19.2.7)
@@ -324,17 +324,17 @@ packages:
   '@formatjs/intl-localematcher@0.8.10':
     resolution: {integrity: sha512-P/IC3qws3jH+1fEs+o0RIFgXKRaQlFehjS5W0FPAqdo6hgzawLl+eD0q0JjheQ3XtoOe5n8WSYfX06KQZI/QJA==}
 
-  '@helios/blocks@file:../../platform/OUI/helios-blocks-4.4.0.tgz':
-    resolution: {integrity: sha512-v3bwZ+QCqkh0KG/BIf7hhUqpWohB4f1u51qBf9Nfh456TVMAjbe7Cx5L7bjAHdEvsKHzFtKjnRqhagBvYCEeXw==, tarball: file:../../platform/OUI/helios-blocks-4.4.0.tgz}
-    version: 4.4.0
+  '@helios/blocks@file:../platform/OUI/helios-blocks-4.6.0.tgz':
+    resolution: {integrity: sha512-DrpFm+SRaxBrVnHBc5H0pIeCIeNM0VtEmgrJg5ywNLdwZ1zOr1BdzxOY770y4OmePpqDVFjMq44HGnpfvnESeg==, tarball: file:../platform/OUI/helios-blocks-4.6.0.tgz}
+    version: 4.6.0
     engines: {node: '>=22'}
     peerDependencies:
       react: ^19.0.0
       react-dom: ^19.0.0
 
-  '@helios/oui@file:../../platform/OUI/helios-oui-2.1.5.tgz':
-    resolution: {integrity: sha512-Lb9GKO9lCAAxskdbt0XefSasstv4ihUXbYx1adQmtMR2mOhf/Sb1H54XbqmTP1Mm6/PaobUIOXAezQ3HvMYcCw==, tarball: file:../../platform/OUI/helios-oui-2.1.5.tgz}
-    version: 2.1.5
+  '@helios/oui@file:../platform/OUI/helios-oui-2.3.0.tgz':
+    resolution: {integrity: sha512-pxoB6WQqY5A7AvB3MWW6uH4n2dFtQVD+2Jdh2bvEUaKnvYZVYBLCgUAN6X5PttgUtZjT5dl7rDYo7XjDWpahiw==, tarball: file:../platform/OUI/helios-oui-2.3.0.tgz}
+    version: 2.3.0
     peerDependencies:
       '@helios/blocks': ^1.7.0 || ^2.0.0 || ^3.0.0 || ^4.0.0
       react: ^18.0.0 || ^19.0.0
@@ -4175,7 +4175,7 @@ snapshots:
     dependencies:
       '@formatjs/fast-memoize': 3.1.6
 
-  '@helios/blocks@file:../../platform/OUI/helios-blocks-4.4.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(@types/three@0.185.0)(immer@11.1.9)(react-dom@19.2.7(react@19.2.7))(react-is@17.0.2)(react@19.2.7)(redux@5.0.1)':
+  '@helios/blocks@file:../platform/OUI/helios-blocks-4.6.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(@types/three@0.185.0)(immer@11.1.9)(react-dom@19.2.7(react@19.2.7))(react-is@17.0.2)(react@19.2.7)(redux@5.0.1)':
     dependencies:
       '@radix-ui/react-accordion': 1.2.15(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@radix-ui/react-dialog': 1.1.18(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -4228,9 +4228,9 @@ snapshots:
       - redux
       - supports-color
 
-  '@helios/oui@file:../../platform/OUI/helios-oui-2.1.5.tgz(@helios/blocks@file:../../platform/OUI/helios-blocks-4.4.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(@types/three@0.185.0)(immer@11.1.9)(react-dom@19.2.7(react@19.2.7))(react-is@17.0.2)(react@19.2.7)(redux@5.0.1))(@types/three@0.185.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.170.0)':
+  '@helios/oui@file:../platform/OUI/helios-oui-2.3.0.tgz(@helios/blocks@file:../platform/OUI/helios-blocks-4.6.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(@types/three@0.185.0)(immer@11.1.9)(react-dom@19.2.7(react@19.2.7))(react-is@17.0.2)(react@19.2.7)(redux@5.0.1))(@types/three@0.185.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.170.0)':
     dependencies:
-      '@helios/blocks': file:../../platform/OUI/helios-blocks-4.4.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(@types/three@0.185.0)(immer@11.1.9)(react-dom@19.2.7(react@19.2.7))(react-is@17.0.2)(react@19.2.7)(redux@5.0.1)
+      '@helios/blocks': file:../platform/OUI/helios-blocks-4.6.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(@types/three@0.185.0)(immer@11.1.9)(react-dom@19.2.7(react@19.2.7))(react-is@17.0.2)(react@19.2.7)(redux@5.0.1)
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
     optionalDependencies:

@@ -37,7 +37,9 @@ describe("DashboardPage (widget grid)", () => {
   it("renders the widget grid with the KPI titles", async () => {
     render(<DashboardPage />, { wrapper });
     await waitFor(() => {
-      expect(screen.getByText("Containers")).toBeInTheDocument();
+      // "Containers" now appears both as the KPI tile title and the metrics
+      // section header after i18n, so assert at least one is present.
+      expect(screen.getAllByText("Containers").length).toBeGreaterThan(0);
     });
     expect(screen.getByText("Running")).toBeInTheDocument();
     expect(screen.getByText("Stopped")).toBeInTheDocument();

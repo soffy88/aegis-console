@@ -70,7 +70,7 @@ function buildNav(base: string): NavSection[] {
       items: [{ key: "dashboard", href: base, icon: "dashboard" }],
     },
     {
-      label: "Deploy",
+      label: "section.deploy",
       items: [
         { key: "apps", href: `${base}/apps`, icon: "apps" },
         { key: "appInstall", href: `${base}/apps/install`, icon: "appInstall" },
@@ -81,7 +81,7 @@ function buildNav(base: string): NavSection[] {
       ],
     },
     {
-      label: "Infrastructure",
+      label: "section.infrastructure",
       items: [
         { key: "containers", href: `${base}/containers`, icon: "containers" },
         { key: "images", href: `${base}/images`, icon: "images" },
@@ -100,7 +100,7 @@ function buildNav(base: string): NavSection[] {
       ],
     },
     {
-      label: "Operations",
+      label: "section.operations",
       items: [
         { key: "events", href: `${base}/events`, icon: "events" },
         { key: "incidents", href: `${base}/incidents`, icon: "incidents" },
@@ -121,7 +121,7 @@ function buildNav(base: string): NavSection[] {
       ],
     },
     {
-      label: "Data",
+      label: "section.data",
       items: [
         { key: "databases", href: `${base}/databases`, icon: "database" },
         { key: "channels", href: `${base}/channels`, icon: "alertIngest" },
@@ -131,7 +131,7 @@ function buildNav(base: string): NavSection[] {
       ],
     },
     {
-      label: "Settings",
+      label: "section.settings",
       items: [
         { key: "account", href: `${base}/settings/account`, icon: "account" },
         { key: "members", href: `${base}/settings/members`, icon: "account" },
@@ -175,7 +175,7 @@ function Sidebar() {
           <div key={i} className="flex flex-col gap-0.5">
             {section.label && (
               <p className="mb-1 px-3 text-[11px] font-medium uppercase tracking-wider text-[var(--muted-foreground)]">
-                {section.label}
+                {t(section.label)}
               </p>
             )}
             {section.items.map(({ key, href, icon }) => {

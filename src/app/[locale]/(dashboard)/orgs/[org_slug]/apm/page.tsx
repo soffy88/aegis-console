@@ -43,6 +43,12 @@ export default function ApmPage() {
       <h1 className="text-2xl font-bold">{t("title")}</h1>
       <p className="text-sm text-[var(--muted-foreground)]">{t("hint")}</p>
 
+      {services.isError && (
+        <p className="rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm text-destructive">
+          {(services.error as Error).message}
+        </p>
+      )}
+
       {services.data && services.data.length === 0 && (
         <p className="rounded-md border border-[var(--border)] p-4 text-sm text-[var(--muted-foreground)]">
           {t("empty")}
@@ -61,6 +67,16 @@ export default function ApmPage() {
           </tr>
         </thead>
         <tbody>
+          {services.isLoading &&
+            Array.from({ length: 5 }).map((_, i) => (
+              <tr key={`sk-${i}`} className="border-b border-[var(--border)]/40">
+                {Array.from({ length: 6 }).map((__, j) => (
+                  <td key={j} className="p-2">
+                    <span className="block h-4 animate-pulse rounded bg-[var(--muted)]" />
+                  </td>
+                ))}
+              </tr>
+            ))}
           {(services.data ?? []).map((s) => (
             <tr
               key={s.service}
@@ -85,6 +101,9 @@ export default function ApmPage() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div>
             <h2 className="mb-1 text-sm font-semibold">{t("recentTraces")}: {svc}</h2>
+            {traces.isError && (
+              <p className="mb-1 text-xs text-destructive">{(traces.error as Error).message}</p>
+            )}
             <div className="max-h-[45vh] overflow-auto rounded-md border border-[var(--border)]">
               {(traces.data ?? []).map((tr) => (
                 <button
@@ -101,6 +120,9 @@ export default function ApmPage() {
           {trace && (
             <div>
               <h2 className="mb-1 text-sm font-semibold">{t("waterfall")}</h2>
+              {detail.isError && (
+                <p className="mb-1 text-xs text-destructive">{(detail.error as Error).message}</p>
+              )}
               <div className="max-h-[45vh] space-y-1 overflow-auto rounded-md border border-[var(--border)] p-2">
                 {(detail.data?.spans ?? []).map((s) => (
                   <div key={s.span_id} className="text-xs">

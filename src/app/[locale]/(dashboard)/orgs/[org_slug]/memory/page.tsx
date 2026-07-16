@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import { OConfirmDialog } from "@helios/blocks";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
 import { useOrgIdBySlug } from "@/hooks/use-org-id";
@@ -47,6 +48,7 @@ function Bar({ pct, warn }: { pct: number; warn: boolean }) {
 
 export default function MemoryPage() {
   const t = useTranslations("memory");
+  const tc = useTranslations("common");
   const { org_slug } = useParams<{ org_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
   const qc = useQueryClient();
@@ -61,6 +63,7 @@ export default function MemoryPage() {
   const [editing, setEditing] = useState<string | null>(null);
   const [limitMb, setLimitMb] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
+  const [confirmSet, setConfirmSet] = useState<{ name: string; memory_mb: number } | null>(null);
 
   const setM = useMutation({
     mutationFn: (v: { name: string; memory_mb: number }) =>
@@ -88,6 +91,9 @@ export default function MemoryPage() {
         <p className="text-sm text-[var(--muted-foreground)]">{t("hint")}</p>
         <p className="mt-1 text-xs text-[var(--muted-foreground)]">{t("caveat")}</p>
       </div>
+
+      {q.isLoading && <p className="text-sm text-[var(--muted-foreground)]">{tc("loading")}</p>}
+      {q.error && <p className="text-sm text-destructive">{(q.error as Error).message}</p>}
 
       {/* host summary */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -124,7 +130,9 @@ export default function MemoryPage() {
         </div>
       </div>
 
-      {msg && <div className="text-sm">{msg}</div>}
+      {msg && (
+        <div className={`text-sm ${msg.startsWith("✗") ? "text-destructive" : ""}`}>{msg}</div>
+      )}
 
       {/* container table */}
       <div className="overflow-x-auto rounded-md border border-[var(--border)]">
@@ -181,7 +189,7 @@ export default function MemoryPage() {
                         <button
                           disabled={setM.isPending || !limitMb}
                           onClick={() =>
-                            setM.mutate({ name: r.name, memory_mb: parseInt(limitMb, 10) })
+                            setConfirmSet({ name: r.name, memory_mb: parseInt(limitMb, 10) })
                           }
                           className="rounded bg-[var(--primary)] px-2 py-0.5 text-xs text-[var(--primary-foreground)] disabled:opacity-50"
                         >
@@ -216,6 +224,23 @@ export default function MemoryPage() {
           </tbody>
         </table>
       </div>
+
+      <OConfirmDialog
+        open={confirmSet !== null}
+        title={t("setLimitTitle")}
+        description={
+          confirmSet
+            ? t("setLimitConfirm", { name: confirmSet.name, mb: confirmSet.memory_mb })
+            : ""
+        }
+        danger
+        confirmLabel={t("save")}
+        onConfirm={() => {
+          if (confirmSet) setM.mutate(confirmSet);
+          setConfirmSet(null);
+        }}
+        onCancel={() => setConfirmSet(null)}
+      />
     </div>
   );
 }

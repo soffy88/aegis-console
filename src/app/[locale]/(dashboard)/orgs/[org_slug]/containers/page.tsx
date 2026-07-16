@@ -69,6 +69,13 @@ function ActIcon({ d, className = "h-4 w-4" }: { d: string; className?: string }
     </svg>
   );
 }
+function Spinner({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={`${className} animate-spin`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M12 3a9 9 0 1 0 9 9" />
+    </svg>
+  );
+}
 
 export default function ContainersPage() {
   const t = useTranslations("containers");
@@ -81,6 +88,8 @@ export default function ContainersPage() {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   // Pending bulk stop/restart awaiting confirmation (destructive on a whole stack).
   const [bulkConfirm, setBulkConfirm] = useState<{ label: string; names: string[]; action: Action } | null>(null);
+  // Pending single-container stop/restart awaiting confirmation.
+  const [rowConfirm, setRowConfirm] = useState<{ name: string; action: Action } | null>(null);
 
   const invalidate = () => {
     setActionError(null);
@@ -110,7 +119,9 @@ export default function ContainersPage() {
   });
 
   function act(name: string, action: Action) {
-    actionMutation.mutate({ name, action });
+    // start is non-destructive → fire immediately; stop/restart needs confirmation.
+    if (action === "start") actionMutation.mutate({ name, action });
+    else setRowConfirm({ name, action });
   }
   function bulkAct(items: Container[], action: Action, label: string) {
     const targets =
@@ -127,6 +138,8 @@ export default function ContainersPage() {
   }
 
   const busy = actionMutation.isPending || bulkMutation.isPending;
+  // Which single container action is in flight — gray only that row's buttons.
+  const acting = actionMutation.isPending ? actionMutation.variables : null;
 
   const columns: ColDef<Container>[] = [
     {
@@ -185,16 +198,17 @@ export default function ContainersPage() {
         const n = row.original.name;
         const ib =
           "grid h-7 w-7 place-items-center rounded-md border border-[var(--border)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)] disabled:opacity-40";
+        const rowBusy = acting?.name === n;
         return (
           <div className="flex items-center justify-end gap-1">
-            <button title={tc("start")} aria-label={tc("start")} onClick={(e) => { e.stopPropagation(); act(n, "start"); }} disabled={busy} className={ib}>
-              <ActIcon d={ICON.play} />
+            <button title={tc("start")} aria-label={tc("start")} onClick={(e) => { e.stopPropagation(); act(n, "start"); }} disabled={rowBusy} className={ib}>
+              {rowBusy && acting?.action === "start" ? <Spinner /> : <ActIcon d={ICON.play} />}
             </button>
-            <button title={tc("stop")} aria-label={tc("stop")} onClick={(e) => { e.stopPropagation(); act(n, "stop"); }} disabled={busy} className={ib}>
-              <ActIcon d={ICON.stop} />
+            <button title={tc("stop")} aria-label={tc("stop")} onClick={(e) => { e.stopPropagation(); act(n, "stop"); }} disabled={rowBusy} className={ib}>
+              {rowBusy && acting?.action === "stop" ? <Spinner /> : <ActIcon d={ICON.stop} />}
             </button>
-            <button title={tc("restart")} aria-label={tc("restart")} onClick={(e) => { e.stopPropagation(); act(n, "restart"); }} disabled={busy} className={ib}>
-              <ActIcon d={ICON.restart} />
+            <button title={tc("restart")} aria-label={tc("restart")} onClick={(e) => { e.stopPropagation(); act(n, "restart"); }} disabled={rowBusy} className={ib}>
+              {rowBusy && acting?.action === "restart" ? <Spinner /> : <ActIcon d={ICON.restart} />}
             </button>
             <Link title={tc("details")} aria-label={tc("details")} href={`/orgs/${org_slug}/containers/${n}`} onClick={(e) => e.stopPropagation()} className={`${ib} hover:border-[var(--primary)] hover:text-[var(--primary)]`}>
               <ActIcon d={ICON.info} />
@@ -366,6 +380,27 @@ export default function ContainersPage() {
           }
         }}
         onCancel={() => setBulkConfirm(null)}
+      />
+
+      <OConfirmDialog
+        open={rowConfirm !== null}
+        title={rowConfirm?.action === "stop" ? t("singleStopTitle") : t("singleRestartTitle")}
+        description={
+          rowConfirm
+            ? t(rowConfirm.action === "stop" ? "singleStopConfirm" : "singleRestartConfirm", {
+                name: rowConfirm.name,
+              })
+            : ""
+        }
+        danger
+        confirmLabel={rowConfirm ? tc(rowConfirm.action) : ""}
+        onConfirm={() => {
+          if (rowConfirm) {
+            actionMutation.mutate(rowConfirm);
+            setRowConfirm(null);
+          }
+        }}
+        onCancel={() => setRowConfirm(null)}
       />
     </div>
   );

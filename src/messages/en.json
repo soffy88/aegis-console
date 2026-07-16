@@ -44,7 +44,14 @@
     "statusComponents": "Status Page",
     "channels": "Channels",
     "memory": "Memory",
-    "members": "Members"
+    "members": "Members",
+    "section": {
+      "deploy": "Deploy",
+      "infrastructure": "Infrastructure",
+      "operations": "Operations",
+      "data": "Data",
+      "settings": "Settings"
+    }
   },
   "common": {
     "create": "Create",
@@ -74,7 +81,8 @@
     "restart": "Restart",
     "details": "Details",
     "app": "App",
-    "actionFailed": "Action failed"
+    "actionFailed": "Action failed",
+    "saving": "Saving…"
   },
   "login": {
     "title": "Sign in to Aegis",
@@ -119,7 +127,17 @@
     "time": "Time",
     "type": "Type",
     "severity": "Severity",
-    "appName": "App Name"
+    "appName": "App Name",
+    "catContainer": "Containers",
+    "catHost": "Hosts",
+    "catGpu": "GPU",
+    "catGateway": "Gateways",
+    "catHeal": "Self-Healing & Events",
+    "gpuUsage": "GPU Usage",
+    "healPending": "Pending Self-Heals",
+    "healStatus": "Self-Heal Status",
+    "noEvents": "No events",
+    "healSummary": "{count} pending critical alerts{count, plural, =0 {. All systems normal.} other {. Please handle promptly.}}"
   },
   "apps": {
     "title": "Apps",
@@ -131,7 +149,20 @@
     "uninstallConfirm": "Are you sure you want to uninstall this app?",
     "installTitle": "Install App",
     "selectApp": "Select App",
-    "installing": "Installing…"
+    "installing": "Installing…",
+    "statusInProgress": "In progress…",
+    "notFound": "App not found.",
+    "backingUp": "Backing up…",
+    "backupS3": "Backup → S3",
+    "backupWebdav": "Backup → WebDAV",
+    "editCompose": "Edit Compose",
+    "version": "Version",
+    "installDir": "Install Directory",
+    "domain": "Domain",
+    "installedAt": "Installed At",
+    "installDirHelp": "Absolute path, no spaces",
+    "hostPort": "Host Port",
+    "hostPortHelp": "Multi-container apps only. Leave blank to use the default (auto-freed if taken)."
   },
   "store": {
     "title": "App Store",
@@ -139,7 +170,17 @@
     "install": "Install",
     "category": "Category",
     "noResults": "No apps found",
-    "details": "Details"
+    "details": "Details",
+    "notFound": "App not found",
+    "technicalDetails": "Technical Details",
+    "dockerImage": "Docker Image",
+    "ports": "Ports",
+    "envVars": "Environment Variables",
+    "mounts": "Mounts",
+    "noDescription": "No description provided.",
+    "readyToDeploy": "Ready to deploy?",
+    "deployHint": "Configure your instance settings in the next step.",
+    "backToStore": "Back to Store"
   },
   "containers": {
     "title": "Containers",
@@ -171,7 +212,24 @@
     "bulkStopTitle": "Stop containers",
     "bulkStopConfirm": "Stop all {count} running container(s) in {group}?",
     "bulkRestartTitle": "Restart containers",
-    "bulkRestartConfirm": "Restart all {count} running container(s) in {group}?"
+    "bulkRestartConfirm": "Restart all {count} running container(s) in {group}?",
+    "singleStopTitle": "Stop container",
+    "singleStopConfirm": "Stop container \"{name}\"?",
+    "singleRestartTitle": "Restart container",
+    "singleRestartConfirm": "Restart container \"{name}\"?",
+    "inspect": "Inspect",
+    "stats": "Stats",
+    "loadingStats": "Loading stats…",
+    "errorLoadingStats": "Error loading stats",
+    "executeCommand": "Execute Command",
+    "executing": "Executing…",
+    "run": "Run",
+    "statusLabel": "Status:",
+    "durationLabel": "Duration:",
+    "openTerminal": "Open Terminal",
+    "closeTerminal": "Close Terminal",
+    "actionConfirmTitle": "{action} container",
+    "actionConfirmDesc": "Are you sure you want to {action} container \"{name}\"?"
   },
   "events": {
     "title": "Events",
@@ -187,7 +245,12 @@
     "statCritical": "Critical",
     "statWarning": "Warning",
     "prev": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "detailPrefix": "Event",
+    "trace": "Trace",
+    "copy": "copy",
+    "copyAria": "Copy trace ID",
+    "loadingChain": "Loading causal chain…"
   },
   "webhooks": {
     "title": "Webhook Subscriptions",
@@ -207,7 +270,30 @@
     "deleteConfirm": "Delete this webhook subscription?",
     "testSend": "Send test",
     "sending": "Sending…",
-    "creating": "Creating…"
+    "creating": "Creating…",
+    "subtitle": "Outbound notifications for org-level events",
+    "loadingEventTypes": "Loading event types…",
+    "emptyDescription": "Create a webhook to receive notifications for org events",
+    "deleteDescription": "This will permanently delete \"{name}\" and all its delivery history.",
+    "loadingDetail": "Loading webhook…",
+    "notFound": "Webhook not found",
+    "back": "Back to webhooks",
+    "configuration": "Configuration",
+    "cfgSecret": "Secret",
+    "cfgBackoff": "Backoff (s)",
+    "secretEditHint": "Secret (leave blank to keep existing)",
+    "saved": "Saved",
+    "noDeliveries": "No deliveries yet.",
+    "colState": "State",
+    "colEvent": "Event",
+    "colHttp": "HTTP",
+    "colAttempts": "Attempts",
+    "colError": "Error",
+    "deleteDescriptionUndo": "This will permanently delete \"{name}\" and all its delivery history. Cannot be undone.",
+    "testEnqueued": "Webhook test enqueued",
+    "testFailed": "Test failed",
+    "payload": "Payload",
+    "close": "close"
   },
   "alertRules": {
     "title": "Alert Rules",
@@ -248,7 +334,22 @@
     "releaseGates": "Release Gates",
     "statTotal": "Total",
     "statProd": "Production",
-    "statOther": "Other"
+    "statOther": "Other",
+    "add": "New Project",
+    "creating": "Creating…",
+    "slug": "Slug",
+    "slugHint": "Lowercase letters, digits and hyphens only",
+    "overview": "Overview",
+    "health": "Health",
+    "healthy": "Healthy",
+    "unhealthy": "Unhealthy",
+    "responseTime": "Response Time",
+    "healthProbe": "Health Probe",
+    "configuration": "Configuration",
+    "notFound": "Project not found.",
+    "loadError": "Failed to load project",
+    "collectingHistory": "Collecting probe history…",
+    "probesSince": "{count} probes since page opened (every 30s)"
   },
   "alertIngest": {
     "title": "Alert Ingest Debug",
@@ -261,7 +362,8 @@
     "executeLive": "Execute Live",
     "sending": "Sending…",
     "request": "Request",
-    "response": "Response"
+    "response": "Response",
+    "subtitle": "Fire a test alert directly to the ingest endpoint."
   },
   "domains": {
     "title": "Domains",
@@ -281,7 +383,14 @@
     "empty": "No runbooks",
     "executionTitle": "Execution Detail",
     "output": "Output",
-    "executing": "Executing…"
+    "executing": "Executing…",
+    "colDescription": "Description",
+    "colTrigger": "Trigger",
+    "colApproval": "Approval",
+    "colSource": "Source",
+    "pluginNote": "auto-heal plugin — no manual execute",
+    "confirm": "Confirm?",
+    "executionNotFound": "Execution not found"
   },
   "autoheal": {
     "title": "AutoHeal Center",
@@ -300,7 +409,16 @@
     "killSwitchEngage": "Engage kill switch",
     "killSwitchDisengage": "Disengage",
     "killSwitchReasonPlaceholder": "Reason (optional)",
-    "killSwitchUpdatedAt": "Last changed"
+    "killSwitchUpdatedAt": "Last changed",
+    "severity": "Severity",
+    "source": "Source",
+    "reason": "Reason",
+    "value": "Value",
+    "handledAt": "Handled At",
+    "lastRefreshed": "Last refreshed",
+    "killSwitchConfirmTitle": "Confirm kill switch change",
+    "killSwitchEngageConfirm": "Engage the global kill switch? All automatic autoheal actions will be halted platform-wide until disengaged.",
+    "killSwitchDisengageConfirm": "Disengage the kill switch and resume automatic autoheal actions?"
   },
   "backups": {
     "title": "Backup & Restore",
@@ -309,7 +427,16 @@
     "size": "Size",
     "completed": "Completed At",
     "restore": "Restore",
-    "confirmRestore": "Confirm Restore"
+    "confirmRestore": "Confirm Restore",
+    "appSlug": "App Slug",
+    "instanceName": "Instance Name",
+    "targetVolume": "Target Volume",
+    "containerIdLabel": "Container ID (to stop before restore)",
+    "restoringFrom": "Restoring from",
+    "overwriteWarning": "⚠️ Warning: This will overwrite existing data in the target volume. Ensure related containers are stopped.",
+    "restoreConfirmTitle": "Restore backup",
+    "restoreConfirmDesc": "This overwrites all data in \"{volume}\". Continue?",
+    "errorTitle": "Backup error"
   },
   "nodes": {
     "title": "Nodes Management",
@@ -325,12 +452,46 @@
     "details": "Node Details",
     "nodeInfo": "Node Information",
     "rawInfo": "Raw Node Data",
-    "nodeContainers": "Containers on this Node"
+    "nodeContainers": "Containers on this Node",
+    "cpu": "CPU",
+    "memory": "Memory",
+    "loadingDetails": "Loading node details…",
+    "stopContainerTitle": "Stop container",
+    "restartContainerTitle": "Restart container",
+    "stopContainerConfirm": "Stop container \"{name}\"?",
+    "restartContainerConfirm": "Restart container \"{name}\"?"
   },
   "brain": {
     "title": "Brain",
     "noSteps": "The LLM produced no executable steps; manual handling is recommended.",
-    "stepsPlaceholder": "Plan steps will appear here"
+    "stepsPlaceholder": "Plan steps will appear here",
+    "signalInput": "Signal Input (JSON)",
+    "processing": "Processing…",
+    "runTriage": "Run Triage",
+    "result": "Result",
+    "invalidJson": "Invalid JSON",
+    "priority": "Priority",
+    "escalate": "Escalate",
+    "noResults": "No results yet",
+    "inputData": "Input Data",
+    "deepInvestigation": "Deep Investigation",
+    "severityCritical": "Critical",
+    "severityHigh": "High",
+    "severityMedium": "Medium",
+    "investigating": "Investigating…",
+    "launchRca": "Launch RCA Agent",
+    "agentWorking": "Agent is working… (Up to 30s)",
+    "investigationResult": "Investigation Result",
+    "investigationSkipped": "Investigation Skipped",
+    "statusLabel": "Status:",
+    "stepsHistory": "Steps History ({n})",
+    "step": "Step {n}: {name}",
+    "agentResultsPlaceholder": "Agent results will appear here",
+    "pasteInvestigation": "Paste Investigation Result",
+    "pastePlaceholder": "Paste final answer or full RCA JSON…",
+    "planning": "Planning…",
+    "generatePlan": "Generate Action Plan",
+    "remediationSteps": "Remediation Steps"
   },
   "members": {
     "title": "Members",
@@ -359,7 +520,8 @@
     "noData": "No data in the selected range",
     "noSeries": "No metrics ingested yet. Start aegis-agent to populate this view.",
     "samples": "samples",
-    "detail": "Detailed query"
+    "detail": "Detailed query",
+    "loadError": "Failed to load metric data"
   },
   "images": {
     "title": "Images",
@@ -373,7 +535,8 @@
     "deleteTitle": "Delete image",
     "deleteConfirm": "Delete image \"{name}\"? This cannot be undone.",
     "pruneTitle": "Prune unused resources",
-    "pruneConfirm": "Remove all unused images, containers, networks and build cache? This cannot be undone."
+    "pruneConfirm": "Remove all unused images, containers, networks and build cache? This cannot be undone.",
+    "pulling": "Pulling…"
   },
   "networks": {
     "title": "Networks",
@@ -418,7 +581,10 @@
     "permissions": "Permissions",
     "applyChmod": "chmod",
     "compress": "Compress (zip)",
-    "extract": "Extract here"
+    "extract": "Extract here",
+    "chmodTitle": "Change permissions",
+    "chmodConfirm": "Apply mode {mode} to \"{path}\"?",
+    "chmodConfirmDir": "Apply mode {mode} to directory \"{path}\"? This may affect access to its contents."
   },
   "account": {
     "title": "Account",
@@ -458,7 +624,8 @@
     "create": "Create",
     "drop": "Drop",
     "dropConfirm": "Drop database \"{db}\"? This permanently deletes all its data.",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "loadFailed": "Failed to load database instances"
   },
   "compose": {
     "title": "Compose",
@@ -473,7 +640,10 @@
     "title": "Host Terminal",
     "warning": "⚠ This opens a privileged shell with full host access. Owner/admin use only.",
     "hint": "A privileged helper container is started with the host mounted at /host. For a full host shell run:",
-    "open": "Open Host Terminal"
+    "open": "Open Host Terminal",
+    "starting": "Starting…",
+    "confirmTitle": "Open host shell?",
+    "confirmDescription": "This grants a privileged root shell with full host access. Proceed only if you understand the risk."
   },
   "logs": {
     "title": "Log Search",
@@ -495,7 +665,9 @@
     "deleteRule": "Delete",
     "backend": "Backend",
     "loading": "Loading…",
-    "empty": "No rules / not available."
+    "empty": "No rules / not available.",
+    "deleteRuleTitle": "Delete firewall rule",
+    "deleteRuleConfirm": "Delete rule #{num} ({rule})? This cannot be undone."
   },
   "websites": {
     "title": "Websites",
@@ -507,7 +679,9 @@
     "ports": "Ports",
     "remove": "Remove",
     "removeConfirm": "Remove website \"{name}\"?",
-    "domain": "Domain"
+    "domain": "Domain",
+    "deploying": "Deploying…",
+    "empty": "No websites yet."
   },
   "apm": {
     "title": "APM / Distributed Traces",
@@ -550,7 +724,8 @@
     "run": "Run",
     "count": "{n} lines",
     "reachable": "reachable",
-    "unreachable": "unreachable"
+    "unreachable": "unreachable",
+    "empty": "No lines"
   },
   "rum": {
     "title": "Real User Monitoring",
@@ -579,7 +754,8 @@
     "resource": "Resource",
     "type": "Type",
     "events": "Events",
-    "lastSeen": "Last seen"
+    "lastSeen": "Last seen",
+    "empty": "No correlated events yet."
   },
   "security": {
     "title": "Security Posture",
@@ -591,7 +767,8 @@
     "severity": "Severity",
     "container": "Container",
     "check": "Check",
-    "detail": "Detail"
+    "detail": "Detail",
+    "empty": "No findings"
   },
   "channels": {
     "title": "Notification Channels",
@@ -608,7 +785,8 @@
     "invalidUrl": "Enter a valid http(s) URL.",
     "urlRequired": "A webhook URL is required.",
     "botTokenRequired": "A bot token is required.",
-    "chatIdRequired": "A chat ID is required."
+    "chatIdRequired": "A chat ID is required.",
+    "testSent": "sent"
   },
   "statusComponents": {
     "title": "Status Page Components",
@@ -627,7 +805,10 @@
     "phase": "Phase",
     "ready": "Ready",
     "restarts": "Restarts",
-    "node": "Node"
+    "node": "Node",
+    "notReady": "NotReady",
+    "noNodes": "No nodes",
+    "noPods": "No pods"
   },
   "memory": {
     "title": "Memory Management",
@@ -647,7 +828,9 @@
     "save": "Save",
     "clear": "Clear",
     "cancel": "Cancel",
-    "caveat": "Limits apply to the live container and reset if it is recreated (e.g. compose up) — for a permanent cap also set it in the container's compose/run definition. Docker cannot remove a limit from a running container; recreate it without one to go unlimited."
+    "caveat": "Limits apply to the live container and reset if it is recreated (e.g. compose up) — for a permanent cap also set it in the container's compose/run definition. Docker cannot remove a limit from a running container; recreate it without one to go unlimited.",
+    "setLimitTitle": "Set memory limit",
+    "setLimitConfirm": "Set {name} memory limit to {mb} MiB? Too low a value may cause the container to be OOM-killed."
   },
   "invite": {
     "title": "Accept your invitation",
@@ -680,5 +863,48 @@
     "deploying": "Building…",
     "portsHint": "Ports are auto-mapped to free host ports (to avoid conflicts); check the actual ports on the Containers page after deploy.",
     "started": "Build & deploy started (install_id {id}). Check the Apps / Containers page once the build finishes."
+  },
+  "uptime": {
+    "title": "Uptime Probes",
+    "subtitle": "HTTP probe targets — results feed the probe_up / probe_latency_ms metrics.",
+    "targets": "Targets",
+    "up": "Up",
+    "down": "Down",
+    "addTitle": "Add probe",
+    "name": "Name",
+    "url": "URL",
+    "intervalSec": "Interval (s)",
+    "expectedStatus": "Expected status",
+    "add": "Add",
+    "adding": "Adding…",
+    "colStatus": "Status",
+    "colLatency": "Latency",
+    "colTls": "TLS cert",
+    "colInterval": "Interval",
+    "colEnabled": "Enabled",
+    "statusEnabled": "Enabled",
+    "statusDisabled": "Disabled",
+    "delete": "Delete",
+    "days": "{n}d",
+    "empty": "No probe targets yet"
+  },
+  "incidents": {
+    "title": "Incidents",
+    "colTitle": "Title",
+    "colSeverity": "Severity",
+    "colStatus": "Status",
+    "colStarted": "Started",
+    "colResolved": "Resolved",
+    "colPostmortem": "Postmortem",
+    "postmortemGenerated": "✓ Generated",
+    "started": "Started {time}",
+    "resolved": "Resolved {time}",
+    "postmortem": "Postmortem",
+    "generating": "Generating…",
+    "regenerate": "Regenerate",
+    "generate": "Generate",
+    "noPostmortem": "No postmortem yet. Click Generate to create one with AI.",
+    "relatedEvents": "Related Events ({n})",
+    "noEvents": "No correlated events."
   }
 }

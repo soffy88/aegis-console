@@ -9,6 +9,7 @@ import { useOrgIdBySlug } from "@/hooks/use-org-id";
 type P = { app: string; page: string; views: number; p50_ms: number; p95_ms: number };
 export default function RumPage() {
   const t = useTranslations("rum");
+  const tc = useTranslations("common");
   const { org_slug } = useParams<{ org_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
   const q = useQuery<P[]>({ queryKey: ["rum", orgId], queryFn: () => aegisFetch(paths.rumMetrics(orgId!, 1440)), enabled: !!orgId, refetchInterval: 30000 });
@@ -26,6 +27,8 @@ export default function RumPage() {
         <summary className="cursor-pointer text-sm">{t("snippet")}</summary>
         <pre className="mt-2 overflow-auto whitespace-pre-wrap break-all font-mono">{snippet}</pre>
       </details>
+      {q.isLoading && <p className="text-sm text-[var(--muted-foreground)]">{tc("loading")}</p>}
+      {q.isError && <p className="text-sm text-destructive">{(q.error as Error).message}</p>}
       {q.data && q.data.length === 0 && <p className="rounded-md border border-[var(--border)] p-4 text-sm text-[var(--muted-foreground)]">{t("empty")}</p>}
       <table className="w-full text-sm">
         <thead><tr className="border-b border-[var(--border)] text-left text-xs text-[var(--muted-foreground)]">

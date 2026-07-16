@@ -23,6 +23,7 @@ interface AppDetail {
 
 export default function AppDetailPage() {
   const t = useTranslations("store");
+  const tc = useTranslations("common");
   const { org_slug, app_slug } = useParams<{ org_slug: string; app_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
 
@@ -32,8 +33,9 @@ export default function AppDetailPage() {
     enabled: !!orgId && !!app_slug,
   });
 
-  if (isLoading) return <p>Loading…</p>;
-  if (error || !app) return <p className="text-red-500">App not found</p>;
+  if (isLoading) return <p className="text-sm text-[var(--muted-foreground)]">{tc("loading")}</p>;
+  if (error) return <p className="text-destructive">{tc("error")}: {(error as Error).message}</p>;
+  if (!app) return <p className="text-[var(--muted-foreground)]">{t("notFound")}</p>;
 
   return (
     <div className="max-w-4xl space-y-8">
@@ -56,10 +58,10 @@ export default function AppDetailPage() {
       <div className="grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           <section className="space-y-3">
-            <h2 className="text-xl font-semibold border-b pb-2">Technical Details</h2>
+            <h2 className="text-xl font-semibold border-b pb-2">{t("technicalDetails")}</h2>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="font-medium text-gray-500">Docker Image</p>
+                <p className="font-medium text-[var(--muted-foreground)]">{t("dockerImage")}</p>
                 <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{app.image}</code>
               </div>
             </div>
@@ -67,12 +69,12 @@ export default function AppDetailPage() {
 
           {app.ports && app.ports.length > 0 && (
             <section className="space-y-3">
-              <h2 className="text-xl font-semibold border-b pb-2">Ports</h2>
+              <h2 className="text-xl font-semibold border-b pb-2">{t("ports")}</h2>
               <ul className="space-y-1">
                 {app.ports.map((p, i) => (
                   <li key={i} className="text-sm">
                     <span className="font-mono">{p.container_port}/{p.protocol}</span>
-                    {p.label && <span className="ml-2 text-gray-500">- {p.label}</span>}
+                    {p.label && <span className="ml-2 text-[var(--muted-foreground)]">- {p.label}</span>}
                   </li>
                 ))}
               </ul>
@@ -81,12 +83,12 @@ export default function AppDetailPage() {
 
           {app.env && app.env.length > 0 && (
             <section className="space-y-3">
-              <h2 className="text-xl font-semibold border-b pb-2">Environment Variables</h2>
+              <h2 className="text-xl font-semibold border-b pb-2">{t("envVars")}</h2>
               <div className="space-y-3">
                 {app.env.map((e, i) => (
                   <div key={i} className="text-sm">
-                    <p className="font-mono font-bold text-blue-600">{e.key}</p>
-                    <p className="text-gray-500 text-xs">{e.description || "No description provided."}</p>
+                    <p className="font-mono font-bold text-[var(--primary)]">{e.key}</p>
+                    <p className="text-[var(--muted-foreground)] text-xs">{e.description || t("noDescription")}</p>
                     <p className="text-xs mt-1">Default: <code className="bg-[var(--muted)] px-1 rounded">{e.default_value}</code></p>
                   </div>
                 ))}
@@ -96,12 +98,12 @@ export default function AppDetailPage() {
 
           {app.mounts && app.mounts.length > 0 && (
             <section className="space-y-3">
-              <h2 className="text-xl font-semibold border-b pb-2">Mounts</h2>
+              <h2 className="text-xl font-semibold border-b pb-2">{t("mounts")}</h2>
               <ul className="space-y-1">
                 {app.mounts.map((m, i) => (
                   <li key={i} className="text-sm">
                     <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{m.target}</code>
-                    <span className="ml-2 text-gray-500">
+                    <span className="ml-2 text-[var(--muted-foreground)]">
                       (via {m.volume_name ? `volume ${m.volume_name}` : `host ${m.host_path}`})
                     </span>
                   </li>
@@ -113,9 +115,9 @@ export default function AppDetailPage() {
 
         <div className="space-y-4">
           <div className="p-6 border rounded-xl bg-card shadow-sm space-y-4 sticky top-6">
-            <h3 className="font-bold">Ready to deploy?</h3>
+            <h3 className="font-bold">{t("readyToDeploy")}</h3>
             <p className="text-sm text-muted-foreground">
-              Configure your instance settings in the next step.
+              {t("deployHint")}
             </p>
             <Link
               href={`/orgs/${org_slug}/apps/install?from=store&slug=${app.slug}`}
@@ -127,7 +129,7 @@ export default function AppDetailPage() {
               href={`/orgs/${org_slug}/store`}
               className="w-full flex justify-center py-2.5 px-4 border rounded-lg text-sm hover:bg-muted transition-colors"
             >
-              Back to Store
+              {t("backToStore")}
             </Link>
           </div>
         </div>

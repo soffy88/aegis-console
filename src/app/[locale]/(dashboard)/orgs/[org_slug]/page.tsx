@@ -165,8 +165,18 @@ interface AutohealStats {
   pending_total: number;
 }
 
+// Category id -> i18n key (nav-level titles live in the "dashboard" namespace).
+const CAT_TITLE_KEY: Record<string, string> = {
+  "cat-container": "catContainer",
+  "cat-host": "catHost",
+  "cat-gpu": "catGpu",
+  "cat-gateway": "catGateway",
+  "cat-heal": "catHeal",
+};
+
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
+  const tc = useTranslations("common");
   const { org_slug } = useParams<{ org_slug: string }>();
   const router = useRouter();
   const orgId = useOrgIdBySlug(org_slug);
@@ -215,8 +225,8 @@ export default function DashboardPage() {
   }));
 
   const healSummary = autohealStats.isLoading
-    ? "加载中..."
-    : `待处理严重告警 ${pendingCritical} 条${pendingCritical > 0 ? "，请及时处理。" : "，系统运行正常。"}`;
+    ? tc("loading")
+    : t("healSummary", { count: pendingCritical });
 
   const outer = useWidgetStorage({ storageKey: "aegis-dashboard", initialLayouts: OUTER_INITIAL });
   // One inner useWidgetStorage per category — fixed, known set, so calling each by name
@@ -254,7 +264,7 @@ export default function DashboardPage() {
     switch (id) {
       case "gpu-lock":
         return (
-          <OWidgetFrame id={id} title="GPU 占用" locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
+          <OWidgetFrame id={id} title={t("gpuUsage")} locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
             <GpuLockCard bare />
           </OWidgetFrame>
         );
@@ -289,7 +299,7 @@ export default function DashboardPage() {
         );
       case "autoheal":
         return (
-          <OWidgetFrame id={id} title="自愈待处理" locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
+          <OWidgetFrame id={id} title={t("healPending")} locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
             <OKPICard
               data={{ label: "", primary: autohealStats.isLoading ? "…" : pendingCritical, indicator: pendingCritical > 0 ? "down" : "neutral" }}
               loading={autohealStats.isLoading}
@@ -300,14 +310,14 @@ export default function DashboardPage() {
         );
       case "heal":
         return (
-          <OWidgetFrame id={id} title="自愈状态" locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
+          <OWidgetFrame id={id} title={t("healStatus")} locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
             <OAISummaryCard summary={healSummary} newSubstrates={pendingCritical} className="!border-0 !shadow-none !bg-transparent" />
           </OWidgetFrame>
         );
       case "timeline":
         return (
           <OWidgetFrame id={id} title={t("eventStream")} locked={layout.locked} onLockToggle={toggleLock} zoom={layout.zoom} colSpan={layout.colSpan} rowSpan={layout.rowSpan} onZoomChange={onZoomChange} onClose={onClose} className="dash-tile-frame">
-            <OEventTimeline events={timelineEvents} emptyMessage="暂无事件" className="!border-0 !shadow-none !bg-transparent" />
+            <OEventTimeline events={timelineEvents} emptyMessage={t("noEvents")} className="!border-0 !shadow-none !bg-transparent" />
           </OWidgetFrame>
         );
       default:
@@ -315,8 +325,15 @@ export default function DashboardPage() {
     }
   }
 
+  const loadError = containers.error || events.error || autohealStats.error;
+
   return (
     <div className="space-y-4">
+      {loadError && (
+        <p className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+          {tc("error")}: {(loadError as Error).message}
+        </p>
+      )}
       {/* colWidth=72 matches rowHeight so drag/resize snaps to ~72px in both axes —
           without it, horizontal snap falls back to the responsive 12-col default
           (~80-100px/col), a coarser step than the vertical one. */}
@@ -330,7 +347,7 @@ export default function DashboardPage() {
           return (
             <OWidgetFrame
               id={categoryId}
-              title={cat.title}
+              title={t(CAT_TITLE_KEY[cat.id] ?? cat.title)}
               locked={catLayout.locked}
               onLockToggle={outer.toggleLock}
               zoom={catLayout.zoom}

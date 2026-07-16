@@ -59,7 +59,7 @@ export default function AlertIngestPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">{t("title")}</h1>
-      <p className="text-sm opacity-70">Fire a test alert directly to the ingest endpoint.</p>
+      <p className="text-sm opacity-70">{t("subtitle")}</p>
 
       <form onSubmit={handleSubmit} className="max-w-lg space-y-4">
         <OFormField label={t("alertName")} htmlFor="alert_name" required>

@@ -29,14 +29,15 @@ export default function RunbooksPage() {
   const orgId = useOrgIdBySlug(org_slug);
   const router = useRouter();
   const [confirm, setConfirm] = useState<string | null>(null);
+  const [runError, setRunError] = useState<string | null>(null);
 
   const columns: ColDef<Runbook>[] = [
     { accessorKey: "name", header: tc("name") },
-    { accessorKey: "description", header: "Description" },
-    { accessorKey: "trigger", header: "Trigger" },
-    { accessorKey: "requires_approval", header: "Approval", cell: ({ row }) => row.original.requires_approval ? tc("yes") : tc("no") },
-    { accessorKey: "source", header: "Source", cell: ({ row }) => (
-      <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${row.original.source === "plugin" ? "bg-purple-100 text-purple-800" : "bg-blue-500/15 text-blue-300"}`}>
+    { accessorKey: "description", header: t("colDescription") },
+    { accessorKey: "trigger", header: t("colTrigger") },
+    { accessorKey: "requires_approval", header: t("colApproval"), cell: ({ row }) => row.original.requires_approval ? tc("yes") : tc("no") },
+    { accessorKey: "source", header: t("colSource"), cell: ({ row }) => (
+      <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${row.original.source === "plugin" ? "bg-[var(--primary)]/15 text-[var(--primary)]" : "bg-blue-500/15 text-blue-300"}`}>
         {row.original.source}
       </span>
     )},
@@ -52,14 +53,16 @@ export default function RunbooksPage() {
     mutationFn: (name: string) => aegisFetch<{ id: string }>(`${paths.runbook(orgId!, name)}/execute`, {
       method: "POST", body: JSON.stringify({ dry_run: true }),
     }),
-    onSuccess: (result) => router.push(`/orgs/${org_slug}/runbooks/executions/${result.id}`),
+    onSuccess: (result) => { setRunError(null); router.push(`/orgs/${org_slug}/runbooks/executions/${result.id}`); },
+    onError: (e: Error) => setRunError(e.message),
   });
 
   const liveRun = useMutation({
     mutationFn: (name: string) => aegisFetch<{ id: string }>(`${paths.runbook(orgId!, name)}/execute`, {
       method: "POST", body: JSON.stringify({ dry_run: false }),
     }),
-    onSuccess: (result) => router.push(`/orgs/${org_slug}/runbooks/executions/${result.id}`),
+    onSuccess: (result) => { setRunError(null); router.push(`/orgs/${org_slug}/runbooks/executions/${result.id}`); },
+    onError: (e: Error) => setRunError(e.message),
   });
 
   return (
@@ -71,11 +74,12 @@ export default function RunbooksPage() {
         error={error as Error | null}
         empty={data?.length === 0}
       />
+      {runError && <p className="text-sm text-destructive">{runError}</p>}
       {data?.map((rb) => (
         <div key={rb.name} className="flex items-center gap-2 border rounded p-3">
           <span className="font-medium flex-1">{rb.name}</span>
           {rb.source === "plugin" ? (
-            <span className="text-xs text-muted-foreground italic">auto-heal plugin — no manual execute</span>
+            <span className="text-xs text-muted-foreground italic">{t("pluginNote")}</span>
           ) : (
             <>
               <button onClick={() => dryRun.mutate(rb.name)} className="rounded-md border border-[var(--primary)] px-3 py-1 text-sm text-[var(--primary)] transition-colors hover:bg-[var(--primary-subtle)]">
@@ -86,7 +90,7 @@ export default function RunbooksPage() {
               </button>
               {confirm === rb.name && (
                 <div className="flex items-center gap-2 ml-2">
-                  <span className="text-xs text-red-600">Confirm?</span>
+                  <span className="text-xs text-destructive">{t("confirm")}</span>
                   <button onClick={() => { liveRun.mutate(rb.name); setConfirm(null); }} className="rounded bg-red-500 px-2 py-0.5 text-xs text-white">{tc("yes")}</button>
                   <button onClick={() => setConfirm(null)} className="rounded bg-[var(--muted)] px-2 py-0.5 text-xs">{tc("no")}</button>
                 </div>

@@ -13,6 +13,7 @@ type Rca = { impacted: string; likely_root: string | null; candidates: { service
 
 export default function ServiceMapPage() {
   const t = useTranslations("serviceMap");
+  const tc = useTranslations("common");
   const { org_slug } = useParams<{ org_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
 
@@ -85,8 +86,15 @@ export default function ServiceMapPage() {
         {rca.data && rca.data.candidates.length === 0 && (
           <p className="mt-2 text-xs text-[var(--muted-foreground)]">{t("rcaNone")}</p>
         )}
+        {rca.isError && (
+          <p className="mt-2 text-xs text-destructive">{(rca.error as Error).message}</p>
+        )}
       </div>
-      {nodes.length === 0 ? (
+      {q.isLoading ? (
+        <p className="text-sm text-[var(--muted-foreground)]">{tc("loading")}</p>
+      ) : q.isError ? (
+        <p className="rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm text-destructive">{(q.error as Error).message}</p>
+      ) : nodes.length === 0 ? (
         <p className="rounded-md border border-[var(--border)] p-4 text-sm text-[var(--muted-foreground)]">{t("empty")}</p>
       ) : (
         <div className="overflow-x-auto rounded-md border border-[var(--border)] bg-[var(--card)]">

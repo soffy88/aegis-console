@@ -31,7 +31,8 @@ describe("Org Dashboard (smoke)", () => {
   it("renders the KPI widget titles", async () => {
     render(<DashboardPage />, { wrapper });
     await waitFor(() => {
-      expect(screen.getByText("Containers")).toBeInTheDocument();
+      // "Containers" appears as both a KPI tile and the section header now.
+      expect(screen.getAllByText("Containers").length).toBeGreaterThan(0);
     });
   });
 
