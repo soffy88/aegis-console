@@ -52,6 +52,18 @@ export default function DatabasesPage() {
       <h1 className="text-2xl font-bold">{t("title")}</h1>
       <p className="text-sm text-[var(--muted-foreground)]">{t("hint")}</p>
 
+      {instances.isLoading && (
+        <p className="rounded-md border border-[var(--border)] p-4 text-sm text-[var(--muted-foreground)]">
+          {t("loading")}
+        </p>
+      )}
+
+      {instances.error && (
+        <p className="rounded-md border border-[var(--border)] p-4 text-sm text-destructive">
+          {instances.error instanceof Error ? instances.error.message : t("loadFailed")}
+        </p>
+      )}
+
       {instances.data && instances.data.length === 0 && (
         <p className="rounded-md border border-[var(--border)] p-4 text-sm text-[var(--muted-foreground)]">
           {t("empty")}

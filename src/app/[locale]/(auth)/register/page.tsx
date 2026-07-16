@@ -38,9 +38,9 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md border border-gray-100">
-      <h1 className="text-2xl font-bold mb-2 text-gray-900">{t("title")}</h1>
-      <p className="text-gray-500 mb-6">{t("subtitle")}</p>
+    <div className="w-full max-w-md p-8 bg-[var(--card)] rounded-lg shadow-md border border-[var(--border)]">
+      <h1 className="text-2xl font-bold mb-2 text-[var(--card-foreground)]">{t("title")}</h1>
+      <p className="text-[var(--muted-foreground)] mb-6">{t("subtitle")}</p>
 
       {error && (
         <div className="mb-4 p-3 bg-red-50 text-red-600 rounded border border-red-100 text-sm">
@@ -50,67 +50,71 @@ export default function RegisterPage() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="email" className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">
             {t("email")}
           </label>
           <input
+            id="email"
             name="email"
             type="email"
             required
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="block w-full px-3 py-2 border border-[var(--border)] bg-[var(--muted)] text-[var(--card-foreground)] rounded-md shadow-sm focus:outline-none focus:ring-[var(--primary)] focus:border-[var(--primary)] sm:text-sm"
             placeholder="admin@example.com"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="password" className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">
             {t("password")}
           </label>
           <input
+            id="password"
             name="password"
             type="password"
             required
             minLength={8}
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="block w-full px-3 py-2 border border-[var(--border)] bg-[var(--muted)] text-[var(--card-foreground)] rounded-md shadow-sm focus:outline-none focus:ring-[var(--primary)] focus:border-[var(--primary)] sm:text-sm"
             placeholder="••••••••••••"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="org_name" className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">
             {t("orgName")}
           </label>
           <input
+            id="org_name"
             name="org_name"
             type="text"
             required
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="block w-full px-3 py-2 border border-[var(--border)] bg-[var(--muted)] text-[var(--card-foreground)] rounded-md shadow-sm focus:outline-none focus:ring-[var(--primary)] focus:border-[var(--primary)] sm:text-sm"
             placeholder="My Organization"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="org_slug" className="block text-sm font-medium text-[var(--muted-foreground)] mb-1">
             {t("orgSlug")}
           </label>
           <input
+            id="org_slug"
             name="org_slug"
             type="text"
             required
             pattern="^[a-z0-9\-]+$"
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="block w-full px-3 py-2 border border-[var(--border)] bg-[var(--muted)] text-[var(--card-foreground)] rounded-md shadow-sm focus:outline-none focus:ring-[var(--primary)] focus:border-[var(--primary)] sm:text-sm"
             placeholder="my-org"
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-[var(--primary-foreground)] bg-[var(--primary)] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)] disabled:opacity-50"
         >
-          {loading ? t("submitting") || "..." : t("submit")}
+          {loading ? t("submitting") : t("submit")}
         </button>
       </form>
 
-      <div className="mt-6 text-center text-sm text-gray-500">
+      <div className="mt-6 text-center text-sm text-[var(--muted-foreground)]">
         {t("hasAccount")}{" "}
-        <Link href="/login" className="text-blue-600 hover:underline">
+        <Link href="/login" className="text-[var(--primary)] hover:underline">
           {t("login")}
         </Link>
       </div>

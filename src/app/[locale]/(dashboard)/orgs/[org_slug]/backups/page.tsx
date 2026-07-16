@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { ODataTable, OStatusBadge, OFormField, OTextInput } from "@helios/blocks";
+import { ODataTable, OStatusBadge, OFormField, OTextInput, OConfirmDialog } from "@helios/blocks";
 import type { ODataTableData } from "@helios/blocks";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
@@ -23,6 +23,10 @@ export default function BackupsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isRestoreModalOpen, setIsRestoreModalOpen] = useState(false);
   const [selectedBackup, setSelectedId] = useState<Backup | null>(null);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [restoreError, setRestoreError] = useState<string | null>(null);
+  const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
 
   const [createForm, setCreateForm] = useState<BackupRequest>({
     app_slug: "",
@@ -55,9 +59,11 @@ export default function BackupsPage() {
         body: JSON.stringify(payload),
       }),
     onSuccess: () => {
+      setCreateError(null);
       setIsCreateModalOpen(false);
       void qc.invalidateQueries({ queryKey: ["backups", orgId] });
     },
+    onError: (e: Error) => setCreateError(e.message),
   });
 
   const restoreMutation = useMutation({
@@ -67,9 +73,11 @@ export default function BackupsPage() {
         body: JSON.stringify(payload),
       }),
     onSuccess: () => {
+      setRestoreError(null);
       setIsRestoreModalOpen(false);
       void qc.invalidateQueries({ queryKey: ["backups", orgId] });
     },
+    onError: (e: Error) => setRestoreError(e.message),
   });
 
   const columns: ColDef<Backup>[] = [
@@ -111,9 +119,10 @@ export default function BackupsPage() {
               onClick={() => {
                 setSelectedId(row.original);
                 setRestoreForm({ ...restoreForm, target_volume: row.original.instance_name });
+                setRestoreError(null);
                 setIsRestoreModalOpen(true);
               }}
-              className="rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700"
+              className="rounded bg-[var(--primary)] px-2 py-1 text-xs text-[var(--primary-foreground)] hover:opacity-90"
             >
               {t("restore")}
             </button>
@@ -121,7 +130,7 @@ export default function BackupsPage() {
           {row.original.error && (
             <button
               className="rounded-md border border-[var(--border)] px-2 py-1 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)]"
-              onClick={() => alert(row.original.error)}
+              onClick={() => setErrorDetail(row.original.error ?? null)}
             >
               {tc("details")}
             </button>
@@ -136,8 +145,11 @@ export default function BackupsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
         <button
-          onClick={() => setIsCreateModalOpen(true)}
-          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          onClick={() => {
+            setCreateError(null);
+            setIsCreateModalOpen(true);
+          }}
+          className="rounded bg-[var(--primary)] px-4 py-2 text-[var(--primary-foreground)] hover:opacity-90"
         >
           {t("newBackup")}
         </button>
@@ -154,7 +166,7 @@ export default function BackupsPage() {
       {/* Create Backup Modal */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl text-gray-900">
+          <div className="w-full max-w-md rounded-lg bg-[var(--card)] p-6 shadow-xl text-[var(--card-foreground)]">
             <h2 className="mb-4 text-xl font-bold">{t("newBackup")}</h2>
             <form
               onSubmit={(e) => {
@@ -163,7 +175,7 @@ export default function BackupsPage() {
               }}
               className="space-y-4"
             >
-              <OFormField label="App Slug">
+              <OFormField label={t("appSlug")}>
                 <OTextInput
                   value={createForm.app_slug}
                   onChange={(e) => setCreateForm({ ...createForm, app_slug: e.target.value })}
@@ -171,7 +183,7 @@ export default function BackupsPage() {
                   required
                 />
               </OFormField>
-              <OFormField label="Instance Name">
+              <OFormField label={t("instanceName")}>
                 <OTextInput
                   value={createForm.instance_name}
                   onChange={(e) => setCreateForm({ ...createForm, instance_name: e.target.value })}
@@ -179,7 +191,7 @@ export default function BackupsPage() {
                   required
                 />
               </OFormField>
-              <OFormField label="Target Volume">
+              <OFormField label={t("targetVolume")}>
                 <OTextInput
                   value={createForm.target_volume}
                   onChange={(e) => setCreateForm({ ...createForm, target_volume: e.target.value })}
@@ -187,6 +199,7 @@ export default function BackupsPage() {
                   required
                 />
               </OFormField>
+              {createError && <p className="text-sm text-destructive">{createError}</p>}
               <div className="flex justify-end gap-2 pt-4">
                 <button
                   type="button"
@@ -198,7 +211,7 @@ export default function BackupsPage() {
                 <button
                   type="submit"
                   disabled={createMutation.isPending}
-                  className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="rounded bg-[var(--primary)] px-4 py-2 text-[var(--primary-foreground)] hover:opacity-90 disabled:opacity-50"
                 >
                   {createMutation.isPending ? "..." : tc("save")}
                 </button>
@@ -211,36 +224,36 @@ export default function BackupsPage() {
       {/* Restore Modal */}
       {isRestoreModalOpen && selectedBackup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl text-gray-900">
+          <div className="w-full max-w-md rounded-lg bg-[var(--card)] p-6 shadow-xl text-[var(--card-foreground)]">
             <h2 className="mb-2 text-xl font-bold">{t("restore")}</h2>
-            <p className="mb-4 text-sm text-gray-500">
-              Restoring from <span className="font-mono font-bold">{selectedBackup.backup_key}</span>
+            <p className="mb-4 text-sm text-[var(--muted-foreground)]">
+              {t("restoringFrom")} <span className="font-mono font-bold">{selectedBackup.backup_key}</span>
             </p>
             <div className="mb-4 rounded-md border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-400 font-medium">
-              ⚠️ Warning: This will overwrite existing data in the target volume.
-              Ensure related containers are stopped.
+              {t("overwriteWarning")}
             </div>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                restoreMutation.mutate(restoreForm);
+                setShowRestoreConfirm(true);
               }}
               className="space-y-4"
             >
-              <OFormField label="Target Volume">
+              <OFormField label={t("targetVolume")}>
                 <OTextInput
                   value={restoreForm.target_volume}
                   onChange={(e) => setRestoreForm({ ...restoreForm, target_volume: e.target.value })}
                   required
                 />
               </OFormField>
-              <OFormField label="Container ID (to stop before restore)">
+              <OFormField label={t("containerIdLabel")}>
                 <OTextInput
                   value={restoreForm.container_id}
                   onChange={(e) => setRestoreForm({ ...restoreForm, container_id: e.target.value })}
                   placeholder="Optional"
                 />
               </OFormField>
+              {restoreError && <p className="text-sm text-destructive">{restoreError}</p>}
               <div className="flex justify-end gap-2 pt-4">
                 <button
                   type="button"
@@ -252,12 +265,45 @@ export default function BackupsPage() {
                 <button
                   type="submit"
                   disabled={restoreMutation.isPending}
-                  className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-50"
+                  className="rounded bg-destructive px-4 py-2 text-destructive-foreground hover:opacity-90 disabled:opacity-50"
                 >
                   {restoreMutation.isPending ? "..." : t("confirmRestore")}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      <OConfirmDialog
+        open={showRestoreConfirm}
+        title={t("restoreConfirmTitle")}
+        description={t("restoreConfirmDesc", { volume: restoreForm.target_volume })}
+        danger
+        confirmLabel={t("confirmRestore")}
+        onConfirm={() => {
+          setShowRestoreConfirm(false);
+          restoreMutation.mutate(restoreForm);
+        }}
+        onCancel={() => setShowRestoreConfirm(false)}
+      />
+
+      {errorDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-lg bg-[var(--card)] p-6 shadow-xl text-[var(--card-foreground)]">
+            <h2 className="mb-4 text-xl font-bold">{t("errorTitle")}</h2>
+            <pre className="max-h-96 overflow-auto rounded bg-[var(--muted)] p-3 font-mono text-xs whitespace-pre-wrap">
+              {errorDetail}
+            </pre>
+            <div className="flex justify-end pt-4">
+              <button
+                type="button"
+                onClick={() => setErrorDetail(null)}
+                className="rounded-md px-4 py-2 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--card-foreground)]"
+              >
+                {tc("cancel")}
+              </button>
+            </div>
           </div>
         </div>
       )}

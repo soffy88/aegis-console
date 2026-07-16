@@ -54,6 +54,7 @@ export default function CertificatesPage() {
       <p className="text-sm text-[var(--muted-foreground)]">{t("hint")}</p>
 
       {q.isLoading && <p className="text-sm text-[var(--muted-foreground)]">{t("loading")}</p>}
+      {q.isError && <p className="text-sm text-destructive">{(q.error as Error).message}</p>}
       {q.data && q.data.length === 0 && (
         <p className="rounded-md border border-[var(--border)] p-4 text-sm text-[var(--muted-foreground)]">
           {t("empty")}

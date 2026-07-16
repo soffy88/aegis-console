@@ -127,10 +127,10 @@ export default function WebhookDetailPage() {
       });
     },
     onSuccess: () => {
-      setTestResult("Webhook test enqueued ✓");
+      setTestResult(`${t("testEnqueued")} ✓`);
       setTimeout(() => setTestResult(null), 3000);
     },
-    onError: (e: Error) => setTestResult(`Test failed: ${e.message}`),
+    onError: (e: Error) => setTestResult(`${t("testFailed")}: ${e.message}`),
   });
 
   const toggleEventType = (et: string) => {
@@ -143,11 +143,11 @@ export default function WebhookDetailPage() {
     }));
   };
 
-  if (isLoading) return <OLoadingState message="Loading webhook…" />;
+  if (isLoading) return <OLoadingState message={t("loadingDetail")} />;
   if (subError || !sub)
     return (
       <OErrorState
-        error={subError instanceof Error ? subError.message : "Webhook not found"}
+        error={subError instanceof Error ? subError.message : t("notFound")}
       />
     );
 
@@ -160,14 +160,14 @@ export default function WebhookDetailPage() {
           onClick={() => router.back()}
           className="text-sm text-muted-foreground hover:underline"
         >
-          ← Back to webhooks
+          ← {t("back")}
         </button>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold">{sub.name}</h1>
             <OStatusBadge
               status={sub.enabled ? "active" : "inactive"}
-              label={sub.enabled ? "enabled" : "disabled"}
+              label={sub.enabled ? tc("enabled") : tc("disabled")}
             />
           </div>
           <div className="flex gap-2">
@@ -196,19 +196,19 @@ export default function WebhookDetailPage() {
       <div className="grid grid-cols-2 gap-6">
         {/* Left: config */}
         <section className="space-y-2 text-sm">
-          <h2 className="font-semibold text-base">Configuration</h2>
+          <h2 className="font-semibold text-base">{t("configuration")}</h2>
           <div>
-            <span className="text-muted-foreground">URL: </span>
+            <span className="text-muted-foreground">{t("url")}: </span>
             <span className="font-mono break-all">{sub.url}</span>
           </div>
           <div>
-            <span className="text-muted-foreground">Secret: </span>
+            <span className="text-muted-foreground">{t("cfgSecret")}: </span>
             <span className="font-mono">
               {sub.has_secret ? "••••••••" : "—"}
             </span>
           </div>
           <div>
-            <span className="text-muted-foreground">Event types: </span>
+            <span className="text-muted-foreground">{t("eventTypes")}: </span>
             <div className="mt-1 flex flex-wrap gap-1">
               {sub.event_types.map((et) => (
                 <span
@@ -221,11 +221,11 @@ export default function WebhookDetailPage() {
             </div>
           </div>
           <div>
-            <span className="text-muted-foreground">Retry count: </span>
+            <span className="text-muted-foreground">{t("retryCount")}: </span>
             <span>{sub.retry_count}</span>
           </div>
           <div>
-            <span className="text-muted-foreground">Backoff (s): </span>
+            <span className="text-muted-foreground">{t("cfgBackoff")}: </span>
             <span className="font-mono">
               [{sub.retry_backoff_seconds.join(", ")}]
             </span>
@@ -235,7 +235,7 @@ export default function WebhookDetailPage() {
         {/* Right: edit form */}
         {canWrite && (
           <section className="space-y-3 rounded-lg border bg-card p-4">
-            <h2 className="font-semibold text-base">Edit</h2>
+            <h2 className="font-semibold text-base">{tc("edit")}</h2>
             <OFormField label={tc("name")}>
               <input
                 type="text"
@@ -256,7 +256,7 @@ export default function WebhookDetailPage() {
                 className="w-full rounded border bg-background px-3 py-2 text-sm"
               />
             </OFormField>
-            <OFormField label="Secret (leave blank to keep existing)">
+            <OFormField label={t("secretEditHint")}>
               <input
                 type="text"
                 placeholder="env:VAR_NAME or plain:secret"
@@ -273,7 +273,7 @@ export default function WebhookDetailPage() {
               <div className="grid grid-cols-1 gap-1 mt-1">
                 {eventTypesLoading ? (
                   <span className="text-xs text-muted-foreground">
-                    Loading event types…
+                    {t("loadingEventTypes")}
                   </span>
                 ) : (
                   (eventTypesData?.event_types ?? []).map((et) => (
@@ -308,7 +308,7 @@ export default function WebhookDetailPage() {
               <div className="text-sm text-destructive">{saveError}</div>
             )}
             {saveSuccess && (
-              <div className="text-sm text-green-600">Saved ✓</div>
+              <div className="text-sm text-green-600">{t("saved")} ✓</div>
             )}
             <button
               onClick={() =>
@@ -330,13 +330,13 @@ export default function WebhookDetailPage() {
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">{t("deliveries")}</h2>
         {!deliveries?.length ? (
-          <p className="text-sm text-muted-foreground">No deliveries yet.</p>
+          <p className="text-sm text-muted-foreground">{t("noDeliveries")}</p>
         ) : (
           <OHighDensityTable<DeliveryRow>
             columns={[
               {
                 key: "state",
-                header: "State",
+                header: t("colState"),
                 format: (_v, r) => (
                   <OStatusBadge
                     status={DELIVERY_BADGE[r.state as DeliveryState] ?? "inactive"}
@@ -344,21 +344,21 @@ export default function WebhookDetailPage() {
                   />
                 ),
               },
-              { key: "event_type", header: "Event" },
+              { key: "event_type", header: t("colEvent") },
               {
                 key: "last_status_code",
-                header: "HTTP",
+                header: t("colHttp"),
                 format: (_v, r) =>
                   r.last_status_code != null ? String(r.last_status_code) : "—",
               },
               {
                 key: "attempt_no",
-                header: "Attempts",
+                header: t("colAttempts"),
                 format: (_v, r) => `${r.attempt_no}/${r.max_attempts}`,
               },
               {
                 key: "last_error",
-                header: "Error",
+                header: t("colError"),
                 format: (_v, r) =>
                   r.last_error ? (
                     <span className="text-xs text-destructive truncate max-w-xs block">
@@ -394,13 +394,13 @@ export default function WebhookDetailPage() {
             <div className="rounded-lg border bg-card p-3">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-semibold">
-                  Payload — {d.event_type}
+                  {t("payload")} — {d.event_type}
                 </span>
                 <button
                   onClick={() => setExpandedDelivery(null)}
                   className="text-xs text-muted-foreground hover:underline"
                 >
-                  close
+                  {t("close")}
                 </button>
               </div>
               <OJsonViewer
@@ -416,7 +416,7 @@ export default function WebhookDetailPage() {
         <OConfirmDialog
           open
           title={t("deleteConfirm")}
-          description={`This will permanently delete "${sub.name}" and all its delivery history. Cannot be undone.`}
+          description={t("deleteDescriptionUndo", { name: sub.name })}
           confirmLabel={tc("delete")}
           danger
           onConfirm={() => deleteMutation.mutate()}

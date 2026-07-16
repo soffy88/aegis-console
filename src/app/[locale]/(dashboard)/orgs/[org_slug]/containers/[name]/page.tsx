@@ -19,6 +19,14 @@ const ContainerTerminal = dynamic(
 
 type Action = "start" | "stop" | "restart" | null;
 
+const TRANSITIONAL_STATUSES = ["restarting", "removing", "created"];
+
+function inspectStatus(data: Record<string, unknown> | undefined): string | undefined {
+  if (!data) return undefined;
+  const state = data["State"] as { Status?: string } | undefined;
+  return state?.Status ?? (data["status"] as string | undefined);
+}
+
 interface ContainerStats {
   cpu_pct?: number;
   mem_mb?: number;
@@ -33,6 +41,7 @@ export default function ContainerPage() {
   const { org_slug, name } = useParams<{ org_slug: string; name: string }>();
   const orgId = useOrgIdBySlug(org_slug);
   const [pendingAction, setPendingAction] = useState<Action>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const [execCommand, setExecCommand] = useState("");
   const [terminalOpen, setTerminalOpen] = useState(false);
@@ -42,6 +51,10 @@ export default function ContainerPage() {
     queryKey: ["container", orgId, name, "inspect"],
     queryFn: () => aegisFetch<Record<string, unknown>>(paths.container(orgId!, name)),
     enabled: !!orgId,
+    refetchInterval: (q) => {
+      const s = inspectStatus(q.state.data);
+      return s && TRANSITIONAL_STATUSES.includes(s) ? 3000 : false;
+    },
   });
 
   const stats = useQuery<ContainerStats>({
@@ -68,7 +81,11 @@ export default function ContainerPage() {
           method: "POST",
         },
       ),
-    onSuccess: () => void inspect.refetch(),
+    onSuccess: () => {
+      setActionError(null);
+      void inspect.refetch();
+    },
+    onError: (e: Error) => setActionError(e.message),
   });
 
   const execMutation = useMutation({
@@ -96,16 +113,16 @@ export default function ContainerPage() {
         </div>
       </div>
 
-      {actionMutation.isError && (
+      {actionError && (
         <div className="rounded-md border border-red-500/30 bg-red-500/10 p-2 text-sm text-red-400">
-          {(actionMutation.error as Error).message}
+          {actionError}
         </div>
       )}
 
       <section className="space-y-2">
-        <h2 className="text-lg font-semibold">Inspect</h2>
+        <h2 className="text-lg font-semibold">{t("inspect")}</h2>
         {inspect.isLoading ? (
-          <p>Loading…</p>
+          <p className="text-sm text-[var(--muted-foreground)]">{tc("loading")}</p>
         ) : inspect.error ? (
           <p className="text-destructive">{(inspect.error as Error).message}</p>
         ) : (
@@ -114,30 +131,30 @@ export default function ContainerPage() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="text-lg font-semibold">Stats</h2>
+        <h2 className="text-lg font-semibold">{t("stats")}</h2>
         {stats.isLoading ? (
-          <p className="text-sm text-gray-500">Loading stats...</p>
+          <p className="text-sm text-[var(--muted-foreground)]">{t("loadingStats")}</p>
         ) : stats.error ? (
-          <p className="text-sm text-red-500">Error loading stats</p>
+          <p className="text-sm text-red-500">{t("errorLoadingStats")}</p>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div className="rounded border bg-white p-3 shadow-sm">
-              <p className="text-xs font-semibold uppercase text-gray-500">CPU</p>
-              <p className="text-xl font-bold text-blue-600">{stats.data?.cpu_pct}%</p>
+            <div className="rounded border bg-[var(--card)] p-3 shadow-sm">
+              <p className="text-xs font-semibold uppercase text-[var(--muted-foreground)]">CPU</p>
+              <p className="text-xl font-bold text-[var(--primary)]">{stats.data?.cpu_pct}%</p>
             </div>
-            <div className="rounded border bg-white p-3 shadow-sm">
-              <p className="text-xs font-semibold uppercase text-gray-500">Memory</p>
+            <div className="rounded border bg-[var(--card)] p-3 shadow-sm">
+              <p className="text-xs font-semibold uppercase text-[var(--muted-foreground)]">Memory</p>
               <p className="text-lg font-bold">
-                {stats.data?.mem_mb} <span className="text-xs font-normal text-gray-400">MB</span>
+                {stats.data?.mem_mb} <span className="text-xs font-normal text-[var(--muted-foreground)]">MB</span>
               </p>
-              <p className="text-[10px] text-gray-400">Limit: {stats.data?.mem_limit_mb} MB</p>
+              <p className="text-[10px] text-[var(--muted-foreground)]">Limit: {stats.data?.mem_limit_mb} MB</p>
             </div>
-            <div className="rounded border bg-white p-3 shadow-sm">
-              <p className="text-xs font-semibold uppercase text-gray-500">Network RX</p>
+            <div className="rounded border bg-[var(--card)] p-3 shadow-sm">
+              <p className="text-xs font-semibold uppercase text-[var(--muted-foreground)]">Network RX</p>
               <p className="text-lg font-bold text-green-600">{stats.data?.net_rx_kb} KB</p>
             </div>
-            <div className="rounded border bg-white p-3 shadow-sm">
-              <p className="text-xs font-semibold uppercase text-gray-500">Network TX</p>
+            <div className="rounded border bg-[var(--card)] p-3 shadow-sm">
+              <p className="text-xs font-semibold uppercase text-[var(--muted-foreground)]">Network TX</p>
               <p className="text-lg font-bold text-orange-600">{stats.data?.net_tx_kb} KB</p>
             </div>
           </div>
@@ -147,7 +164,7 @@ export default function ContainerPage() {
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">{t("logs")}</h2>
         {logs.isLoading ? (
-          <p>Loading…</p>
+          <p className="text-sm text-[var(--muted-foreground)]">{tc("loading")}</p>
         ) : logs.error ? (
           <p className="text-destructive">{(logs.error as Error).message}</p>
         ) : (
@@ -170,10 +187,10 @@ export default function ContainerPage() {
       </section>
 
       <section className="space-y-4 rounded-lg border border-[var(--border)] bg-[var(--muted)] p-4">
-        <h2 className="text-lg font-semibold">Execute Command</h2>
+        <h2 className="text-lg font-semibold">{t("executeCommand")}</h2>
         <div className="flex gap-2">
           <input
-            className="flex-1 rounded border border-gray-300 bg-white p-2 font-mono text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="flex-1 rounded border border-[var(--border)] bg-[var(--card)] p-2 font-mono text-sm shadow-sm focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
             value={execCommand}
             onChange={(e) => setExecCommand(e.target.value)}
             onKeyDown={(e) => {
@@ -182,11 +199,11 @@ export default function ContainerPage() {
             placeholder="ls -la /app"
           />
           <button
-            className="rounded bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+            className="rounded bg-[var(--primary)] px-6 py-2 font-semibold text-[var(--primary-foreground)] hover:opacity-90 disabled:opacity-50"
             onClick={() => execMutation.mutate(execCommand.split(" "))}
             disabled={execMutation.isPending || !execCommand.trim()}
           >
-            {execMutation.isPending ? "Executing..." : "Run"}
+            {execMutation.isPending ? t("executing") : t("run")}
           </button>
         </div>
 
@@ -198,16 +215,16 @@ export default function ContainerPage() {
 
         {execMutation.data && (
           <div className="mt-4 space-y-2">
-            <div className="flex items-center gap-4 text-xs font-semibold uppercase text-gray-500">
+            <div className="flex items-center gap-4 text-xs font-semibold uppercase text-[var(--muted-foreground)]">
               <div className="flex items-center gap-1">
-                Status:
+                {t("statusLabel")}
                 {execMutation.data.exit_code === 0 ? (
                   <span className="text-green-600">✅ SUCCESS (0)</span>
                 ) : (
                   <span className="text-red-600">❌ FAILED ({execMutation.data.exit_code})</span>
                 )}
               </div>
-              <div>Duration: {execMutation.data.elapsed_ms}ms</div>
+              <div>{t("durationLabel")} {execMutation.data.elapsed_ms}ms</div>
             </div>
             {execMutation.data.stdout && (
               <pre className="max-h-96 overflow-auto rounded bg-gray-900 p-4 font-mono text-xs text-green-400">
@@ -233,7 +250,7 @@ export default function ContainerPage() {
             }}
             className="rounded border px-3 py-1 text-sm hover:bg-muted"
           >
-            {terminalOpen ? "Close Terminal" : "Open Terminal"}
+            {terminalOpen ? t("closeTerminal") : t("openTerminal")}
           </button>
         </div>
         {terminalOpen && (
@@ -248,11 +265,9 @@ export default function ContainerPage() {
 
       <OConfirmDialog
         open={pendingAction !== null}
-        title={`${
-          pendingAction ? pendingAction.charAt(0).toUpperCase() + pendingAction.slice(1) : ""
-        } Container`}
-        description={`Are you sure you want to ${pendingAction} container "${name}"?`}
-        confirmLabel={pendingAction ?? "Confirm"}
+        title={t("actionConfirmTitle", { action: pendingAction ? tc(pendingAction) : "" })}
+        description={t("actionConfirmDesc", { action: pendingAction ? tc(pendingAction) : "", name })}
+        confirmLabel={pendingAction ? tc(pendingAction) : ""}
         onConfirm={() => {
           if (pendingAction) actionMutation.mutate(pendingAction);
           setPendingAction(null);

@@ -110,7 +110,7 @@ export default function EventsPage() {
       {selectedId && (
         <section>
           <h2 className="mb-2 text-lg font-semibold">{t("causalChain")} — {selectedId}</h2>
-          {chain.isLoading ? <p>Loading chain…</p> : chain.error ? (
+          {chain.isLoading ? <p>{t("loadingChain")}</p> : chain.error ? (
             <p className="text-destructive">{(chain.error as Error).message}</p>
           ) : (
             <OJsonViewer data={chain.data ?? null} defaultExpandDepth={3} />

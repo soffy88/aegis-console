@@ -4,6 +4,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { OConfirmDialog } from "@helios/blocks";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
 import { getValidToken } from "@/lib/auth/token-store";
@@ -21,6 +22,8 @@ export default function HostTerminalPage() {
   const [ready, setReady] = useState(false);
   const [token, setToken] = useState("");
   const [err, setErr] = useState<string | null>(null);
+  const [starting, setStarting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   // Reset the open terminal when the active org changes (adjusting state during
   // render on a prop change — the React-recommended alternative to an effect,
@@ -34,12 +37,15 @@ export default function HostTerminalPage() {
   async function start() {
     if (!orgId) return;
     setErr(null);
+    setStarting(true);
     try {
       await aegisFetch(paths.hostShell(orgId), { method: "POST" });
       setToken(getValidToken() ?? "");
       setReady(true);
     } catch (e) {
       setErr((e as Error).message);
+    } finally {
+      setStarting(false);
     }
   }
 
@@ -55,11 +61,11 @@ export default function HostTerminalPage() {
       {err && <p className="text-sm text-red-400">{err}</p>}
       {!ready ? (
         <button
-          onClick={start}
-          disabled={!orgId}
+          onClick={() => setConfirmOpen(true)}
+          disabled={!orgId || starting}
           className="rounded-md bg-[var(--primary)] px-5 py-2 text-sm text-[var(--primary-foreground)] disabled:opacity-50"
         >
-          {t("open")}
+          {starting ? t("starting") : t("open")}
         </button>
       ) : (
         <div className="h-[65vh] overflow-hidden rounded-md border border-[var(--border)]">
@@ -71,6 +77,16 @@ export default function HostTerminalPage() {
           />
         </div>
       )}
+
+      <OConfirmDialog
+        open={confirmOpen}
+        title={t("confirmTitle")}
+        description={t("confirmDescription")}
+        danger
+        confirmLabel={t("open")}
+        onConfirm={() => { setConfirmOpen(false); void start(); }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }

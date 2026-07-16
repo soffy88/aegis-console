@@ -18,9 +18,10 @@ export default function StatusComponentsPage() {
   const [name, setName] = useState("");
   const [st, setSt] = useState("operational");
   const [deleteTarget, setDeleteTarget] = useState<C | null>(null);
+  const [err, setErr] = useState<string | null>(null);
   const q = useQuery<{ overall: string; components: C[] }>({ queryKey: ["statusComponents", orgId], queryFn: () => aegisFetch(paths.statusComponents(orgId!)), enabled: !!orgId });
-  const upM = useMutation({ mutationFn: (b: { name: string; status: string }) => aegisFetch(paths.statusComponents(orgId!), { method: "POST", body: JSON.stringify(b) }), onSuccess: () => { setName(""); qc.invalidateQueries({ queryKey: ["statusComponents", orgId] }); } });
-  const delM = useMutation({ mutationFn: (id: string) => aegisFetch(paths.statusComponent(orgId!, id), { method: "DELETE" }), onSuccess: () => { setDeleteTarget(null); qc.invalidateQueries({ queryKey: ["statusComponents", orgId] }); } });
+  const upM = useMutation({ mutationFn: (b: { name: string; status: string }) => aegisFetch(paths.statusComponents(orgId!), { method: "POST", body: JSON.stringify(b) }), onSuccess: () => { setErr(null); setName(""); qc.invalidateQueries({ queryKey: ["statusComponents", orgId] }); }, onError: (e: Error) => setErr(e.message) });
+  const delM = useMutation({ mutationFn: (id: string) => aegisFetch(paths.statusComponent(orgId!, id), { method: "DELETE" }), onSuccess: () => { setErr(null); setDeleteTarget(null); qc.invalidateQueries({ queryKey: ["statusComponents", orgId] }); }, onError: (e: Error) => setErr(e.message) });
   const inp = "rounded-md border border-[var(--border)] bg-[var(--muted)] px-2 py-1.5 text-sm";
   return (
     <div className="space-y-4">
@@ -31,6 +32,7 @@ export default function StatusComponentsPage() {
         <select value={st} onChange={(e) => setSt(e.target.value)} className={inp}>{STATES.map((s) => <option key={s} value={s}>{s}</option>)}</select>
         <button disabled={!name} onClick={() => upM.mutate({ name, status: st })} className="rounded-md bg-[var(--primary)] px-3 py-1.5 text-sm text-[var(--primary-foreground)] disabled:opacity-50">{t("save")}</button>
       </div>
+      {err && <p className="text-sm text-destructive">{err}</p>}
       <table className="w-full text-sm"><tbody>{(q.data?.components ?? []).map((c) => (
         <tr key={c.id} className="border-b border-[var(--border)]/40">
           <td className="p-2 font-medium">{c.name}</td>

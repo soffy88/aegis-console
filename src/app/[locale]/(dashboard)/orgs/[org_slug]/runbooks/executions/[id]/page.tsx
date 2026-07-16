@@ -24,6 +24,7 @@ interface Execution {
 
 export default function ExecutionPage() {
   const t = useTranslations("runbooks");
+  const tc = useTranslations("common");
   const { org_slug, id } = useParams<{ org_slug: string; id: string }>();
   const orgId = useOrgIdBySlug(org_slug);
   const qc = useQueryClient();
@@ -40,8 +41,8 @@ export default function ExecutionPage() {
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["execution", orgId, id] }),
   });
 
-  if (isLoading) return <p>Loading…</p>;
-  if (!data) return <p>Execution not found</p>;
+  if (isLoading) return <p>{tc("loading")}</p>;
+  if (!data) return <p>{t("executionNotFound")}</p>;
 
   return (
     <div className="space-y-4">

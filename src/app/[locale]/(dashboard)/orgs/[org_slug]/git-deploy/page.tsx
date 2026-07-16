@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import type { Project } from "@/types/aegis";
@@ -12,6 +12,7 @@ import { useOrgIdBySlug } from "@/hooks/use-org-id";
 export default function GitDeployPage() {
   const t = useTranslations("gitDeploy");
   const { org_slug } = useParams<{ org_slug: string }>();
+  const router = useRouter();
   const orgId = useOrgIdBySlug(org_slug);
   const [form, setForm] = useState({
     repo_url: "", app_name: "", branch: "", subdir: "", ports: "", project_id: "",
@@ -46,6 +47,8 @@ export default function GitDeployPage() {
     onSuccess: (r) => {
       setErr(null);
       setMsg(t("started", { id: r.install_id }));
+      // Jump to the Apps list, which polls installing/building status and shows progress.
+      router.push(`/orgs/${org_slug}/apps`);
     },
     onError: (e: Error) => {
       setMsg(null);

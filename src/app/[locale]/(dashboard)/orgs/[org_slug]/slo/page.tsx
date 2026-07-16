@@ -54,7 +54,11 @@ export default function SloPage() {
   });
   const delM = useMutation({
     mutationFn: (id: string) => aegisFetch(paths.slo(orgId!, id), { method: "DELETE" }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["slos", orgId] }),
+    onSuccess: () => {
+      setErr(null);
+      qc.invalidateQueries({ queryKey: ["slos", orgId] });
+    },
+    onError: (e: Error) => setErr(e.message),
   });
 
   const inp = "rounded-md border border-[var(--border)] bg-[var(--muted)] px-2 py-1.5 text-sm";

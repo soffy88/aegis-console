@@ -68,7 +68,7 @@ export default function ProjectsPage() {
   if (error)
     return (
       <p className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
-        Error: {(error as Error).message}
+        {tc("error")}: {(error as Error).message}
       </p>
     );
 
@@ -108,14 +108,14 @@ export default function ProjectsPage() {
         </form>
       )}
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-xl border bg-card p-4 shadow-sm">
           <p className="text-muted-foreground text-sm">{t("statTotal")}</p>
           <p className="mt-1 text-2xl font-bold">{data?.length ?? 0}</p>
         </div>
         <div className="rounded-xl border bg-card p-4 shadow-sm">
           <p className="text-muted-foreground text-sm">{t("statProd")}</p>
-          <p className="mt-1 text-2xl font-bold text-blue-400">
+          <p className="mt-1 text-2xl font-bold text-[var(--primary)]">
             {data?.filter((p) => p.environment === "prod").length ?? 0}
           </p>
         </div>

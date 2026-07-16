@@ -9,6 +9,7 @@ type G = { service: string; resource: string; event_type: string; severity: stri
 type Res = { raw_events: number; groups: number; noise_reduction_pct: number; correlated: G[] };
 export default function CorrelationPage() {
   const t = useTranslations("correlation");
+  const tc = useTranslations("common");
   const { org_slug } = useParams<{ org_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
   const q = useQuery<Res>({ queryKey: ["correlation", orgId], queryFn: () => aegisFetch(paths.correlation(orgId!, 1440)), enabled: !!orgId, refetchInterval: 30000 });
@@ -16,6 +17,11 @@ export default function CorrelationPage() {
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">{t("title")}</h1>
       <p className="text-sm text-[var(--muted-foreground)]">{t("hint")}</p>
+      {q.isLoading && <p className="text-sm text-[var(--muted-foreground)]">{tc("loading")}</p>}
+      {q.isError && <p className="text-sm text-destructive">{(q.error as Error).message}</p>}
+      {q.data && q.data.correlated.length === 0 && (
+        <p className="rounded-md border border-[var(--border)] p-4 text-sm text-[var(--muted-foreground)]">{t("empty")}</p>
+      )}
       {q.data && (
         <div className="flex gap-4 text-sm">
           <span>{t("rawEvents")}: <b>{q.data.raw_events}</b></span>

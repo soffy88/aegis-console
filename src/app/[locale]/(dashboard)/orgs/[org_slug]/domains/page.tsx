@@ -43,6 +43,7 @@ export default function DomainsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ domain: "", upstream: "", service_url: "" });
+  const [mutateError, setMutateError] = useState<string | null>(null);
 
   const routes = useQuery<EdgeRoute[]>({
     queryKey: ["edge-routes", orgId],
@@ -57,7 +58,9 @@ export default function DomainsPage() {
       void qc.invalidateQueries({ queryKey: ["edge-routes", orgId] });
       setShowCreate(false);
       setForm({ domain: "", upstream: "", service_url: "" });
+      setMutateError(null);
     },
+    onError: (e: Error) => setMutateError(e.message),
   });
 
   const deleteMutation = useMutation({
@@ -66,7 +69,9 @@ export default function DomainsPage() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["edge-routes", orgId] });
       setDeletingId(null);
+      setMutateError(null);
     },
+    onError: (e: Error) => setMutateError(e.message),
   });
 
   function setField(key: keyof typeof form) {
@@ -109,6 +114,8 @@ export default function DomainsPage() {
           </button>
         </form>
       )}
+
+      {mutateError && <p className="text-sm text-destructive">{mutateError}</p>}
 
       <ODataTable<EdgeRoute>
         data={routes.data ? { columns, rows: routes.data } : null}

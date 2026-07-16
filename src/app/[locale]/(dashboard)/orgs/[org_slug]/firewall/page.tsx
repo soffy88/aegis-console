@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import { OConfirmDialog } from "@helios/blocks";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
 import { useOrgIdBySlug } from "@/hooks/use-org-id";
@@ -20,6 +21,7 @@ export default function FirewallPage() {
   const [action, setAction] = useState("allow");
   const [num, setNum] = useState("");
   const [err, setErr] = useState<string | null>(null);
+  const [confirmDel, setConfirmDel] = useState<number | null>(null);
 
   const status = useQuery<Status>({
     queryKey: ["firewall", orgId],
@@ -49,6 +51,17 @@ export default function FirewallPage() {
     },
     onError: (e: Error) => setErr(e.message),
   });
+
+  // Find the rule text for a given number in the raw `ufw status numbered`
+  // output (lines look like "[ 1] 22/tcp    ALLOW IN  Anywhere").
+  function ruleLine(n: number): string {
+    const raw = status.data?.raw ?? "";
+    for (const line of raw.split("\n")) {
+      const m = line.match(/^\s*\[\s*(\d+)\s*\]\s*(.*)$/);
+      if (m && Number(m[1]) === n) return (m[2] ?? "").trim();
+    }
+    return "";
+  }
 
   const inp = "rounded-md border border-[var(--border)] bg-[var(--muted)] px-2 py-1.5 text-sm";
   return (
@@ -91,13 +104,14 @@ export default function FirewallPage() {
         </label>
         <button
           disabled={!num || delM.isPending}
-          onClick={() => delM.mutate(Number(num))}
+          onClick={() => setConfirmDel(Number(num))}
           className="rounded-md border border-red-500/30 px-3 py-1.5 text-sm text-red-400 hover:bg-red-500/10 disabled:opacity-50"
         >
           {t("deleteRule")}
         </button>
       </div>
       {err && <p className="text-sm text-red-400">{err}</p>}
+      {status.error && <p className="text-sm text-red-400">{(status.error as Error).message}</p>}
 
       <div>
         <p className="mb-1 text-xs text-[var(--muted-foreground)]">
@@ -107,6 +121,23 @@ export default function FirewallPage() {
           {status.isLoading ? t("loading") : status.data?.raw || t("empty")}
         </pre>
       </div>
+
+      <OConfirmDialog
+        open={confirmDel !== null}
+        title={t("deleteRuleTitle")}
+        description={
+          confirmDel !== null
+            ? t("deleteRuleConfirm", { num: confirmDel, rule: ruleLine(confirmDel) || "—" })
+            : ""
+        }
+        danger
+        confirmLabel={t("deleteRule")}
+        onConfirm={() => {
+          if (confirmDel !== null) delM.mutate(confirmDel);
+          setConfirmDel(null);
+        }}
+        onCancel={() => setConfirmDel(null)}
+      />
     </div>
   );
 }

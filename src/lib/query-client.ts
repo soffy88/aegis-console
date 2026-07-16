@@ -6,10 +6,21 @@ import {
 import { ApiError } from "./api";
 import { handleAuthFailure } from "./auth/on-auth-failure";
 import { notify } from "./toast-bridge";
+import en from "@/messages/en.json";
+import zh from "@/messages/zh.json";
 
 /** True when an error is (or wraps) an expired-session 401. */
 function isAuthError(error: unknown): boolean {
   return error instanceof ApiError && error.status === 401;
+}
+
+// The QueryClient lives outside React, so next-intl's useTranslations() hook is
+// unavailable here. localePrefix is "always", so the active locale is the first
+// path segment; fall back to the default ("zh"). We only need a couple of
+// already-translated "common" strings for the global error toasts.
+function commonMsg(key: "error" | "actionFailed"): string {
+  const seg = typeof window !== "undefined" ? window.location.pathname.split("/")[1] : "";
+  return (seg === "en" ? en : zh).common[key];
 }
 
 export function makeQueryClient() {
@@ -18,7 +29,15 @@ export function makeQueryClient() {
     // app-wide, so an expired session no longer leaves pages blank.
     queryCache: new QueryCache({
       onError: (error) => {
-        if (isAuthError(error)) handleAuthFailure();
+        if (isAuthError(error)) {
+          handleAuthFailure();
+          return;
+        }
+        notify({
+          kind: "error",
+          title: commonMsg("error"),
+          description: error instanceof Error ? error.message : String(error),
+        });
       },
     }),
     // Default mutation error surfacing: an expired session redirects; anything
@@ -34,7 +53,7 @@ export function makeQueryClient() {
         if (mutation.options.onError) return;
         notify({
           kind: "error",
-          title: "Action failed",
+          title: commonMsg("actionFailed"),
           description: error instanceof Error ? error.message : String(error),
         });
       },

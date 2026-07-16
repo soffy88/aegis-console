@@ -10,6 +10,7 @@ type Res = { scanned: number; summary: Record<string, number>; findings: F[] };
 const col = (s: string) => (s === "high" ? "text-red-400" : s === "medium" ? "text-yellow-500" : "text-[var(--muted-foreground)]");
 export default function SecurityPage() {
   const t = useTranslations("security");
+  const tc = useTranslations("common");
   const { org_slug } = useParams<{ org_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
   const q = useQuery<Res>({ queryKey: ["securityPosture", orgId], queryFn: () => aegisFetch(paths.securityPosture(orgId!)), enabled: !!orgId });
@@ -17,6 +18,11 @@ export default function SecurityPage() {
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">{t("title")}</h1>
       <p className="text-sm text-[var(--muted-foreground)]">{t("hint")}</p>
+      {q.isLoading && <p className="text-sm text-[var(--muted-foreground)]">{tc("loading")}</p>}
+      {q.isError && <p className="text-sm text-destructive">{(q.error as Error).message}</p>}
+      {q.data && q.data.findings.length === 0 && (
+        <p className="rounded-md border border-[var(--border)] p-4 text-sm text-[var(--muted-foreground)]">{t("empty")}</p>
+      )}
       {q.data && (
         <div className="flex gap-3 text-sm">
           <span>{t("scanned")}: <b>{q.data.scanned}</b></span>

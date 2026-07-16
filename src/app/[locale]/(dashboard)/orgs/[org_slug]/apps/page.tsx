@@ -20,6 +20,21 @@ interface ContainerStats {
   net_tx_kb: number;
 }
 
+const TRANSITIONAL_STATUSES = ["installing", "pending", "building", "restarting"];
+
+function isTransitional(status: string) {
+  return TRANSITIONAL_STATUSES.includes(status);
+}
+
+function Spinner({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={`animate-spin ${className}`} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+    </svg>
+  );
+}
+
 function MiniSparkline({ points }: { points: number[] }) {
   if (points.length < 2) return null;
   const max = Math.max(...points, 1);
@@ -35,6 +50,7 @@ function MiniSparkline({ points }: { points: number[] }) {
 }
 
 function AppCard({ app, orgId, orgSlug }: { app: App; orgId: string; orgSlug: string }) {
+  const t = useTranslations("apps");
   const [cpuHistory, setCpuHistory] = useState<number[]>([]);
   const [actionError, setActionError] = useState<string | null>(null);
   const qc = useQueryClient();
@@ -79,6 +95,13 @@ function AppCard({ app, orgId, orgSlug }: { app: App; orgId: string; orgSlug: st
         <OStatusBadge label={app.status} />
       </div>
 
+      {isTransitional(app.status) && (
+        <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
+          <Spinner className="h-3.5 w-3.5" />
+          {t("statusInProgress")}
+        </div>
+      )}
+
       {stats && (
         <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
           <div>CPU <span className="font-mono text-foreground">{stats.cpu_pct}%</span></div>
@@ -116,6 +139,7 @@ function AppCard({ app, orgId, orgSlug }: { app: App; orgId: string; orgSlug: st
 
 export default function AppsPage() {
   const t = useTranslations("apps");
+  const tc = useTranslations("common");
   const { org_slug } = useParams<{ org_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
 
@@ -123,6 +147,7 @@ export default function AppsPage() {
     queryKey: ["apps", orgId],
     queryFn: () => aegisFetch<App[]>(paths.apps(orgId!)),
     enabled: !!orgId,
+    refetchInterval: (q) => (q.state.data?.some((a) => isTransitional(a.status)) ? 3000 : false),
   });
 
   return (
@@ -136,8 +161,11 @@ export default function AppsPage() {
           {t("install")}
         </Link>
       </div>
-      {isLoading && <p>Loading…</p>}
-      {error && <p className="text-red-600">Error: {(error as Error).message}</p>}
+      {isLoading && <p className="text-sm text-[var(--muted-foreground)]">{tc("loading")}</p>}
+      {error && <p className="text-destructive">{tc("error")}: {(error as Error).message}</p>}
+      {!isLoading && !error && data?.length === 0 && (
+        <p className="text-sm text-[var(--muted-foreground)]">{t("noApps")}</p>
+      )}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {data?.map((app) => (
           <AppCard key={app.id} app={app} orgId={orgId ?? ""} orgSlug={org_slug} />

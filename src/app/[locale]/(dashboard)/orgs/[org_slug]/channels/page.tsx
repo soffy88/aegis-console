@@ -28,7 +28,7 @@ export default function ChannelsPage() {
     onSuccess: () => { setName(""); setUrl(""); setBotToken(""); setChatId(""); setMsg(null); setFormError(null); qc.invalidateQueries({ queryKey: ["channels", orgId] }); },
     onError: (e: Error) => setMsg(e.message),
   });
-  const testM = useMutation({ mutationFn: (id: string) => aegisFetch(paths.channelTest(orgId!, id), { method: "POST" }), onSuccess: () => setMsg("✓ sent"), onError: (e: Error) => setMsg("✗ " + e.message) });
+  const testM = useMutation({ mutationFn: (id: string) => aegisFetch(paths.channelTest(orgId!, id), { method: "POST" }), onSuccess: () => setMsg(`✓ ${t("testSent")}`), onError: (e: Error) => setMsg("✗ " + e.message) });
   const delM = useMutation({ mutationFn: (id: string) => aegisFetch(paths.channel(orgId!, id), { method: "DELETE" }), onSuccess: () => { setDeleteTarget(null); qc.invalidateQueries({ queryKey: ["channels", orgId] }); } });
   const inp = "rounded-md border border-[var(--border)] bg-[var(--muted)] px-2 py-1.5 text-sm";
 

@@ -115,11 +115,12 @@ export default function MembersPage() {
       cell: ({ row }) =>
         canAdmin ? (
           <select
+            aria-label={t("role")}
             value={row.original.role}
             onChange={(e) =>
               setRoleChange({ member: row.original, role: e.target.value })
             }
-            className="rounded border px-1 py-0.5 text-sm"
+            className="rounded border border-[var(--border)] px-1 py-0.5 text-sm"
             disabled={row.original.role === "owner"}
           >
             {row.original.role === "owner" && (

@@ -44,7 +44,14 @@
     "statusComponents": "状态页",
     "channels": "通知渠道",
     "memory": "内存管理",
-    "members": "成员"
+    "members": "成员",
+    "section": {
+      "deploy": "部署",
+      "infrastructure": "基础设施",
+      "operations": "运维",
+      "data": "数据",
+      "settings": "设置"
+    }
   },
   "common": {
     "create": "创建",
@@ -74,7 +81,8 @@
     "restart": "重启",
     "details": "详情",
     "app": "应用",
-    "actionFailed": "操作失败"
+    "actionFailed": "操作失败",
+    "saving": "保存中…"
   },
   "login": {
     "title": "登录 Aegis",
@@ -119,7 +127,17 @@
     "time": "时间",
     "type": "类型",
     "severity": "级别",
-    "appName": "应用名称"
+    "appName": "应用名称",
+    "catContainer": "容器",
+    "catHost": "主机",
+    "catGpu": "GPU",
+    "catGateway": "网关",
+    "catHeal": "自愈与事件",
+    "gpuUsage": "GPU 占用",
+    "healPending": "自愈待处理",
+    "healStatus": "自愈状态",
+    "noEvents": "暂无事件",
+    "healSummary": "待处理严重告警 {count} 条{count, plural, =0 {，系统运行正常。} other {，请及时处理。}}"
   },
   "apps": {
     "title": "应用",
@@ -131,7 +149,20 @@
     "uninstallConfirm": "确认卸载该应用？",
     "installTitle": "安装应用",
     "selectApp": "选择应用",
-    "installing": "安装中…"
+    "installing": "安装中…",
+    "statusInProgress": "处理中…",
+    "notFound": "未找到应用。",
+    "backingUp": "备份中…",
+    "backupS3": "备份 → S3",
+    "backupWebdav": "备份 → WebDAV",
+    "editCompose": "编辑 Compose",
+    "version": "版本",
+    "installDir": "安装目录",
+    "domain": "域名",
+    "installedAt": "安装于",
+    "installDirHelp": "绝对路径，不含空格",
+    "hostPort": "主机端口",
+    "hostPortHelp": "仅多容器应用需要。留空则使用默认端口（被占用时自动释放）。"
   },
   "store": {
     "title": "应用市场",
@@ -139,7 +170,17 @@
     "install": "安装",
     "category": "分类",
     "noResults": "未找到匹配应用",
-    "details": "详情"
+    "details": "详情",
+    "notFound": "未找到应用",
+    "technicalDetails": "技术细节",
+    "dockerImage": "Docker 镜像",
+    "ports": "端口",
+    "envVars": "环境变量",
+    "mounts": "挂载",
+    "noDescription": "暂无描述。",
+    "readyToDeploy": "准备部署？",
+    "deployHint": "下一步配置实例设置。",
+    "backToStore": "返回应用商店"
   },
   "containers": {
     "title": "容器",
@@ -171,7 +212,24 @@
     "bulkStopTitle": "停止容器",
     "bulkStopConfirm": "确定停止 {group} 中全部 {count} 个运行中的容器?",
     "bulkRestartTitle": "重启容器",
-    "bulkRestartConfirm": "确定重启 {group} 中全部 {count} 个运行中的容器?"
+    "bulkRestartConfirm": "确定重启 {group} 中全部 {count} 个运行中的容器?",
+    "singleStopTitle": "停止容器",
+    "singleStopConfirm": "确定停止容器 \"{name}\"？",
+    "singleRestartTitle": "重启容器",
+    "singleRestartConfirm": "确定重启容器 \"{name}\"？",
+    "inspect": "检查",
+    "stats": "统计",
+    "loadingStats": "加载统计中…",
+    "errorLoadingStats": "加载统计出错",
+    "executeCommand": "执行命令",
+    "executing": "执行中…",
+    "run": "运行",
+    "statusLabel": "状态：",
+    "durationLabel": "耗时：",
+    "openTerminal": "打开终端",
+    "closeTerminal": "关闭终端",
+    "actionConfirmTitle": "{action}容器",
+    "actionConfirmDesc": "确定要对容器 \"{name}\" 执行{action}吗？"
   },
   "events": {
     "title": "事件",
@@ -187,7 +245,12 @@
     "statCritical": "严重",
     "statWarning": "警告",
     "prev": "上一页",
-    "next": "下一页"
+    "next": "下一页",
+    "detailPrefix": "事件",
+    "trace": "追踪",
+    "copy": "复制",
+    "copyAria": "复制追踪 ID",
+    "loadingChain": "加载因果链…"
   },
   "webhooks": {
     "title": "Webhook 订阅",
@@ -207,7 +270,30 @@
     "deleteConfirm": "确认删除该 Webhook 订阅？",
     "testSend": "发送测试",
     "sending": "发送中…",
-    "creating": "创建中…"
+    "creating": "创建中…",
+    "subtitle": "组织级事件的出站通知",
+    "loadingEventTypes": "正在加载事件类型…",
+    "emptyDescription": "创建一个 webhook 以接收组织事件通知",
+    "deleteDescription": "这将永久删除 \"{name}\" 及其所有投递历史。",
+    "loadingDetail": "正在加载 webhook…",
+    "notFound": "未找到 webhook",
+    "back": "返回 webhooks",
+    "configuration": "配置",
+    "cfgSecret": "密钥",
+    "cfgBackoff": "退避 (秒)",
+    "secretEditHint": "密钥 (留空则保持不变)",
+    "saved": "已保存",
+    "noDeliveries": "暂无投递记录。",
+    "colState": "状态",
+    "colEvent": "事件",
+    "colHttp": "HTTP",
+    "colAttempts": "尝试次数",
+    "colError": "错误",
+    "deleteDescriptionUndo": "这将永久删除 \"{name}\" 及其所有投递历史，此操作不可撤销。",
+    "testEnqueued": "Webhook 测试已入队",
+    "testFailed": "测试失败",
+    "payload": "负载",
+    "close": "关闭"
   },
   "alertRules": {
     "title": "告警规则",
@@ -252,7 +338,18 @@
     "add": "新建项目",
     "creating": "创建中…",
     "slug": "标识 (slug)",
-    "slugHint": "仅限小写字母、数字和连字符"
+    "slugHint": "仅限小写字母、数字和连字符",
+    "overview": "概览",
+    "health": "健康状态",
+    "healthy": "健康",
+    "unhealthy": "异常",
+    "responseTime": "响应时间",
+    "healthProbe": "健康探测",
+    "configuration": "配置",
+    "notFound": "项目不存在。",
+    "loadError": "加载项目失败",
+    "collectingHistory": "正在收集探测历史…",
+    "probesSince": "自打开页面以来 {count} 次探测（每 30 秒）"
   },
   "alertIngest": {
     "title": "告警接入调试",
@@ -265,7 +362,8 @@
     "executeLive": "正式执行",
     "sending": "发送中…",
     "request": "请求",
-    "response": "响应"
+    "response": "响应",
+    "subtitle": "直接向摄取端点发送测试告警。"
   },
   "domains": {
     "title": "域名",
@@ -285,7 +383,14 @@
     "empty": "暂无运维手册",
     "executionTitle": "执行详情",
     "output": "输出",
-    "executing": "执行中…"
+    "executing": "执行中…",
+    "colDescription": "描述",
+    "colTrigger": "触发器",
+    "colApproval": "审批",
+    "colSource": "来源",
+    "pluginNote": "自愈插件 — 不支持手动执行",
+    "confirm": "确认？",
+    "executionNotFound": "未找到执行记录"
   },
   "autoheal": {
     "title": "自愈中心",
@@ -304,7 +409,16 @@
     "killSwitchEngage": "急停",
     "killSwitchDisengage": "解除急停",
     "killSwitchReasonPlaceholder": "原因(可选)",
-    "killSwitchUpdatedAt": "最近变更"
+    "killSwitchUpdatedAt": "最近变更",
+    "severity": "级别",
+    "source": "来源",
+    "reason": "原因",
+    "value": "数值",
+    "handledAt": "处理时间",
+    "lastRefreshed": "最后刷新",
+    "killSwitchConfirmTitle": "确认切换 Kill Switch",
+    "killSwitchEngageConfirm": "启用全局 kill switch？所有自动自愈动作将在平台范围内停止，直到解除。",
+    "killSwitchDisengageConfirm": "解除 kill switch 并恢复自动自愈动作？"
   },
   "backups": {
     "title": "备份与恢复",
@@ -313,7 +427,16 @@
     "size": "大小",
     "completed": "完成时间",
     "restore": "恢复",
-    "confirmRestore": "确认恢复"
+    "confirmRestore": "确认恢复",
+    "appSlug": "应用 Slug",
+    "instanceName": "实例名称",
+    "targetVolume": "目标卷",
+    "containerIdLabel": "容器 ID（恢复前停止）",
+    "restoringFrom": "恢复自",
+    "overwriteWarning": "⚠️ 警告：这将覆盖目标卷中的现有数据。请确保相关容器已停止。",
+    "restoreConfirmTitle": "恢复备份",
+    "restoreConfirmDesc": "这将覆盖 \"{volume}\" 中的所有数据。是否继续？",
+    "errorTitle": "备份错误"
   },
   "nodes": {
     "title": "节点管理",
@@ -329,12 +452,46 @@
     "details": "节点详情",
     "nodeInfo": "节点信息",
     "rawInfo": "节点原始数据",
-    "nodeContainers": "该节点上的容器"
+    "nodeContainers": "该节点上的容器",
+    "cpu": "CPU",
+    "memory": "内存",
+    "loadingDetails": "正在加载节点详情…",
+    "stopContainerTitle": "停止容器",
+    "restartContainerTitle": "重启容器",
+    "stopContainerConfirm": "确定停止容器 \"{name}\"？",
+    "restartContainerConfirm": "确定重启容器 \"{name}\"？"
   },
   "brain": {
     "title": "Brain 调试",
     "noSteps": "LLM 未生成可执行步骤，建议人工处理。",
-    "stepsPlaceholder": "规划步骤将显示在此处"
+    "stepsPlaceholder": "规划步骤将显示在此处",
+    "signalInput": "信号输入 (JSON)",
+    "processing": "处理中…",
+    "runTriage": "运行分诊",
+    "result": "结果",
+    "invalidJson": "JSON 格式无效",
+    "priority": "优先级",
+    "escalate": "升级",
+    "noResults": "暂无结果",
+    "inputData": "输入数据",
+    "deepInvestigation": "深度调查",
+    "severityCritical": "严重",
+    "severityHigh": "高",
+    "severityMedium": "中",
+    "investigating": "调查中…",
+    "launchRca": "启动 RCA 智能体",
+    "agentWorking": "智能体运行中…（最多 30 秒）",
+    "investigationResult": "调查结果",
+    "investigationSkipped": "已跳过调查",
+    "statusLabel": "状态：",
+    "stepsHistory": "步骤历史 ({n})",
+    "step": "步骤 {n}：{name}",
+    "agentResultsPlaceholder": "智能体结果将显示在此处",
+    "pasteInvestigation": "粘贴调查结果",
+    "pastePlaceholder": "粘贴最终答案或完整 RCA JSON…",
+    "planning": "规划中…",
+    "generatePlan": "生成行动计划",
+    "remediationSteps": "修复步骤"
   },
   "members": {
     "title": "成员",
@@ -363,7 +520,8 @@
     "noData": "所选范围内无数据",
     "noSeries": "尚无指标数据。启动 aegis-agent 后此页将自动填充。",
     "samples": "采样点",
-    "detail": "详细查询"
+    "detail": "详细查询",
+    "loadError": "加载指标数据失败"
   },
   "images": {
     "title": "镜像",
@@ -377,7 +535,8 @@
     "deleteTitle": "删除镜像",
     "deleteConfirm": "确定删除镜像「{name}」？此操作无法撤销。",
     "pruneTitle": "清理未使用资源",
-    "pruneConfirm": "确定清理所有未使用的镜像、容器、网络及构建缓存？此操作无法撤销。"
+    "pruneConfirm": "确定清理所有未使用的镜像、容器、网络及构建缓存？此操作无法撤销。",
+    "pulling": "拉取中…"
   },
   "networks": {
     "title": "网络",
@@ -422,7 +581,10 @@
     "permissions": "权限",
     "applyChmod": "改权限",
     "compress": "压缩(zip)",
-    "extract": "解压到此"
+    "extract": "解压到此",
+    "chmodTitle": "修改权限",
+    "chmodConfirm": "对 \"{path}\" 应用权限 {mode}？",
+    "chmodConfirmDir": "对目录 \"{path}\" 应用权限 {mode}？可能影响其中内容的访问。"
   },
   "account": {
     "title": "账户",
@@ -462,7 +624,8 @@
     "create": "创建",
     "drop": "删除",
     "dropConfirm": "删除数据库「{db}」？将永久删除其所有数据。",
-    "loading": "加载中…"
+    "loading": "加载中…",
+    "loadFailed": "加载数据库实例失败"
   },
   "compose": {
     "title": "Compose 编辑",
@@ -477,7 +640,10 @@
     "title": "宿主机终端",
     "warning": "⚠ 这将打开一个具有宿主机完全访问权限的特权 shell,仅限管理员使用。",
     "hint": "会启动一个特权 helper 容器(宿主机根挂载在 /host)。要进入完整宿主机 shell,请运行:",
-    "open": "打开宿主机终端"
+    "open": "打开宿主机终端",
+    "starting": "正在启动…",
+    "confirmTitle": "打开主机 shell？",
+    "confirmDescription": "这将授予拥有完整主机访问权限的特权 root shell。请在了解风险后再继续。"
   },
   "logs": {
     "title": "日志搜索",
@@ -499,7 +665,9 @@
     "deleteRule": "删除",
     "backend": "后端",
     "loading": "加载中…",
-    "empty": "暂无规则 / 不可用。"
+    "empty": "暂无规则 / 不可用。",
+    "deleteRuleTitle": "删除防火墙规则",
+    "deleteRuleConfirm": "删除规则 #{num}（{rule}）？此操作不可撤销。"
   },
   "websites": {
     "title": "网站",
@@ -511,7 +679,9 @@
     "ports": "端口",
     "remove": "删除",
     "removeConfirm": "删除网站「{name}」？",
-    "domain": "域名"
+    "domain": "域名",
+    "deploying": "正在部署…",
+    "empty": "暂无网站。"
   },
   "apm": {
     "title": "APM / 分布式追踪",
@@ -554,7 +724,8 @@
     "run": "查询",
     "count": "{n} 行",
     "reachable": "可达",
-    "unreachable": "不可达"
+    "unreachable": "不可达",
+    "empty": "无日志行"
   },
   "rum": {
     "title": "真实用户监测 (RUM)",
@@ -583,7 +754,8 @@
     "resource": "资源",
     "type": "类型",
     "events": "事件数",
-    "lastSeen": "最近"
+    "lastSeen": "最近",
+    "empty": "暂无关联事件。"
   },
   "security": {
     "title": "安全态势",
@@ -595,7 +767,8 @@
     "severity": "级别",
     "container": "容器",
     "check": "检查项",
-    "detail": "详情"
+    "detail": "详情",
+    "empty": "无检查结果"
   },
   "channels": {
     "title": "通知渠道",
@@ -612,7 +785,8 @@
     "invalidUrl": "请输入有效的 http(s) URL。",
     "urlRequired": "请填写 Webhook URL。",
     "botTokenRequired": "请填写 Bot Token。",
-    "chatIdRequired": "请填写 Chat ID。"
+    "chatIdRequired": "请填写 Chat ID。",
+    "testSent": "已发送"
   },
   "statusComponents": {
     "title": "状态页组件",
@@ -631,7 +805,10 @@
     "phase": "状态",
     "ready": "就绪",
     "restarts": "重启",
-    "node": "节点"
+    "node": "节点",
+    "notReady": "未就绪",
+    "noNodes": "无节点",
+    "noPods": "无 Pod"
   },
   "memory": {
     "title": "内存管理",
@@ -651,7 +828,9 @@
     "save": "保存",
     "clear": "清除",
     "cancel": "取消",
-    "caveat": "上限作用于运行中的容器,容器被重建(如 compose up)后会重置——要永久生效请同时写进 compose/run 定义。Docker 无法从运行中的容器移除已设上限,要恢复无限制需重建容器。"
+    "caveat": "上限作用于运行中的容器,容器被重建(如 compose up)后会重置——要永久生效请同时写进 compose/run 定义。Docker 无法从运行中的容器移除已设上限,要恢复无限制需重建容器。",
+    "setLimitTitle": "设置内存上限",
+    "setLimitConfirm": "将 {name} 的内存上限设为 {mb} MiB？设得过低可能导致容器被 OOM 杀掉。"
   },
   "invite": {
     "title": "接受邀请",
@@ -684,5 +863,48 @@
     "deploying": "构建中…",
     "portsHint": "端口会自动映射到空闲主机端口(避免冲突);部署后在「容器」页查看实际端口。",
     "started": "已开始构建部署(install_id {id})。构建完成后可在「应用/容器」查看。"
+  },
+  "uptime": {
+    "title": "在线探测",
+    "subtitle": "HTTP 探测目标 — 结果进 probe_up / probe_latency_ms 指标。",
+    "targets": "目标数",
+    "up": "在线",
+    "down": "掉线",
+    "addTitle": "添加探测",
+    "name": "名称",
+    "url": "URL",
+    "intervalSec": "间隔(秒)",
+    "expectedStatus": "期望状态码",
+    "add": "添加",
+    "adding": "添加中…",
+    "colStatus": "状态",
+    "colLatency": "延迟",
+    "colTls": "TLS 证书",
+    "colInterval": "间隔",
+    "colEnabled": "启用",
+    "statusEnabled": "已启用",
+    "statusDisabled": "已停用",
+    "delete": "删除",
+    "days": "{n} 天",
+    "empty": "还没有探测目标"
+  },
+  "incidents": {
+    "title": "事件",
+    "colTitle": "标题",
+    "colSeverity": "严重程度",
+    "colStatus": "状态",
+    "colStarted": "开始时间",
+    "colResolved": "解决时间",
+    "colPostmortem": "复盘",
+    "postmortemGenerated": "✓ 已生成",
+    "started": "开始于 {time}",
+    "resolved": "解决于 {time}",
+    "postmortem": "复盘报告",
+    "generating": "生成中…",
+    "regenerate": "重新生成",
+    "generate": "生成",
+    "noPostmortem": "尚无复盘报告。点击「生成」用 AI 创建。",
+    "relatedEvents": "关联事件 ({n})",
+    "noEvents": "无关联事件。"
   }
 }

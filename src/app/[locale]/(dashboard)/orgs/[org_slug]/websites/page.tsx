@@ -12,6 +12,7 @@ type Site = { name: string; container: string; status: string; ports: string; do
 
 export default function WebsitesPage() {
   const t = useTranslations("websites");
+  const tc = useTranslations("common");
   const { org_slug } = useParams<{ org_slug: string }>();
   const orgId = useOrgIdBySlug(org_slug);
   const qc = useQueryClient();
@@ -48,7 +49,8 @@ export default function WebsitesPage() {
   });
   const delM = useMutation({
     mutationFn: (n: string) => aegisFetch(paths.website(orgId!, n), { method: "DELETE" }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["websites", orgId] }),
+    onSuccess: () => { setMsg(null); qc.invalidateQueries({ queryKey: ["websites", orgId] }); },
+    onError: (e: Error) => setMsg(`✗ ${e.message}`),
   });
 
   const inp = "rounded-md border border-[var(--border)] bg-[var(--muted)] px-2 py-1.5 text-sm";
@@ -78,7 +80,7 @@ export default function WebsitesPage() {
           onClick={() => createM.mutate()}
           className="rounded-md bg-[var(--primary)] px-3 py-1.5 text-sm text-[var(--primary-foreground)] disabled:opacity-50"
         >
-          {t("deploy")}
+          {createM.isPending ? t("deploying") : t("deploy")}
         </button>
       </div>
       {msg && <p className="font-mono text-xs text-[var(--muted-foreground)]">{msg}</p>}
@@ -94,6 +96,23 @@ export default function WebsitesPage() {
           </tr>
         </thead>
         <tbody>
+          {list.isLoading && (
+            <tr>
+              <td colSpan={5} className="p-2 text-xs text-[var(--muted-foreground)]">{tc("loading")}</td>
+            </tr>
+          )}
+          {list.error && (
+            <tr>
+              <td colSpan={5} className="p-2 text-xs text-destructive">
+                {list.error instanceof Error ? list.error.message : tc("failed")}
+              </td>
+            </tr>
+          )}
+          {!list.isLoading && !list.error && list.data?.length === 0 && (
+            <tr>
+              <td colSpan={5} className="p-2 text-xs text-[var(--muted-foreground)]">{t("empty")}</td>
+            </tr>
+          )}
           {(list.data ?? []).map((s) => (
             <tr key={s.container} className="border-b border-[var(--border)]/40">
               <td className="p-2 font-medium">{s.name}</td>

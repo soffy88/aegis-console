@@ -108,23 +108,23 @@ export default function InstallPage() {
     <div className="max-w-lg space-y-6">
       <h1 className="text-2xl font-bold">{t("installTitle")}</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <OFormField label="App Name" htmlFor="app_name" required error={errors.app_name}>
+        <OFormField label={t("appName")} htmlFor="app_name" required error={errors.app_name}>
           <OTextInput id="app_name" value={fields.app_name} onChange={set("app_name")} placeholder="my-app" />
         </OFormField>
-        <OFormField label="Install Directory" htmlFor="install_dir" required error={errors.install_dir} help="Absolute path, no spaces">
+        <OFormField label={t("installDir")} htmlFor="install_dir" required error={errors.install_dir} help={t("installDirHelp")}>
           <OTextInput id="install_dir" value={fields.install_dir} onChange={set("install_dir")} placeholder="/opt/apps/my-app" />
         </OFormField>
-        <OFormField label="Version" htmlFor="app_version" error={errors.app_version}>
+        <OFormField label={t("version")} htmlFor="app_version" error={errors.app_version}>
           <OTextInput id="app_version" value={fields.app_version} onChange={set("app_version")} placeholder="1.0.0" />
         </OFormField>
-        <OFormField label="Domain" htmlFor="domain" error={errors.domain}>
+        <OFormField label={t("domain")} htmlFor="domain" error={errors.domain}>
           <OTextInput id="domain" value={fields.domain} onChange={set("domain")} placeholder="app.example.com" />
         </OFormField>
         <OFormField
-          label="Host Port"
+          label={t("hostPort")}
           htmlFor="host_port"
           error={errors.host_port}
-          help="Multi-container apps only. Leave blank to use the default (auto-freed if taken)."
+          help={t("hostPortHelp")}
         >
           <OTextInput id="host_port" value={fields.host_port ?? ""} onChange={set("host_port")} placeholder="18090" />
         </OFormField>

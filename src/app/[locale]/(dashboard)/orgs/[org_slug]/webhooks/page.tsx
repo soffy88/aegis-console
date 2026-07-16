@@ -112,7 +112,7 @@ export default function WebhooksListPage() {
         <div>
           <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Outbound notifications for org-level events
+            {t("subtitle")}
           </p>
         </div>
         {canWrite && (
@@ -178,7 +178,7 @@ export default function WebhooksListPage() {
             <div className="grid grid-cols-2 gap-1 mt-1">
               {eventTypesLoading ? (
                 <span className="text-xs text-muted-foreground col-span-2">
-                  Loading event types…
+                  {t("loadingEventTypes")}
                 </span>
               ) : (
                 (eventTypesData?.event_types ?? []).map((et) => (
@@ -229,7 +229,7 @@ export default function WebhooksListPage() {
       {!data?.length ? (
         <OEmptyState
           title={t("empty")}
-          description="Create a webhook to receive notifications for org events"
+          description={t("emptyDescription")}
         />
       ) : (
         <OHighDensityTable<SubRow>
@@ -291,7 +291,7 @@ export default function WebhooksListPage() {
         <OConfirmDialog
           open
           title={t("deleteConfirm")}
-          description={`This will permanently delete "${deleteTarget.name}" and all its delivery history.`}
+          description={t("deleteDescription", { name: deleteTarget.name })}
           confirmLabel={tc("delete")}
           danger
           onConfirm={() => deleteMutation.mutate(deleteTarget.sub_id)}

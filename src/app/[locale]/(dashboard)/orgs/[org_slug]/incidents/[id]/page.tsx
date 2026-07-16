@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { OJsonViewer } from "@helios/blocks";
 import { aegisFetch } from "@/lib/api";
 import { paths } from "@/lib/api-paths";
@@ -40,6 +41,8 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function IncidentDetailPage() {
+  const t = useTranslations("incidents");
+  const tc = useTranslations("common");
   const { org_slug, id } = useParams<{ org_slug: string; id: string }>();
   const orgId = useOrgIdBySlug(org_slug);
   const queryClient = useQueryClient();
@@ -48,6 +51,7 @@ export default function IncidentDetailPage() {
     queryKey: ["incidents", orgId, id],
     queryFn: () => aegisFetch<IncidentDetail>(paths.incident(orgId!, id)),
     enabled: !!orgId,
+    refetchInterval: 15000,
   });
 
   const postmortem = useMutation({
@@ -61,7 +65,7 @@ export default function IncidentDetailPage() {
     },
   });
 
-  if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
+  if (isLoading) return <p className="text-muted-foreground">{tc("loading")}</p>;
   if (error) return <p className="text-destructive">{(error as Error).message}</p>;
   if (!data) return null;
 
@@ -71,8 +75,8 @@ export default function IncidentDetailPage() {
         <div>
           <h1 className="text-2xl font-bold">{data.title}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Started {new Date(data.started_at).toLocaleString()}
-            {data.resolved_at && ` · Resolved ${new Date(data.resolved_at).toLocaleString()}`}
+            {t("started", { time: new Date(data.started_at).toLocaleString() })}
+            {data.resolved_at && ` · ${t("resolved", { time: new Date(data.resolved_at).toLocaleString() })}`}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -87,17 +91,17 @@ export default function IncidentDetailPage() {
 
       <section>
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-semibold">Postmortem</h2>
+          <h2 className="text-lg font-semibold">{t("postmortem")}</h2>
           <button
             onClick={() => postmortem.mutate()}
             disabled={postmortem.isPending}
-            className="rounded bg-indigo-600 px-3 py-1.5 text-sm text-white hover:bg-indigo-700 disabled:opacity-50"
+            className="rounded bg-[var(--primary)] px-3 py-1.5 text-sm text-[var(--primary-foreground)] hover:opacity-90 disabled:opacity-50"
           >
             {postmortem.isPending
-              ? "Generating…"
+              ? t("generating")
               : data.postmortem_md
-              ? "Regenerate"
-              : "Generate"}
+              ? t("regenerate")
+              : t("generate")}
           </button>
         </div>
         {postmortem.isError && (
@@ -111,17 +115,17 @@ export default function IncidentDetailPage() {
           </pre>
         ) : (
           <p className="text-sm text-muted-foreground">
-            No postmortem yet. Click Generate to create one with AI.
+            {t("noPostmortem")}
           </p>
         )}
       </section>
 
       <section>
         <h2 className="mb-2 text-lg font-semibold">
-          Related Events ({data.events.length})
+          {t("relatedEvents", { n: data.events.length })}
         </h2>
         {data.events.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No correlated events.</p>
+          <p className="text-sm text-muted-foreground">{t("noEvents")}</p>
         ) : (
           <div className="space-y-2">
             {data.events.map((ev) => (
