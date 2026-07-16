@@ -203,7 +203,11 @@
     "releaseGates": "发布门控",
     "statTotal": "总数",
     "statProd": "生产",
-    "statOther": "其它"
+    "statOther": "其它",
+    "add": "新建项目",
+    "creating": "创建中…",
+    "slug": "标识 (slug)",
+    "slugHint": "仅限小写字母、数字和连字符"
   },
   "alertIngest": {
     "title": "告警接入调试",
